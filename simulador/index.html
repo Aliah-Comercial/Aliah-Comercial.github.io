@@ -1346,9 +1346,9 @@ function populateClientNarrative() {
   document.getElementById('cPlusvalia2').textContent = fM(totalPlusvalia);
   const multiPlusvalia = totalEnganche > 0 ? (totalPlusvalia / totalEnganche) : 0;
   document.getElementById('cMulti2').textContent = multiPlusvalia.toFixed(1) + 'x';
-  document.getElementById('cValHoy').textContent = fFull(totalPrecioFinal);
-  document.getElementById('cVal5').textContent = fFull(totalVal5);
-  document.getElementById('cVal10b').textContent = fFull(totalVal10);
+  document.getElementById('cValHoy').textContent = fM(totalPrecioFinal);
+  document.getElementById('cVal5').textContent = fM(totalVal5);
+  document.getElementById('cVal10b').textContent = fM(totalVal10);
 
   // Apalancamiento
   document.getElementById('cRentaTotal').textContent = fM(totalRentaMes) + '/mes';
@@ -1363,9 +1363,9 @@ function populateClientNarrative() {
   }
 
   // Resultado total
-  document.getElementById('cResInv').textContent = fFull(totalPrecioFinal);
-  document.getElementById('cResVal10').textContent = fFull(totalVal10);
-  document.getElementById('cResPlusvalia').textContent = '+' + fFull(totalPlusvalia);
+  document.getElementById('cResInv').textContent = fM(totalPrecioFinal);
+  document.getElementById('cResVal10').textContent = fM(totalVal10);
+  document.getElementById('cResPlusvalia').textContent = '+' + fM(totalPlusvalia);
   document.getElementById('cResTIR').textContent = (avgTIR*100).toFixed(1) + '%';
 
   // Escala section (show if 5+ units)
