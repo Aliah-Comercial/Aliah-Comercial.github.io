@@ -318,7 +318,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_edificio_01.jpg" alt="Edificio" loading="lazy" onerror="this.style.display='none'">
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/LUDOTECA%20RENDER%202.1%20copia.jpg" alt="Ludoteca" loading="lazy" onerror="this.style.display='none'">
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/CAFETER%C3%8DA.jpeg" alt="Cafeteria" loading="lazy" onerror="this.style.display='none'">
-    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_05.jpg" alt="Vista aerea" loading="lazy" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Foto_Dron_Real.jpg" alt="Vista aerea" loading="lazy" onerror="this.style.display='none'">
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/DJI_20250731111243_0128_D.jpg" alt="Vista aerea" loading="lazy" onerror="this.style.display='none'">
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_edificio_03.jpg" alt="Edificio" loading="lazy" onerror="this.style.display='none'">
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_edificio_05.jpg" alt="Edificio" loading="lazy" onerror="this.style.display='none'">
@@ -382,7 +382,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:20px">
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_01.jpg" alt="Avance de obra" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy" onerror="this.style.display='none'">
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_02.jpg" alt="Avance de obra" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy" onerror="this.style.display='none'">
-    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_05.jpg" alt="Avance de obra" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Foto_Dron_Real.jpg" alt="Avance de obra" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy" onerror="this.style.display='none'">
   </div>
 </div>
 
@@ -629,7 +629,7 @@ function renderTable() {
     const isSel=selectedUnits.has(u.unidad);
     const tag=(u.torre==='A'||u.torre==='B')?'<span class="tag-inm">Inmediata</span>':'<span class="tag-dev">'+u.entrega+'</span>';
     html+='<tr class="'+(isSel?'selected':'')+'" data-unit="'+u.unidad+'">';
-    html+='<td><input type="checkbox" class="chk-sel unit-chk" data-id="'+u.unidad+'" '+(isSel?'checked':'')+'></td>';
+    html+=window._clientMode?'':'<td><input type="checkbox" class="chk-sel unit-chk" data-id="'+u.unidad+'" '+(isSel?'checked':'')+'></td>';
     html+='<td class="hi">'+u.unidad+'</td><td>'+u.torre+'</td><td>'+u.proto+'</td>';
     html+='<td>'+u.m2_int.toFixed(1)+'</td><td style="text-align:right">$'+fmt(u.precio)+'</td>';
     html+='<td style="text-align:right;font-size:10px">$'+fmt(Math.round(u.val_m2))+'</td>';
@@ -638,7 +638,7 @@ function renderTable() {
     html+='<td><button class="sim-btn" onclick="openSim('+i+')">Simular</button></td></tr>';
   });
   body.innerHTML=html;
-  document.getElementById('countLabel').textContent=visible+' unidades';
+  document.getElementById('countLabel').textContent=visible+' unidades'+(window._clientMode?' seleccionadas para ti':'');
   updateShareBar();
   document.querySelectorAll('.unit-chk').forEach(chk=>{
     chk.addEventListener('change',e=>{
@@ -651,6 +651,7 @@ function renderTable() {
 }
 
 function matchesFilter(u) {
+  if(window._clientMode && !selectedUnits.has(u.unidad)) return false;
   if(filterTorre!=='all'&&u.torre!==filterTorre) return false;
   if(filterSearch) { const s=filterSearch.toLowerCase(); if(!u.unidad.toLowerCase().includes(s)&&!u.proto.toLowerCase().includes(s)) return false; }
   if(filterRec!=='all') { const pi=getProtoInfo(u.torre,u.proto); if(pi&&!pi.recamaras.includes(filterRec)) return false; }
@@ -679,7 +680,16 @@ function setupFilters() {
   });
 }
 
-function filterBySelected() { window._clientMode=true; renderTable(); }
+function filterBySelected() {
+  window._clientMode=true;
+  document.querySelector('.auth-bar').style.display='none';
+  document.getElementById('shareBar').style.display='none';
+  document.getElementById('selAll').closest('th').style.display='none';
+  document.querySelectorAll('#torreFilters').forEach(el=>el.style.display='none');
+  document.getElementById('searchInput').style.display='none';
+  document.getElementById('recFilter').style.display='none';
+  renderTable();
+}
 function updateShareBar() {
   document.getElementById('selCount').textContent=selectedUnits.size;
   document.getElementById('shareBar').classList.toggle('visible',selectedUnits.size>0);
