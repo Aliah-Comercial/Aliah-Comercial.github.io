@@ -283,9 +283,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="hero-inner">
     <div class="hero-kicker">Aliah Developments &middot; Studio R &middot; Junio 2026</div>
     <h1 class="hero-h">Tu proximo<br><b>portafolio inmobiliario</b></h1>
-    <p class="hero-p">206 departamentos disponibles en 5 torres. Entrega inmediata a febrero 2029. Cada unidad con planta, modelo financiero y proyección a 10 años.</p>
+    <p class="hero-p"><span id="heroCount">---</span> departamentos disponibles en 5 torres. Entrega inmediata a febrero 2029. Cada unidad con planta, modelo financiero y proyección a 10 años.</p>
     <div class="hero-stats">
-      <div class="hero-stat"><div class="hero-stat-v">206</div><div class="hero-stat-l">Unidades disponibles</div></div>
+      <div class="hero-stat"><div class="hero-stat-v" id="statUnidades">---</div><div class="hero-stat-l">Unidades disponibles</div></div>
       <div class="hero-stat"><div class="hero-stat-v">5</div><div class="hero-stat-l">Torres</div></div>
       <div class="hero-stat"><div class="hero-stat-v">6.93%</div><div class="hero-stat-l">Cap rate zona</div></div>
       <div class="hero-stat"><div class="hero-stat-v">+7%</div><div class="hero-stat-l">Plusvalía anual</div></div>
@@ -391,7 +391,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="sep"></div>
   <div class="kicker">Simulador de inversion</div>
   <h2 class="sec-h">Explora el <b>inventario completo</b></h2>
-  <p class="sec-p" style="margin-bottom:16px">206 departamentos en 5 torres. Filtra, selecciona y modela cada unidad.</p>
+  <p class="sec-p" style="margin-bottom:16px"><span id="simCount">---</span> departamentos en 5 torres. Filtra, selecciona y modela cada unidad.</p>
   <div class="filters" id="torreFilters">
     <button class="fbtn active" data-torre="all">Todas</button>
     <button class="fbtn" data-torre="A">Torre A</button>
@@ -466,7 +466,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="cta">
     <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;opacity:.7">Aliah Lomas Verdes</div>
     <div style="font-size:clamp(22px,4vw,30px);font-weight:700">Agenda tu presentacion personalizada</div>
-    <div style="font-size:14px;margin-top:8px;opacity:.8">206 departamentos disponibles. Modelador financiero en vivo.</div>
+    <div style="font-size:14px;margin-top:8px;opacity:.8"><span id="ctaCount">---</span> departamentos disponibles. Modelador financiero en vivo.</div>
     <a href="https://wa.me/5215570055934" class="cta-btn" target="_blank">Contactar por WhatsApp</a>
     <div style="font-size:12px;margin-top:12px;opacity:.6">ventas@aliah.mx &middot; 55 7005 5934 &middot; aliah.mx</div>
     <div style="font-size:11px;margin-top:4px;opacity:.5">Av. Lomas Verdes #77, Santa Cruz Acatlán, Naucalpan</div>
@@ -607,6 +607,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderTable();
   setupFilters();
   setupSliders();
+  updateCounts();
   // Check client mode
   const params = new URLSearchParams(window.location.search);
   const sel = params.get('u');
@@ -894,6 +895,15 @@ function saveAdminParams() {
   supabase.from('config').upsert({key:'params_financieros',value:P,updated_by:currentUser?.id}).then(()=>toast('Supuestos guardados'));
   closeAdmin();
   if(currentUnit) calcAndDisplay();
+}
+
+function updateCounts() {
+  const n = UNITS.length;
+  const el = (id) => document.getElementById(id);
+  if(el('statUnidades')) el('statUnidades').textContent = n;
+  if(el('heroCount')) el('heroCount').textContent = n;
+  if(el('simCount')) el('simCount').textContent = n;
+  if(el('ctaCount')) el('ctaCount').textContent = n;
 }
 </script>
 </body>
