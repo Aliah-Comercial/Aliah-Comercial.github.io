@@ -173,6 +173,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .admin-field input,.admin-field select{padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:var(--s2);color:var(--txt);font-family:inherit;font-size:13px}
 .admin-save{padding:8px 24px;border-radius:20px;border:none;background:var(--gold);color:var(--bg);font-family:inherit;font-weight:600;cursor:pointer;margin-top:16px}
 
+.rbox{background:linear-gradient(135deg,var(--gd),#353d25);border-radius:14px;padding:28px;text-align:center;margin:24px 0;border:1px solid rgba(196,169,106,.08)}
+.rbox-big{font-size:clamp(36px,7vw,52px);font-weight:800;color:var(--gold);line-height:1}
+.rbox-sub{font-size:13px;color:var(--t2);margin-top:6px}
 /* TOAST */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid rgba(196,169,106,.2);color:var(--gold);padding:8px 20px;border-radius:20px;font-size:12px;font-weight:500;z-index:400;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
@@ -297,7 +300,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="hero-bg" style="background-image:url('https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/RENDER%20ZOOM%20FINAL%20COPIA.jpg')"></div>
   <div class="hero-inner">
     <div class="hero-kicker">Aliah Developments &middot; Studio R &middot; Junio 2026</div>
-    <h1 class="hero-h">Tu proximo<br><b>portafolio inmobiliario</b></h1>
+    <h1 class="hero-h" id="heroH1">Tu próximo<br><b>portafolio inmobiliario</b></h1>
     <p class="hero-p"><span id="heroText">Departamentos disponibles en 5 torres. Entrega inmediata a febrero 2029. Cada unidad con planta, modelo financiero y proyección a 10 años.</span></p>
     <div class="hero-stats">
       <div class="hero-stat"><div class="hero-stat-v" id="statUnidades">---</div><div class="hero-stat-l" id="statUnidadesLabel">Unidades disponibles</div></div>
@@ -333,7 +336,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_edificio_01.jpg" alt="Edificio" loading="lazy" onerror="this.style.display='none'">
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/LUDOTECA%20RENDER%202.1%20copia.jpg" alt="Ludoteca" loading="lazy" onerror="this.style.display='none'">
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/CAFETER%C3%8DA.jpeg" alt="Cafeteria" loading="lazy" onerror="this.style.display='none'">
-    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_05.jpg?v=3" alt="Vista aerea" loading="lazy" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_05.jpg?v=2" alt="Vista aerea" loading="lazy" onerror="this.style.display='none'">
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/DJI_20250731111243_0128_D.jpg" alt="Vista aerea" loading="lazy" onerror="this.style.display='none'">
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_edificio_03.jpg" alt="Edificio" loading="lazy" onerror="this.style.display='none'">
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_edificio_05.jpg" alt="Edificio" loading="lazy" onerror="this.style.display='none'">
@@ -400,6 +403,161 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_05.jpg?v=2" alt="Avance de obra" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy">
   </div>
 </div>
+
+
+<!-- ======== CLIENT NARRATIVE (hidden by default, shown in client mode) ======== -->
+<div id="clientNarrative" style="display:none">
+
+  <!-- EQUITY: SKIN IN THE GAME -->
+  <div class="sec">
+    <div class="sep"></div>
+    <div class="kicker">Tu capital en juego</div>
+    <h2 class="sec-h">Primero, <b>lo que sale de tu bolsa</b></h2>
+    <p class="sec-p">Antes de hablar de créditos, hipotecas o rentas. Esto es tu equity. Tu piel en el juego. Lo que controla todo lo que viene después.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0">
+      <div class="mcard" style="border-color:rgba(196,169,106,.15)">
+        <div style="font-size:11px;color:var(--gold);font-weight:600;letter-spacing:1px;margin-bottom:8px">ENTREGA INMEDIATA (Torres A, B, C)</div>
+        <div style="font-size:28px;font-weight:700;color:var(--gold)">20 - 0 - 80</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:6px;line-height:1.5">20% enganche a la firma<br>Sin diferido<br>80% crédito hipotecario al escriturar</div>
+        <div style="font-size:11px;color:var(--grn2);margin-top:8px;font-weight:500">+ Devolución hipoteca hasta $300,000</div>
+      </div>
+      <div class="mcard" style="border-color:rgba(196,169,106,.15)">
+        <div style="font-size:11px;color:var(--gold);font-weight:600;letter-spacing:1px;margin-bottom:8px">PREVENTA (Torres D y E)</div>
+        <div style="font-size:28px;font-weight:700;color:var(--gold)">10 - 20 - 70</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:6px;line-height:1.5">10% enganche a la firma<br>20% diferido en mensualidades<br>70% crédito hipotecario al escriturar</div>
+        <div style="font-size:11px;color:var(--grn2);margin-top:8px;font-weight:500">Descuento financiero con mayor enganche</div>
+      </div>
+    </div>
+
+    <div class="rbox" style="background:var(--s2);border:1px solid rgba(196,169,106,.12);border-radius:14px;padding:28px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;text-align:center">
+        <div>
+          <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1px">Enganche estimado</div>
+          <div style="font-size:36px;font-weight:700;color:var(--gold);margin:6px 0" id="cEquity">---</div>
+          <div style="font-size:12px;color:var(--t2)">Lo que sale de tu bolsa</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1px">Activo que controlas</div>
+          <div style="font-size:36px;font-weight:700;margin:6px 0" id="cValorTotal">---</div>
+          <div style="font-size:12px;color:var(--t2)" id="cUnitCount">--- departamentos</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1px">Multiplicador</div>
+          <div style="font-size:36px;font-weight:700;color:var(--gold);margin:6px 0" id="cMultiplicador">---</div>
+          <div style="font-size:12px;color:var(--t2)">Cada peso tuyo controla más</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="promo" id="cPromoDevolucion" style="display:none">
+      <b id="cDevText">---</b>
+    </div>
+
+    <p style="font-size:13px;color:var(--t2);margin-top:16px" id="cEquityExplain"></p>
+  </div>
+
+  <!-- RENDER BREAK -->
+  <div style="max-width:860px;margin:0 auto;padding:0 24px 32px">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/RENDER%20ZOOM%20FINAL%20COPIA.jpg" alt="Detalle arquitectónico Aliah" style="width:100%;border-radius:12px" loading="lazy" onerror="this.style.display='none'">
+  </div>
+
+  <!-- WOW: RETORNO SOBRE EQUITY -->
+  <div class="sec">
+    <div class="sep"></div>
+    <div class="kicker">Retorno sobre tu capital</div>
+    <h2 class="sec-h">Con <b id="cWowEquity">---</b> controlas un portafolio<br>que vale <b id="cWowVal10">---</b> en 10 años</h2>
+    <p class="sec-p">Esta es la ventaja del real estate: no necesitas pagar el 100% para que el 100% del activo se aprecie. Tu equity trabaja apalancado desde el día uno.</p>
+
+    <div style="background:linear-gradient(135deg,var(--gd),#353d25);border-radius:14px;padding:28px;text-align:center;margin:24px 0;border:1px solid rgba(196,169,106,.08)">
+      <div style="font-size:11px;color:var(--t2);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Plusvalía capitalizada a 10 años</div>
+      <div style="font-size:clamp(36px,7vw,52px);font-weight:800;color:var(--gold);line-height:1" id="cPlusvalia">---</div>
+      <div style="font-size:13px;color:var(--t2);margin-top:6px">Solo plusvalía. Sin contar un peso de renta.</div>
+      <div style="margin-top:16px;font-size:14px;color:var(--t2)">Invertiste <b style="color:var(--gold)" id="cWowEquity2">---</b> de enganche &rarr; el activo se apreció <b style="color:var(--gold)" id="cPlusvalia2">---</b> &rarr; eso es <b style="color:var(--gold)" id="cMulti2">---</b> tu capital</div>
+    </div>
+
+    <div style="display:flex;justify-content:center;gap:32px;flex-wrap:wrap;margin:24px 0;text-align:center">
+      <div><div style="font-size:13px;color:var(--t3)">Hoy (c/desc.)</div><div style="font-size:24px;font-weight:700" id="cValHoy">---</div></div>
+      <div style="color:var(--t3);font-size:18px;align-self:center">&rarr;</div>
+      <div><div style="font-size:13px;color:var(--t3)">Año 5</div><div style="font-size:24px;font-weight:700;color:var(--grn2)" id="cVal5">---</div></div>
+      <div style="color:var(--t3);font-size:18px;align-self:center">&rarr;</div>
+      <div><div style="font-size:13px;color:var(--t3)">Año 10</div><div style="font-size:24px;font-weight:700;color:var(--gold)" id="cVal10b">---</div></div>
+    </div>
+
+    <p style="font-size:12px;color:var(--t3);text-align:center">Plusvalía 7% anual (EDM Monopolio 2026). Solo apreciación del activo.</p>
+  </div>
+
+  <!-- APALANCAMIENTO -->
+  <div class="sec">
+    <div class="sep"></div>
+    <div class="kicker">Apalancamiento</div>
+    <h2 class="sec-h">Ahora sí: <b>el crédito y la renta</b></h2>
+    <p class="sec-p">Cuando escrituras, el banco pone el 70-80%. Y el inquilino empieza a pagar tu deuda. Cada mes la renta amortiza un activo que ya se está apreciando.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0">
+      <div class="mcard" style="border-color:rgba(122,140,90,.2)">
+        <div class="mcard-v" style="color:var(--grn2)" id="cRentaTotal">---</div>
+        <div class="mcard-l">Renta total del paquete</div>
+        <div class="mcard-s" id="cRentaProm">--- promedio por unidad, crece ~5% anual</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-v" id="cHipTotal">---</div>
+        <div class="mcard-l">Hipoteca total estimada</div>
+        <div class="mcard-s" id="cHipDetalle">--- créditos a 10.5%, 20 años</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:16px;background:rgba(196,169,106,.06);border-radius:10px;margin:12px 0">
+      <div style="font-size:14px;color:var(--gold);font-weight:600" id="cFlujoLabel">Aportación mensual neta del portafolio: ---</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:4px">No es un gasto. Es capital que amortiza activos que se aprecian 7% anual, cada uno.</div>
+      <div style="font-size:13px;color:var(--grn2);margin-top:8px;font-weight:500">Con renta subiendo 5% anual e hipoteca fija, el cruce se acerca cada mes</div>
+    </div>
+
+    <div class="promo">
+      <b>Acelerador financiero:</b> El modelo está calculado a una tasa conservadora de 10.5%. Productos como <b>Scotiabank Valora</b> reducen tasa y plazo con pago puntual. Opciones como <b>BX+</b> (desde 9.25%) o <b>BBVA</b> (desde 9.15%) mejoran el flujo desde el primer mes. Combinado con la devolución de hipoteca de Aliah, el punto de equilibrio se adelanta significativamente. Tu asesor puede modelar el escenario con la tasa de tu banco.
+    </div>
+  </div>
+
+  <!-- RESULTADO TOTAL -->
+  <div class="sec">
+    <div class="sep"></div>
+    <div class="kicker">Resultado proyectado</div>
+    <h2 class="sec-h">El paquete completo a <b>10 años</b></h2>
+
+    <div style="background:linear-gradient(135deg,#2a3318,var(--gd));border-radius:14px;padding:28px;border:1px solid rgba(196,169,106,.08)">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:20px;text-align:center">
+        <div><div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:1px">Inversión</div><div style="font-size:32px;font-weight:700" id="cResInv">---</div></div>
+        <div><div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:1px">Valor año 10</div><div style="font-size:32px;font-weight:700;color:var(--gold)" id="cResVal10">---</div></div>
+        <div><div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:1px">Plusvalía capitalizada</div><div style="font-size:32px;font-weight:700;color:var(--grn2)" id="cResPlusvalia">---</div></div>
+        <div><div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:1px">TIR anualizada</div><div style="font-size:32px;font-weight:700;color:var(--gold)" id="cResTIR">---</div></div>
+      </div>
+      <div style="margin-top:16px;font-size:13px;color:var(--t2)">El capital crece en una década, con un activo tangible que protege contra la inflación y genera flujo mensual.</div>
+    </div>
+  </div>
+
+  <!-- VENTAJA DE ESCALA (only show if 5+ units) -->
+  <div class="sec" id="cEscalaSection" style="display:none">
+    <div class="sep"></div>
+    <div class="kicker">Ventaja de escala</div>
+    <h2 class="sec-h">Comprar en volumen <b>no es comprar uno varias veces</b></h2>
+    <div class="mgrid">
+      <div class="mcard"><div class="mcard-v" id="cAhorro">---</div><div class="mcard-l">Ahorro por volumen</div><div class="mcard-s">Capturado desde la firma, antes de un peso de renta</div></div>
+      <div class="mcard"><div class="mcard-v" id="cTorresCount">---</div><div class="mcard-l">Diversificación</div><div class="mcard-s">Prototipos y entregas distintas: riesgo repartido</div></div>
+      <div class="mcard"><div class="mcard-v">Escalonada</div><div class="mcard-l">Liquidez</div><div class="mcard-s">De inmediata a 2029: gestionas escrituras por etapas</div></div>
+      <div class="mcard"><div class="mcard-v">Doble salida</div><div class="mcard-l">Flexibilidad</div><div class="mcard-s">Renta el portafolio o vende por unidad en secundario</div></div>
+    </div>
+  </div>
+
+  <!-- TRANSITION TO SIMULATOR -->
+  <div class="sec">
+    <div class="sep"></div>
+    <div class="kicker">Personaliza tu escenario</div>
+    <h2 class="sec-h">Este es el panorama base. <b>Ahora ajústalo a tu medida.</b></h2>
+    <p class="sec-p">Las cifras anteriores usan el esquema estándar por torre. Pero entre más capital aportes al inicio, mayor es el descuento financiero y mejor la TIR. Explora cada unidad, mueve los sliders y descubre tu escenario óptimo.</p>
+  </div>
+
+</div>
+<!-- END CLIENT NARRATIVE -->
 
 <!-- SIMULADOR -->
 <div id="simulador">
@@ -720,6 +878,7 @@ function filterBySelected() {
   document.getElementById('recFilter').style.display='none';
   renderTable();
   updateCounts();
+  populateClientNarrative();
 }
 function updateShareBar() {
   document.getElementById('selCount').textContent=selectedUnits.size;
@@ -966,6 +1125,143 @@ function updateCounts() {
     if(el('simCount')) el('simCount').textContent = n;
     if(el('ctaCount')) el('ctaCount').textContent = n;
   }
+}
+
+
+// ======== CLIENT NARRATIVE CALCULATOR ========
+function populateClientNarrative() {
+  if(!window._clientMode) return;
+  document.getElementById('clientNarrative').style.display = 'block';
+
+  const selUnits = UNITS.filter(u => selectedUnits.has(u.unidad));
+  const n = selUnits.length;
+  if(n === 0) return;
+
+  const desc = window._clientDesc || 0;
+  const devEnabled = window._clientDev || false;
+
+  // Calculate totals
+  let totalPrecio = 0, totalPrecioDesc = 0, totalEnganche = 0, totalHip = 0;
+  let totalRentaMes = 0, totalHipMes = 0, totalTIR = 0;
+  let unitsABC = 0;
+  let torres = new Set();
+
+  const tasaMes = P.tasa_hip / 12;
+  const nPagos = P.plazo_hip * 12;
+
+  selUnits.forEach(u => {
+    const pd = u.precio * (1 - desc);
+    const eng = pd * (u.eng_def / 100);
+    const dif = pd * (u.dif_def / 100);
+    const hip = pd * (u.hip_def / 100);
+    const eq = eng + dif;
+    const rentaM = u.m2_int * P.renta_m2;
+    let pmtH = 0;
+    if(hip > 0 && tasaMes > 0) pmtH = hip * tasaMes * Math.pow(1+tasaMes, nPagos) / (Math.pow(1+tasaMes, nPagos) - 1);
+
+    totalPrecio += u.precio;
+    totalPrecioDesc += pd;
+    totalEnganche += eq;
+    totalHip += hip;
+    totalRentaMes += rentaM;
+    totalHipMes += pmtH;
+    torres.add(u.torre);
+    if(['A','B','C'].includes(u.torre)) unitsABC++;
+
+    // TIR per unit
+    const cfs = [-eq];
+    for(let y=1;y<=P.horizonte;y++){
+      const ra = rentaM*12*Math.pow(1+P.inc_renta,y-1);
+      const ha = pmtH*12;
+      let fa = ra - ha;
+      if(devEnabled && u.devolucion_ok && y<=2) fa += 150000;
+      if(y===P.horizonte){
+        const vt = pd*Math.pow(1+P.plusvalia,y);
+        let s=hip;for(let m=0;m<y*12&&s>0;m++){s-=(pmtH-s*tasaMes);}
+        fa += vt - Math.max(0,s);
+      }
+      cfs.push(fa);
+    }
+    totalTIR += calcIRR(cfs);
+  });
+
+  const avgTIR = totalTIR / n;
+  const totalVal5 = totalPrecioDesc * Math.pow(1+P.plusvalia, 5);
+  const totalVal10 = totalPrecioDesc * Math.pow(1+P.plusvalia, P.horizonte);
+  const totalPlusvalia = totalVal10 - totalPrecioDesc;
+  const multiplicador = totalEnganche > 0 ? (totalPrecioDesc / totalEnganche) : 0;
+  const flujoNeto = totalRentaMes - totalHipMes;
+  const ahorro = totalPrecio - totalPrecioDesc;
+
+  const fM = (v) => {
+    if(Math.abs(v)>=1e6) return '$'+(v/1e6).toFixed(1)+'M';
+    if(Math.abs(v)>=1e3) return '$'+Math.round(v/1e3)+'K';
+    return '$'+Math.round(v).toLocaleString('es-MX');
+  };
+
+  // Populate hero stats for client mode
+  document.getElementById('statUnidades').textContent = Math.round(((461-UNITS.length)/461)*100)+'%';
+  document.getElementById('statUnidadesLabel').textContent = 'Vendido';
+
+  // Equity section
+  document.getElementById('cEquity').textContent = fM(totalEnganche);
+  document.getElementById('cValorTotal').textContent = fM(totalPrecioDesc);
+  document.getElementById('cUnitCount').textContent = n + ' departamentos';
+  document.getElementById('cMultiplicador').textContent = multiplicador.toFixed(0) + 'x';
+
+  // Devolucion promo
+  if(unitsABC > 0 && devEnabled) {
+    document.getElementById('cPromoDevolucion').style.display = 'block';
+    const devTotal = unitsABC * 300000;
+    document.getElementById('cDevText').innerHTML = 'Para las ' + unitsABC + ' unidades en Torres A, B y C: entrega inmediata o próxima. Aliah devuelve hasta <b>$300,000 por unidad</b> en pagos de hipoteca. Eso son hasta <b>' + fM(devTotal) + ' de devolución</b> aplicables como pago a capital.';
+  }
+
+  // Equity explain
+  const hasPreventa = selUnits.some(u=>['D','E'].includes(u.torre));
+  if(hasPreventa) {
+    document.getElementById('cEquityExplain').textContent = 'Para las unidades en preventa (Torres D y E), el enganche y diferido se pagan durante la construcción. Al escriturar, el banco pone el resto. Tu equity trabaja desde el día uno capturando plusvalía de obra.';
+  }
+
+  // WOW section
+  document.getElementById('cWowEquity').textContent = fM(totalEnganche);
+  document.getElementById('cWowVal10').textContent = fM(totalVal10);
+  document.getElementById('cPlusvalia').textContent = '+' + fM(totalPlusvalia);
+  document.getElementById('cWowEquity2').textContent = fM(totalEnganche);
+  document.getElementById('cPlusvalia2').textContent = fM(totalPlusvalia);
+  const multiPlusvalia = totalEnganche > 0 ? (totalPlusvalia / totalEnganche) : 0;
+  document.getElementById('cMulti2').textContent = multiPlusvalia.toFixed(1) + 'x';
+  document.getElementById('cValHoy').textContent = fM(totalPrecioDesc);
+  document.getElementById('cVal5').textContent = fM(totalVal5);
+  document.getElementById('cVal10b').textContent = fM(totalVal10);
+
+  // Apalancamiento
+  document.getElementById('cRentaTotal').textContent = fM(totalRentaMes) + '/mes';
+  document.getElementById('cRentaProm').textContent = fM(Math.round(totalRentaMes/n)) + ' promedio por unidad, crece ~5% anual';
+  document.getElementById('cHipTotal').textContent = fM(totalHipMes) + '/mes';
+  document.getElementById('cHipDetalle').textContent = n + ' créditos a ' + (P.tasa_hip*100).toFixed(1) + '%, ' + P.plazo_hip + ' años';
+  const flujoAbs = Math.abs(flujoNeto);
+  if(flujoNeto >= 0) {
+    document.getElementById('cFlujoLabel').textContent = 'Flujo neto positivo del portafolio: +' + fM(flujoNeto) + '/mes';
+  } else {
+    document.getElementById('cFlujoLabel').textContent = 'Aportación mensual neta del portafolio: ~' + fM(flujoAbs);
+  }
+
+  // Resultado total
+  document.getElementById('cResInv').textContent = fM(totalPrecioDesc);
+  document.getElementById('cResVal10').textContent = fM(totalVal10);
+  document.getElementById('cResPlusvalia').textContent = '+' + fM(totalPlusvalia);
+  document.getElementById('cResTIR').textContent = (avgTIR*100).toFixed(1) + '%';
+
+  // Escala section (show if 5+ units)
+  if(n >= 5) {
+    document.getElementById('cEscalaSection').style.display = 'block';
+    document.getElementById('cAhorro').textContent = fM(ahorro);
+    document.getElementById('cTorresCount').textContent = torres.size + ' torres';
+  }
+
+  // Update hero text for client
+  document.getElementById('heroH1').innerHTML = 'Oportunidad de<br><b>inversión patrimonial</b>';
+  document.getElementById('heroText').textContent = n + ' departamentos en el proyecto más premiado de la zona metropolitana. Cada unidad con planta, modelo financiero y proyección a 10 años.';
 }
 
 // ======== MAPPEN IMPORT ========
