@@ -395,9 +395,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="kicker">Avance real de obra</div>
   <h2 class="sec-h">Torres A y B entregadas, <b>Torre C en acabados</b></h2>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:20px">
-    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_01.jpg" alt="Avance de obra" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy" onerror="this.style.display='none'">
-    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_02.jpg" alt="Avance de obra" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy" onerror="this.style.display='none'">
-    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Foto_Dron_Real.jpg" alt="Avance de obra" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_01.jpg" alt="Avance de obra" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_02.jpg" alt="Avance de obra" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Foto_Dron_Real.jpg" alt="Avance de obra" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy">
   </div>
 </div>
 
@@ -739,8 +739,9 @@ function openSim(idx) {
   document.getElementById('sliderDif').value=u.dif_def;
   document.getElementById('simDesc').value=window._clientDesc||0;
   document.getElementById('simDescReason').value=window._clientMotivo||'';
-  document.getElementById('chkDev').checked=window._clientDev&&u.devolucion_ok||false;
-  document.getElementById('devRow').style.display=u.devolución_ok?'flex':'none';
+  document.getElementById('chkDev').checked=(window._clientDev && u.devolucion_ok) || false;
+  const showDev = u.devolucion_ok;
+  document.getElementById('devRow').style.display=showDev?'flex':'none';
   const difG=document.getElementById('difGroup');
   if(u.meses_dif===0) { difG.style.opacity='.3'; document.getElementById('sliderDif').disabled=true; document.getElementById('sliderDif').value=0; }
   else { difG.style.opacity='1'; document.getElementById('sliderDif').disabled=false; }
@@ -787,7 +788,7 @@ function calcAndDisplay() {
   const rentaMes=u.m2_int*P.renta_m2;
   const capRate=(rentaMes*12)/precioDesc;
   let flujoNeto=rentaMes-pmtHip;
-  const devolución=document.getElementById('chkDev').checked&&u.devolución_ok;
+  const devolución=document.getElementById('chkDev').checked&&u.devolucion_ok;
   if(devolución) flujoNeto+=300000/24;
   const val5=precioDesc*Math.pow(1+P.plusvalía,5);
   const val10=precioDesc*Math.pow(1+P.plusvalía,P.horizonte);
