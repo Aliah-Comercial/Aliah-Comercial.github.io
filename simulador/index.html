@@ -454,6 +454,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <b id="cDevText">---</b>
     </div>
 
+    <div class="promo" id="cDescFinanciero" style="display:none;border-color:rgba(196,169,106,.2);background:rgba(196,169,106,.08)">
+      <b id="cDescFinText" style="color:var(--gold)">---</b>
+    </div>
+
     <p style="font-size:13px;color:var(--t2);margin-top:16px" id="cEquityExplain"></p>
   </div>
 
@@ -1159,12 +1163,38 @@ function populateClientNarrative() {
   const n = selUnits.length;
   if(n === 0) return;
 
-  const desc = window._clientDesc || 0;
+  const desc = (window._clientDesc || 0) / 100;
   const devEnabled = window._clientDev || false;
 
+  // Descuento financiero model (from Ramón's Excel)
+  // Tasa: 8.7% anual. Base plan: 5% eng. D: 10% dif/25mo. E: 15% dif/31mo.
+  // Savings = interest on excess enganche + compound interest on excess monthly payments
+  const TASA_DF = 0.087;
+  const TASA_DF_MES = TASA_DF / 12;
+  const BASE_DE = { D: {eng:0.05, dif:0.10, meses:25}, E: {eng:0.05, dif:0.15, meses:31} };
+
+  function calcDescFinanciero(precio, torre, engPct, difPct) {
+    const base = BASE_DE[torre];
+    if(!base) return 0;
+    const meses = base.meses;
+    // 1. Enganche excess savings (simple interest over N months)
+    const excessEng = Math.max(0, engPct - base.eng) * precio;
+    const savingsEng = excessEng * TASA_DF_MES * meses;
+    // 2. Monthly excess savings (compound interest on each excess payment)
+    const monthlyBase = precio * base.dif / meses;
+    const monthlyProp = precio * difPct / meses;
+    const monthlyExcess = Math.max(0, monthlyProp - monthlyBase);
+    let savingsMonthly = 0;
+    for(let m = 1; m <= meses; m++) {
+      const remaining = meses - m;
+      savingsMonthly += monthlyExcess * (Math.pow(1 + TASA_DF_MES, remaining) - 1);
+    }
+    return savingsEng + savingsMonthly;
+  }
+
   // Calculate totals
-  let totalPrecio = 0, totalPrecioDesc = 0, totalEnganche = 0, totalHip = 0;
-  let totalRentaMes = 0, totalHipMes = 0, totalTIR = 0;
+  let totalPrecio = 0, totalPrecioDesc = 0, totalPrecioFinal = 0, totalEnganche = 0, totalHip = 0;
+  let totalRentaMes = 0, totalHipMes = 0, totalTIR = 0, totalDescFin = 0;
   let unitsABC = 0;
   let torres = new Set();
 
@@ -1173,9 +1203,17 @@ function populateClientNarrative() {
 
   selUnits.forEach(u => {
     const pd = u.precio * (1 - desc);
-    const eng = pd * (u.eng_def / 100);
-    const dif = pd * (u.dif_def / 100);
-    const hip = pd * (u.hip_def / 100);
+    const engPct = u.eng_def / 100;
+    const difPct = u.dif_def / 100;
+    const hipPct = u.hip_def / 100;
+
+    // Descuento financiero for D/E
+    const df = (['D','E'].includes(u.torre)) ? calcDescFinanciero(pd, u.torre, engPct, difPct) : 0;
+    const pf = pd - df; // precio final after both discounts
+
+    const eng = pf * engPct;
+    const dif = pf * difPct;
+    const hip = pf * hipPct;
     const eq = eng + dif;
     const rentaM = u.m2_int * P.renta_m2;
     let pmtH = 0;
@@ -1183,6 +1221,8 @@ function populateClientNarrative() {
 
     totalPrecio += u.precio;
     totalPrecioDesc += pd;
+    totalPrecioFinal += pf;
+    totalDescFin += df;
     totalEnganche += eq;
     totalHip += hip;
     totalRentaMes += rentaM;
@@ -1190,7 +1230,7 @@ function populateClientNarrative() {
     torres.add(u.torre);
     if(['A','B','C'].includes(u.torre)) unitsABC++;
 
-    // TIR per unit
+    // TIR per unit (use precio final)
     const cfs = [-eq];
     for(let y=1;y<=P.horizonte;y++){
       const ra = rentaM*12*Math.pow(1+P.inc_renta,y-1);
@@ -1198,7 +1238,7 @@ function populateClientNarrative() {
       let fa = ra - ha;
       if(devEnabled && u.devolucion_ok && y<=2) fa += 150000;
       if(y===P.horizonte){
-        const vt = pd*Math.pow(1+P.plusvalía,y);
+        const vt = pf*Math.pow(1+P.plusvalía,y);
         let s=hip;for(let m=0;m<y*12&&s>0;m++){s-=(pmtH-s*tasaMes);}
         fa += vt - Math.max(0,s);
       }
@@ -1208,17 +1248,18 @@ function populateClientNarrative() {
   });
 
   const avgTIR = totalTIR / n;
-  const totalVal5 = totalPrecioDesc * Math.pow(1+P.plusvalía, 5);
-  const totalVal10 = totalPrecioDesc * Math.pow(1+P.plusvalía, P.horizonte);
-  const totalPlusvalia = totalVal10 - totalPrecioDesc;
-  const multiplicador = totalEnganche > 0 ? (totalPrecioDesc / totalEnganche) : 0;
+  const totalVal5 = totalPrecioFinal * Math.pow(1+P.plusvalía, 5);
+  const totalVal10 = totalPrecioFinal * Math.pow(1+P.plusvalía, P.horizonte);
+  const totalPlusvalia = totalVal10 - totalPrecioFinal;
+  const multiplicador = totalEnganche > 0 ? Math.round(totalPrecioFinal / totalEnganche) : 0;
   const flujoNeto = totalRentaMes - totalHipMes;
-  const ahorro = totalPrecio - totalPrecioDesc;
+  const ahorro = totalPrecio - totalPrecioFinal;
 
   const fM = (v) => {
-    if(Math.abs(v)>=1e6) return '$'+(v/1e6).toFixed(1)+'M';
-    if(Math.abs(v)>=1e3) return '$'+Math.round(v/1e3)+'K';
-    return '$'+Math.round(v).toLocaleString('es-MX');
+    const a = Math.abs(v);
+    if(a>=1e6) return '$'+(a/1e6).toFixed(1)+'M';
+    if(a>=1e3) return '$'+Math.round(a/1e3)+'K';
+    return '$'+Math.round(a).toLocaleString('es-MX');
   };
 
   // Populate hero stats for client mode
@@ -1227,9 +1268,9 @@ function populateClientNarrative() {
 
   // Equity section
   document.getElementById('cEquity').textContent = fM(totalEnganche);
-  document.getElementById('cValorTotal').textContent = fM(totalPrecioDesc);
+  document.getElementById('cValorTotal').textContent = fM(totalPrecioFinal);
   document.getElementById('cUnitCount').textContent = n + ' departamentos';
-  document.getElementById('cMultiplicador').textContent = multiplicador.toFixed(0) + 'x';
+  document.getElementById('cMultiplicador').textContent = multiplicador + 'x';
 
   // Dynamic esquema for D/E
   const hasDEunits = selUnits.some(u=>['D','E'].includes(u.torre));
@@ -1259,6 +1300,15 @@ function populateClientNarrative() {
     document.getElementById('cDevText').innerHTML = 'Para las ' + unitsABC + ' unidades en Torres A, B y C: entrega inmediata o próxima. Aliah devuelve hasta <b>$300,000 por unidad</b> en pagos de hipoteca. Eso son hasta <b>' + fM(devTotal) + ' de devolución</b> aplicables como pago a capital.';
   }
 
+  // Descuento financiero D/E display
+  if(totalDescFin > 0) {
+    const dfEl = document.getElementById('cDescFinanciero');
+    if(dfEl) {
+      dfEl.style.display = 'block';
+      document.getElementById('cDescFinText').innerHTML = 'Tu esquema de pago genera un <b>descuento financiero de ' + fM(totalDescFin) + '</b> sobre las unidades en preventa. A mayor enganche y diferido, mayor el ahorro por intereses que se traduce en menor precio final. Tasa de referencia: 8.7% anual.';
+    }
+  }
+
   // Equity explain
   const hasPreventa = selUnits.some(u=>['D','E'].includes(u.torre));
   if(hasPreventa) {
@@ -1273,7 +1323,7 @@ function populateClientNarrative() {
   document.getElementById('cPlusvalia2').textContent = fM(totalPlusvalia);
   const multiPlusvalia = totalEnganche > 0 ? (totalPlusvalia / totalEnganche) : 0;
   document.getElementById('cMulti2').textContent = multiPlusvalia.toFixed(1) + 'x';
-  document.getElementById('cValHoy').textContent = fM(totalPrecioDesc);
+  document.getElementById('cValHoy').textContent = fM(totalPrecioFinal);
   document.getElementById('cVal5').textContent = fM(totalVal5);
   document.getElementById('cVal10b').textContent = fM(totalVal10);
 
@@ -1290,7 +1340,7 @@ function populateClientNarrative() {
   }
 
   // Resultado total
-  document.getElementById('cResInv').textContent = fM(totalPrecioDesc);
+  document.getElementById('cResInv').textContent = fM(totalPrecioFinal);
   document.getElementById('cResVal10').textContent = fM(totalVal10);
   document.getElementById('cResPlusvalia').textContent = '+' + fM(totalPlusvalia);
   document.getElementById('cResTIR').textContent = (avgTIR*100).toFixed(1) + '%';
