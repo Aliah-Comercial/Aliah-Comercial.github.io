@@ -283,9 +283,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="hero-inner">
     <div class="hero-kicker">Aliah Developments &middot; Studio R &middot; Junio 2026</div>
     <h1 class="hero-h">Tu proximo<br><b>portafolio inmobiliario</b></h1>
-    <p class="hero-p"><span id="heroCount">---</span> departamentos disponibles en 5 torres. Entrega inmediata a febrero 2029. Cada unidad con planta, modelo financiero y proyección a 10 años.</p>
+    <p class="hero-p"><span id="heroText">Departamentos disponibles en 5 torres. Entrega inmediata a febrero 2029. Cada unidad con planta, modelo financiero y proyección a 10 años.</span></p>
     <div class="hero-stats">
-      <div class="hero-stat"><div class="hero-stat-v" id="statUnidades">---</div><div class="hero-stat-l">Unidades disponibles</div></div>
+      <div class="hero-stat"><div class="hero-stat-v" id="statUnidades">---</div><div class="hero-stat-l" id="statUnidadesLabel">Unidades disponibles</div></div>
       <div class="hero-stat"><div class="hero-stat-v">5</div><div class="hero-stat-l">Torres</div></div>
       <div class="hero-stat"><div class="hero-stat-v">6.93%</div><div class="hero-stat-l">Cap rate zona</div></div>
       <div class="hero-stat"><div class="hero-stat-v">+7%</div><div class="hero-stat-l">Plusvalía anual</div></div>
@@ -421,7 +421,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 <!-- SHARE BAR -->
 <div class="share-bar" id="shareBar">
   <div class="share-count"><b id="selCount">0</b> unidades seleccionadas</div>
-  <button class="share-btn" onclick="generateClientLink()">Generar link para cliente</button>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <input type="number" id="shareDesc" value="0" min="0" max="30" step="1" style="width:45px;padding:4px 6px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--gold);font-family:inherit;font-size:12px;text-align:right" title="Descuento %">
+    <span style="font-size:11px;color:var(--t3)">%</span>
+    <input type="text" id="shareMotivo" placeholder="Motivo desc." style="width:120px;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--t2);font-family:inherit;font-size:11px">
+    <label style="font-size:10px;color:var(--t2);display:flex;align-items:center;gap:4px"><input type="checkbox" id="shareDev" style="accent-color:var(--gold)"> Dev. $300K</label>
+    <button class="share-btn" onclick="generateClientLink()">Generar link</button>
+  </div>
 </div>
 
 <!-- SIMULATOR OVERLAY -->
@@ -611,7 +617,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Check client mode
   const params = new URLSearchParams(window.location.search);
   const sel = params.get('u');
-  if(sel) { sel.split(',').forEach(id=>selectedUnits.add(id)); filterBySelected(); }
+  if(sel) {
+    sel.split(',').forEach(id=>selectedUnits.add(id));
+    window._clientDesc = parseFloat(params.get('desc'))||0;
+    window._clientMotivo = params.get('motivo')||'';
+    window._clientDev = params.get('dev')==='1';
+    filterBySelected();
+  }
 });
 
 // ======== TABLE ========
@@ -689,6 +701,7 @@ function filterBySelected() {
   document.getElementById('searchInput').style.display='none';
   document.getElementById('recFilter').style.display='none';
   renderTable();
+  updateCounts();
 }
 function updateShareBar() {
   document.getElementById('selCount').textContent=selectedUnits.size;
@@ -706,9 +719,9 @@ function openSim(idx) {
   else plantaDiv.innerHTML='<div class="sim-planta-none">Planta no disponible para prototipo '+u.proto+'</div>';
   document.getElementById('sliderEng').value=u.eng_def;
   document.getElementById('sliderDif').value=u.dif_def;
-  document.getElementById('simDesc').value=0;
-  document.getElementById('simDescReason').value='';
-  document.getElementById('chkDev').checked=false;
+  document.getElementById('simDesc').value=window._clientDesc||0;
+  document.getElementById('simDescReason').value=window._clientMotivo||'';
+  document.getElementById('chkDev').checked=window._clientDev&&u.devolucion_ok||false;
   document.getElementById('devRow').style.display=u.devolución_ok?'flex':'none';
   const difG=document.getElementById('difGroup');
   if(u.meses_dif===0) { difG.style.opacity='.3'; document.getElementById('sliderDif').disabled=true; document.getElementById('sliderDif').value=0; }
@@ -822,7 +835,13 @@ function generateClientLink() {
   if(selectedUnits.size===0) return;
   const ids=Array.from(selectedUnits).join(',');
   const baseUrl=window.location.origin+window.location.pathname;
-  const link=baseUrl+'?u='+encodeURIComponent(ids);
+  let link=baseUrl+'?u='+encodeURIComponent(ids);
+  const desc=document.getElementById('shareDesc').value;
+  const motivo=document.getElementById('shareMotivo').value;
+  const dev=document.getElementById('shareDev').checked;
+  if(desc && parseFloat(desc)>0) link+='&desc='+desc;
+  if(motivo) link+='&motivo='+encodeURIComponent(motivo);
+  if(dev) link+='&dev=1';
   navigator.clipboard.writeText(link).then(()=>{
     toast('Link copiado al portapapeles');
     saveLinkGenerated(link);
@@ -909,11 +928,23 @@ function saveAdminParams() {
 
 function updateCounts() {
   const n = UNITS.length;
+  const totalDeptos = 461;
+  const vendidos = totalDeptos - n;
+  const pctVendido = Math.round((vendidos/totalDeptos)*100);
   const el = (id) => document.getElementById(id);
-  if(el('statUnidades')) el('statUnidades').textContent = n;
-  if(el('heroCount')) el('heroCount').textContent = n;
-  if(el('simCount')) el('simCount').textContent = n;
-  if(el('ctaCount')) el('ctaCount').textContent = n;
+  if(window._clientMode) {
+    const sel = selectedUnits.size;
+    if(el('statUnidades')) el('statUnidades').textContent = pctVendido+'%';
+    if(el('statUnidadesLabel')) el('statUnidadesLabel').textContent = 'Vendido';
+    if(el('heroText')) el('heroText').textContent = 'Departamentos disponibles en 5 torres. Entrega inmediata o entrega en 2029. Cada unidad con planta, modelo financiero y proyección a 10 años.';
+    if(el('simCount')) el('simCount').textContent = sel;
+    if(el('ctaCount')) el('ctaCount').textContent = sel;
+  } else {
+    if(el('statUnidades')) el('statUnidades').textContent = n;
+    if(el('heroText')) el('heroText').textContent = n+' departamentos disponibles en 5 torres. Entrega inmediata a febrero 2029. Cada unidad con planta, modelo financiero y proyección a 10 años.';
+    if(el('simCount')) el('simCount').textContent = n;
+    if(el('ctaCount')) el('ctaCount').textContent = n;
+  }
 }
 </script>
 </body>
