@@ -306,7 +306,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="hero-stat"><div class="hero-stat-v" id="statUnidades">---</div><div class="hero-stat-l" id="statUnidadesLabel">Unidades disponibles</div></div>
       <div class="hero-stat"><div class="hero-stat-v">5</div><div class="hero-stat-l">Torres</div></div>
       <div class="hero-stat"><div class="hero-stat-v">6.93%</div><div class="hero-stat-l">Cap rate zona</div></div>
-      <div class="hero-stat"><div class="hero-stat-v">+7%</div><div class="hero-stat-l">Plusvalía anual</div></div>
+      <div class="hero-stat"><div class="hero-stat-v">+7%</div><div class="hero-stat-l">Plusvalía último año</div></div>
     </div>
   </div>
 </section>
@@ -350,7 +350,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <h2 class="sec-h">La zona habla <b>por si sola</b></h2>
   <div class="mgrid">
     <div class="mcard"><div class="mcard-v">6.93%</div><div class="mcard-l">Cap rate zona</div><div class="mcard-s">Vivienda nueva Lomas Verdes (Monopolio 2026)</div></div>
-    <div class="mcard"><div class="mcard-v">+7%</div><div class="mcard-l">Plusvalía anual</div><div class="mcard-s">Histórico zona ult. 10 años (EDM Monopolio)</div></div>
+    <div class="mcard"><div class="mcard-v">+7%</div><div class="mcard-l">Plusvalía último año</div><div class="mcard-s">Mzo 2025 - Mzo 2026 (EDM Monopolio). Acum. +35% desde 2022</div></div>
     <div class="mcard"><div class="mcard-v">30+</div><div class="mcard-l">Amenidades</div><div class="mcard-s">Alberca, gym, spa, ludoteca, roof garden, más</div></div>
     <div class="mcard"><div class="mcard-v">10 min</div><div class="mcard-l">A Polanco</div><div class="mcard-s">Conectividad directa por Periférico</div></div>
   </div>
@@ -424,8 +424,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       </div>
       <div class="mcard" style="border-color:rgba(196,169,106,.15)">
         <div style="font-size:11px;color:var(--gold);font-weight:600;letter-spacing:1px;margin-bottom:8px">PREVENTA (Torres D y E)</div>
-        <div style="font-size:28px;font-weight:700;color:var(--gold)">10 - 20 - 70</div>
-        <div style="font-size:12px;color:var(--t2);margin-top:6px;line-height:1.5">10% enganche a la firma<br>20% diferido en mensualidades<br>70% crédito hipotecario al escriturar</div>
+        <div style="font-size:28px;font-weight:700;color:var(--gold)" id="cEsquemaDE">10 - 20 - 70</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:6px;line-height:1.5" id="cEsquemaDEdetail">10% enganche a la firma<br>20% diferido en mensualidades<br>70% crédito hipotecario al escriturar</div>
         <div style="font-size:11px;color:var(--grn2);margin-top:8px;font-weight:500">Descuento financiero con mayor enganche</div>
       </div>
     </div>
@@ -484,7 +484,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div><div style="font-size:13px;color:var(--t3)">Año 10</div><div style="font-size:24px;font-weight:700;color:var(--gold)" id="cVal10b">---</div></div>
     </div>
 
-    <p style="font-size:12px;color:var(--t3);text-align:center">Plusvalía 7% anual (EDM Monopolio 2026). Solo apreciación del activo.</p>
+    <p style="font-size:12px;color:var(--t3);text-align:center">Plusvalía 7% último año (Monopolio mzo 2025 - mzo 2026). Acumulada +35% desde lanzamiento en 2022. Solo apreciación del activo.</p>
   </div>
 
   <!-- APALANCAMIENTO -->
@@ -599,6 +599,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <span style="font-size:11px;color:var(--t3)">%</span>
     <input type="text" id="shareMotivo" placeholder="Motivo desc." style="width:120px;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--t2);font-family:inherit;font-size:11px">
     <label style="font-size:10px;color:var(--t2);display:flex;align-items:center;gap:4px"><input type="checkbox" id="shareDev" style="accent-color:var(--gold)"> Dev. $300K</label>
+    <span style="font-size:10px;color:var(--t3);border-left:1px solid rgba(255,255,255,.12);padding-left:8px;margin-left:4px">D/E:</span>
+    <input type="number" id="shareEngDE" value="10" min="5" max="50" step="1" style="width:38px;padding:4px 4px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--gold);font-family:inherit;font-size:11px;text-align:right" title="Enganche D/E %">
+    <span style="font-size:10px;color:var(--t3)">%eng</span>
+    <input type="number" id="shareDifDE" value="20" min="0" max="50" step="1" style="width:38px;padding:4px 4px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--gold);font-family:inherit;font-size:11px;text-align:right" title="Diferido D/E %">
+    <span style="font-size:10px;color:var(--t3)">%dif</span>
     <button class="share-btn" onclick="generateClientLink()">Generar link</button>
   </div>
 </div>
@@ -798,6 +803,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     window._clientDesc = parseFloat(params.get('desc'))||0;
     window._clientMotivo = params.get('motivo')||'';
     window._clientDev = params.get('dev')==='1';
+    window._clientEngDE = parseInt(params.get('engDE'))||10;
+    window._clientDifDE = parseInt(params.get('difDE'))||20;
+    // Apply custom eng/dif to D/E units
+    const customEngDE = window._clientEngDE;
+    const customDifDE = window._clientDifDE;
+    const customHipDE = 100 - customEngDE - customDifDE;
+    UNITS.forEach(u => {
+      if(u.torre==='D'||u.torre==='E') {
+        u.eng_def = customEngDE;
+        u.dif_def = customDifDE;
+        u.hip_def = customHipDE;
+      }
+    });
     filterBySelected();
   }
 });
@@ -1019,9 +1037,13 @@ function generateClientLink() {
   const desc=document.getElementById('shareDesc').value;
   const motivo=document.getElementById('shareMotivo').value;
   const dev=document.getElementById('shareDev').checked;
+  const engDE=document.getElementById('shareEngDE').value;
+  const difDE=document.getElementById('shareDifDE').value;
   if(desc && parseFloat(desc)>0) link+='&desc='+desc;
   if(motivo) link+='&motivo='+encodeURIComponent(motivo);
   if(dev) link+='&dev=1';
+  if(engDE && parseInt(engDE)!==10) link+='&engDE='+engDE;
+  if(difDE && parseInt(difDE)!==20) link+='&difDE='+difDE;
   navigator.clipboard.writeText(link).then(()=>{
     toast('Link copiado al portapapeles');
     saveLinkGenerated(link);
@@ -1176,7 +1198,7 @@ function populateClientNarrative() {
       let fa = ra - ha;
       if(devEnabled && u.devolucion_ok && y<=2) fa += 150000;
       if(y===P.horizonte){
-        const vt = pd*Math.pow(1+P.plusvalia,y);
+        const vt = pd*Math.pow(1+P.plusvalía,y);
         let s=hip;for(let m=0;m<y*12&&s>0;m++){s-=(pmtH-s*tasaMes);}
         fa += vt - Math.max(0,s);
       }
@@ -1186,8 +1208,8 @@ function populateClientNarrative() {
   });
 
   const avgTIR = totalTIR / n;
-  const totalVal5 = totalPrecioDesc * Math.pow(1+P.plusvalia, 5);
-  const totalVal10 = totalPrecioDesc * Math.pow(1+P.plusvalia, P.horizonte);
+  const totalVal5 = totalPrecioDesc * Math.pow(1+P.plusvalía, 5);
+  const totalVal10 = totalPrecioDesc * Math.pow(1+P.plusvalía, P.horizonte);
   const totalPlusvalia = totalVal10 - totalPrecioDesc;
   const multiplicador = totalEnganche > 0 ? (totalPrecioDesc / totalEnganche) : 0;
   const flujoNeto = totalRentaMes - totalHipMes;
@@ -1208,6 +1230,27 @@ function populateClientNarrative() {
   document.getElementById('cValorTotal').textContent = fM(totalPrecioDesc);
   document.getElementById('cUnitCount').textContent = n + ' departamentos';
   document.getElementById('cMultiplicador').textContent = multiplicador.toFixed(0) + 'x';
+
+  // Dynamic esquema for D/E
+  const hasDEunits = selUnits.some(u=>['D','E'].includes(u.torre));
+  if(hasDEunits) {
+    const eDE = window._clientEngDE || 10;
+    const dDE = window._clientDifDE || 20;
+    const hDE = 100 - eDE - dDE;
+    document.getElementById('cEsquemaDE').textContent = eDE + ' - ' + dDE + ' - ' + hDE;
+    // Compute avg meses_dif for D/E units in the package
+    const deUnits = selUnits.filter(u=>['D','E'].includes(u.torre));
+    const avgMeses = deUnits.length > 0 ? Math.round(deUnits.reduce((s,u)=>s+u.meses_dif,0)/deUnits.length) : 26;
+    const mensualidadPct = dDE > 0 ? (dDE / avgMeses).toFixed(1) : '0';
+    let detailText = eDE + '% enganche a la firma';
+    if(dDE > 0) {
+      detailText += '<br>' + dDE + '% diferido (~' + mensualidadPct + '% mensual por ' + avgMeses + ' meses)';
+    } else {
+      detailText += '<br>Sin diferido';
+    }
+    detailText += '<br>' + hDE + '% crédito hipotecario al escriturar';
+    document.getElementById('cEsquemaDEdetail').innerHTML = detailText;
+  }
 
   // Devolucion promo
   if(unitsABC > 0 && devEnabled) {
@@ -1261,7 +1304,20 @@ function populateClientNarrative() {
 
   // Update hero text for client
   document.getElementById('heroH1').innerHTML = 'Oportunidad de<br><b>inversión patrimonial</b>';
-  document.getElementById('heroText').textContent = n + ' departamentos en el proyecto más premiado de la zona metropolitana. Cada unidad con planta, modelo financiero y proyección a 10 años.';
+  let heroDesc = n + ' departamentos en el proyecto más premiado de la zona metropolitana.';
+  if(hasDEunits) {
+    const eDE = window._clientEngDE || 10;
+    const dDE = window._clientDifDE || 20;
+    const deCount = selUnits.filter(u=>['D','E'].includes(u.torre)).length;
+    const abcCount = n - deCount;
+    if(abcCount > 0 && deCount > 0) {
+      heroDesc += ' ' + abcCount + ' con entrega inmediata, ' + deCount + ' en preventa.';
+    } else if(deCount > 0) {
+      heroDesc += ' Esquema personalizado: ' + eDE + '% a la firma' + (dDE > 0 ? ', ' + dDE + '% diferido' : '') + '.';
+    }
+  }
+  heroDesc += ' Cada unidad con planta, modelo financiero y proyección a 10 años.';
+  document.getElementById('heroText').textContent = heroDesc;
 }
 
 // ======== MAPPEN IMPORT ========
