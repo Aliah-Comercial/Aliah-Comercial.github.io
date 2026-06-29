@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#282823">
+<title>Aliah Lomas Verdes — Herramientas Comerciales</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.wrap{text-align:center;max-width:800px;width:100%}
+.logo{height:80px;margin:0 auto 24px;display:block}
+.kicker{font-size:14px;color:#A4AC8C;letter-spacing:4px;text-transform:uppercase;margin-bottom:48px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;width:100%}
+.card{border-radius:16px;padding:28px;cursor:pointer;transition:transform .3s;text-decoration:none;display:block;text-align:center}
+.card:hover{transform:translateY(-4px)}
+.card h2{font-weight:700;margin-bottom:6px}
+.card p{font-size:12px;line-height:1.5}
+.card-main{background:linear-gradient(135deg,#484D31,#5F6844);border:1px solid #5F684466;grid-column:1/-1}
+.card-main h2{font-size:22px;color:#F8F8F8}
+.card-main p{color:#A4AC8C}
+.card-main .badge{margin-top:12px;font-size:11px;color:rgba(240,239,233,.8);background:rgba(255,255,255,.1);display:inline-block;padding:4px 12px;border-radius:12px}
+.card-sim{background:linear-gradient(135deg,#B8A97E,#8a7a5a);border:1px solid #B8A97E}
+.card-sim h2{font-size:18px;color:white}
+.card-sim p{color:#f0efe9}
+.card-decide{background:linear-gradient(135deg,#282823,#3a3a33);border:1px solid rgba(184,169,126,.27)}
+.card-decide h2{font-size:18px;color:#B8A97E}
+.card-decide p{color:#999}
+.footer{font-size:10px;color:#444;margin-top:40px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Logo%20ALV%20blanco.png" alt="Aliah Lomas Verdes" class="logo" onerror="this.style.display='none'">
+  <p class="kicker">Herramientas Comerciales</p>
+  <div class="grid">
+    <a href="/ialiah/" class="card card-main">
+      <h2>iALIAH</h2>
+      <p>Perfilador inteligente — Encuentra el departamento ideal en 2 minutos</p>
+      <div class="badge">Herramienta principal de showroom</div>
+    </a>
+    <a href="/simulador/" class="card card-sim">
+      <h2>Simulador de Inversi&oacute;n</h2>
+      <p>206 unidades con modelo financiero completo, TIR, ROE y proyecci&oacute;n a 10 a&ntilde;os</p>
+    </a>
+    <a href="/decide/" class="card card-decide">
+      <h2>Decide con Todo</h2>
+      <p>28 proyectos ante tus ojos — Los datos que importan</p>
+    </a>
+  </div>
+  <p class="footer">Fuentes: Monopolio/DD360 mzo 2026 &middot; 4S mzo 2025 &middot; Banxico may 2026<br>Aliah Developments &copy; 2026</p>
+</div>
+</body>
+</html>
