@@ -70,7 +70,7 @@ a{color:var(--gold);text-decoration:none}
 .mcard-s{font-size:11px;color:var(--t2);margin-top:3px}
 
 /* FULL WIDTH PHOTO */
-.fw-photo{width:100%;max-height:400px;object-fit:cover} .fw-photo-wrap{margin:0;overflow:hidden}
+.fw-photo{width:100%;aspect-ratio:21/9;object-fit:cover;max-height:50vh} .fw-photo-wrap{margin:0;overflow:hidden}
 
 /* BARS */
 .bar-r{display:flex;align-items:center;gap:10px;margin:6px 0}
@@ -117,6 +117,14 @@ a{color:var(--gold);text-decoration:none}
 .sim-btn{padding:4px 12px;border-radius:14px;border:1px solid var(--gold);background:transparent;color:var(--gold);font-family:inherit;font-size:11px;cursor:pointer;transition:all .15s}
 .sim-btn:hover{background:var(--gold);color:var(--bg)}
 
+
+.tip-wrap{position:relative;display:inline-block}
+.tip-btn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:transparent;color:var(--t3);font-size:9px;cursor:pointer;margin-left:6px;font-family:inherit;vertical-align:middle;line-height:1;transition:all .15s}
+.tip-btn:hover{border-color:var(--gold);color:var(--gold)}
+.tip-box{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:300px;padding:12px;background:var(--s1);border:1px solid rgba(196,169,106,.2);border-radius:10px;font-size:12px;color:var(--t2);line-height:1.5;z-index:20;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.tip-box.show{display:block}
+.tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:rgba(196,169,106,.2)}
+@media(max-width:768px){.tip-box{width:260px;left:0;transform:none}}
 .sortable{cursor:pointer;user-select:none;position:relative}
 .sortable:hover{color:var(--gold)}
 .sort-arrow{font-size:8px;margin-left:2px;opacity:.4}
@@ -293,11 +301,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <div id="adminAsesoresTable" style="font-size:12px;color:var(--t2)">Cargando...</div>
     <div style="margin-top:12px;padding:12px;background:var(--s2);border-radius:8px;border:1px solid rgba(255,255,255,.06)">
       <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Agregar asesor</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
         <input type="email" id="newAsesorEmail" placeholder="email@aliah.mx" style="padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:var(--s2);color:var(--txt);font-family:inherit;font-size:12px">
         <input type="text" id="newAsesorNombre" placeholder="Nombre completo" style="padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:var(--s2);color:var(--txt);font-family:inherit;font-size:12px">
         <input type="text" id="newAsesorTel" placeholder="55 1234 5678" style="padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:var(--s2);color:var(--txt);font-family:inherit;font-size:12px">
-        <button class="admin-save" onclick="addAsesor()" style="margin:0;font-size:12px;padding:6px 12px">Agregar</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:6px">
+        <input type="password" id="newAsesorPass" placeholder="Contraseña (min 6 car.)" style="padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:var(--s2);color:var(--txt);font-family:inherit;font-size:12px">
+        <input type="text" id="newAsesorZoho" placeholder="Zoho ID (opcional)" style="padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:var(--s2);color:var(--txt);font-family:inherit;font-size:12px">
+        <button class="admin-save" onclick="addAsesor()" style="margin:0;font-size:12px;padding:6px 12px">Crear asesor</button>
       </div>
     </div>
   </div>
@@ -387,12 +399,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <div class="kicker">Benchmark</div>
   <h2 class="sec-h">Como se compara tu dinero aqui <b>vs las alternativas</b></h2>
   <div id="benchBars">
-    <div class="bar-r bar-hl"><div class="bar-l">Aliah TIR (apalancada)</div><div class="bar-t"><div class="bar-f" style="width:95%;background:linear-gradient(90deg,var(--gold),var(--gl))"><span id="bAliah">18%</span></div></div></div>
-    <div class="bar-r bar-hl" style="opacity:.85"><div class="bar-l">Retorno total Aliah</div><div class="bar-t"><div class="bar-f" style="width:70%;background:linear-gradient(90deg,var(--gold2),var(--gold))"><span id="bRetTotal">13.3%</span></div></div></div>
-    <div class="bar-r"><div class="bar-l">Bonos M 10 años</div><div class="bar-t"><div class="bar-f" style="width:47%;background:var(--grn)"><span id="bBonos">8.9%</span></div></div></div>
-    <div class="bar-r"><div class="bar-l">Cap rate zona</div><div class="bar-t"><div class="bar-f" style="width:30%;background:var(--grn2)"><span id="bCaprate">5.7%</span></div></div></div>
-    <div class="bar-r"><div class="bar-l">CETES neto ISR</div><div class="bar-t"><div class="bar-f" style="width:29%;background:var(--t3)"><span id="bCetes">5.6%</span></div></div></div>
-    <div class="bar-r"><div class="bar-l">Inflación México</div><div class="bar-t"><div class="bar-f" style="width:22%;background:#666"><span id="bInflacion">4.2%</span></div></div></div>
+    <div class="bar-r bar-hl"><div class="bar-l">Aliah TIR (apalancada) <span class="tip-wrap"><button class="tip-btn" onclick="toggleTip(this)">?</button><div class="tip-box">Compras un depto de $1M. Pones $200K de enganche y el banco te presta $800K. En 10 años el depto vale $2M, cobraste renta todo ese tiempo y pagaste la hipoteca. Tu ganancia neta sobre tus $200K equivale a 18% cada año. Le sacaste jugo a dinero que no era tuyo.</div></span></div><div class="bar-t"><div class="bar-f" style="width:95%;background:linear-gradient(90deg,var(--gold),var(--gl))"><span id="bAliah">18%</span></div></div></div>
+    <div class="bar-r bar-hl" style="opacity:.85"><div class="bar-l">Retorno total Aliah <span class="tip-wrap"><button class="tip-btn" onclick="toggleTip(this)">?</button><div class="tip-box">Mismo depto de $1M, pero sin banco. Tus $1M generan: $63K al año de renta (6.3%) + $70K al año porque el depto sube de precio (7%). Total: $133K por año, o 13.3% sobre tu millón.</div></span></div><div class="bar-t"><div class="bar-f" style="width:70%;background:linear-gradient(90deg,var(--gold2),var(--gold))"><span id="bRetTotal">13.3%</span></div></div></div>
+    <div class="bar-r"><div class="bar-l">Bonos M 10 años <span class="tip-wrap"><button class="tip-btn" onclick="toggleTip(this)">?</button><div class="tip-box">Le prestas $1M al gobierno por 10 años. Cada año te da $89K. Seguro, pero en 10 años te devuelven tu mismo millón — no creció.</div></span></div><div class="bar-t"><div class="bar-f" style="width:47%;background:var(--grn)"><span id="bBonos">8.9%</span></div></div></div>
+    <div class="bar-r"><div class="bar-l">Cap rate zona <span class="tip-wrap"><button class="tip-btn" onclick="toggleTip(this)">?</button><div class="tip-box">Un depto promedio de la zona de $1M, rentado, te da $57K al año. Solo por renta, sin contar que suba de precio.</div></span></div><div class="bar-t"><div class="bar-f" style="width:30%;background:var(--grn2)"><span id="bCaprate">5.7%</span></div></div></div>
+    <div class="bar-r"><div class="bar-l">CETES neto ISR <span class="tip-wrap"><button class="tip-btn" onclick="toggleTip(this)">?</button><div class="tip-box">Pones $1M en CETES un mes. Te dan $4,700. Lo más seguro que hay, pero no crece tu capital.</div></span></div><div class="bar-t"><div class="bar-f" style="width:29%;background:var(--t3)"><span id="bCetes">5.6%</span></div></div></div>
+    <div class="bar-r"><div class="bar-l">Inflación México <span class="tip-wrap"><button class="tip-btn" onclick="toggleTip(this)">?</button><div class="tip-box">Si los precios suben 4.2% al año, tu millón de hoy compra lo mismo que $958K el año que viene. Cualquier inversión que no le gane a esto, te hace perder.</div></span></div><div class="bar-t"><div class="bar-f" style="width:22%;background:#666"><span id="bInflacion">4.2%</span></div></div></div>
   </div>
   <p style="font-size:11px;color:var(--t3);margin-top:12px;text-align:center">TIR Aliah incluye plusvalía + flujo de renta (apalancada). Retorno total = cap rate 6.3% + plusvalía 7% (sin apalancar). Cap rate zona: ZI 15 min, Monopolio 2026. CETES neto después de ISR. Bonos M tasa bruta a vencimiento (Banxico jun-2026).</p>
 </div>
@@ -655,6 +667,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
         <div class="slider-group" id="difGroup"><div class="slider-label"><span>Diferido a la entrega</span><b id="difVal">0%</b></div><input type="range" id="sliderDif" min="0" max="40" value="0" step="1"></div>
         <div class="slider-group"><div class="slider-label"><span>Hipoteca</span><b id="hipVal">80%</b></div><input type="range" id="sliderHip" min="0" max="90" value="80" step="1" disabled style="opacity:.5"></div>
         <div class="chk-row" id="devRow"><input type="checkbox" id="chkDev"><label for="chkDev">Devolución hipoteca $300K (Torres A/B/C)</label></div>
+        <div class="chk-row" id="descDirectoRow" style="display:none"><input type="checkbox" id="chkDescDirecto"><label for="chkDescDirecto">Aplicar como descuento directo (sin hipoteca)</label></div>
         <div class="res-grid" id="simResults">
           <div class="res-card highlight" style="grid-column:1/-1;background:linear-gradient(135deg,var(--gd),#353d25);border-color:rgba(196,169,106,.2)"><div class="res-v" id="rPrecioFinal" style="font-size:28px">--</div><div class="res-l">Precio final</div><div id="rDescFin" style="display:none;font-size:11px;color:var(--gold);margin-top:4px">--</div></div>
           <div class="res-card"><div class="res-v" id="rPrecioDesc" style="font-size:14px;opacity:.6">--</div><div class="res-l">Precio c/desc. comercial</div></div>
@@ -684,7 +697,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <div style="font-size:12px;margin-top:12px;opacity:.6">ventas@aliah.mx &middot; 55 7005 5934 &middot; aliah.mx</div>
     <div style="font-size:11px;margin-top:4px;opacity:.5">Av. Lomas Verdes #77, Santa Cruz Acatlán, Naucalpan</div>
   </div>
-  <div class="disc"><b>Disclaimer:</b> Proyección ilustrativa. Rendimientos pasados no garantizan resultados futuros. Plusvalía ref: 7% anual (EDM Monopolio, mzo 2026). Cap rate Aliah 6.3% real medido. Cap rate zona 5.7% (Monopolio 2026). CETES 28d: 6.54% bruto, ~5.64% neto ISR (Banxico 14-may-2026). Bonos M 10 años: ~8.9% (Banxico jun-2026). Tasa hipotecaria referencial: 10.5% anual a 20 años. Renta: m2 interior x tarifa de mercado. Promo devolución hipoteca Torres A/B/C, tope $300,000 MXN. Scotiabank Valora: mencion informativa. ESQR Quality Achievements Award 2026 Gold Category, Bruselas.</div>
+  <div class="disc"><b>Disclaimer:</b> Proyección ilustrativa. Rendimientos pasados no garantizan resultados futuros. Datos de mercado: <a href="https://aliah-comercial.github.io/studios/EDM%20_ALIAH_LOMAS%20_VERDES_by_MONOPOLIO_MZO2026.pdf" target="_blank" style="color:var(--gold)">Estudio de Mercado Aliah Lomas Verdes, Monopolio.com.mx, marzo 2026</a>. Plusvalía ref: 7% anual (Monopolio). Cap rate Aliah: 6.3% real medido (depto C2 rentado $23K/mes sobre $4.4M). Cap rate zona: 5.7% vivienda nueva ZI 15 min (Monopolio). CETES 28d: 6.54% bruto, ~5.64% neto ISR (Banxico 14-may-2026). Bonos M 10 años: ~8.9% (Banxico jun-2026). Tasa hipotecaria referencial: 10.5% anual a 20 años. Renta estimada: m² interior x tarifa de mercado. Promo devolución hipoteca Torres A/B/C, tope $300,000 MXN. Scotiabank Valora: mención informativa. ESQR Quality Achievements Award 2026 Gold Category, Bruselas.</div>
 </div>
 
 <div style="text-align:center;padding:20px">
@@ -956,6 +969,20 @@ function openSim(idx) {
   document.getElementById('chkDev').checked=(window._clientDev && u.devolucion_ok) || false;
   const showDev = u.devolucion_ok;
   document.getElementById('devRow').style.display=showDev?'flex':'none';
+  // Desc directo option (client mode only, ABC only, dev must be on)
+  const ddRow = document.getElementById('descDirectoRow');
+  const ddChk = document.getElementById('chkDescDirecto');
+  if(window._clientMode && showDev && window._clientDev) {
+    document.getElementById('chkDev').checked = true;
+    document.getElementById('chkDev').disabled = true;
+    document.getElementById('chkDev').style.opacity = '.5';
+    ddRow.style.display = 'flex';
+    ddChk.checked = false;
+  } else if(window._clientMode) {
+    ddRow.style.display = 'none';
+  } else {
+    ddRow.style.display = 'none';
+  }
   const difG=document.getElementById('difGroup');
   if(u.meses_dif===0) { difG.style.opacity='.3'; document.getElementById('sliderDif').disabled=true; document.getElementById('sliderDif').value=0; }
   else { difG.style.opacity='1'; document.getElementById('sliderDif').disabled=false; }
@@ -974,6 +1001,7 @@ function setupSliders() {
     document.getElementById(id).addEventListener('input',()=>{ syncSliders(); calcAndDisplay(); });
   });
   document.getElementById('chkDev').addEventListener('change',calcAndDisplay);
+  document.getElementById('chkDescDirecto').addEventListener('change',calcAndDisplay);
 }
 
 function syncSliders() {
@@ -1008,7 +1036,10 @@ function calcAndDisplay() {
     const mEx=Math.max(0,mProp-mBase);
     for(let m=1;m<=meses;m++) descFin+=mEx*(Math.pow(1+TASA_DF_MES,meses-m)-1);
   }
-  const precioFinal=precioDesc-descFin;
+  let precioFinal=precioDesc-descFin;
+  // Descuento directo: $300K off precio if selected
+  const _ddChk=document.getElementById("chkDescDirecto");
+  if(_ddChk&&_ddChk.checked&&currentUnit.devolucion_ok) precioFinal=Math.max(0,precioFinal-300000);
 
   const montoEng=precioFinal*eng, montoDif=precioFinal*dif, montoHip=precioFinal*hip;
   const equity=montoEng+montoDif;
@@ -1019,7 +1050,12 @@ function calcAndDisplay() {
   const capRate=(rentaMes*12)/precioFinal;
   let flujoNeto=rentaMes-pmtHip;
   const devolución=document.getElementById('chkDev').checked&&u.devolucion_ok;
-  if(devolución) flujoNeto+=300000/24;
+  const descDirecto=document.getElementById('chkDescDirecto').checked&&devolución;
+  if(descDirecto) {
+    // $300K applied as direct price discount - already factored into precioFinal below
+  } else if(devolución) {
+    flujoNeto+=300000/24;
+  }
   const val5=precioFinal*Math.pow(1+P.plusvalía,5);
   const val10=precioFinal*Math.pow(1+P.plusvalía,P.horizonte);
   // IRR
@@ -1028,7 +1064,7 @@ function calcAndDisplay() {
     const rentaAnual=rentaMes*12*Math.pow(1+P.inc_renta,y-1);
     const hipAnual=pmtHip*12;
     let flujoAnual=rentaAnual-hipAnual;
-    if(devolución&&y<=2) flujoAnual+=150000;
+    if(devolución&&!descDirecto&&y<=2) flujoAnual+=150000;
     if(y===P.horizonte) {
       const valT=precioFinal*Math.pow(1+P.plusvalía,y);
       let saldo=montoHip;
@@ -1236,6 +1272,7 @@ function populateClientNarrative() {
 
   const desc = (window._clientDesc || 0) / 100;
   const devEnabled = window._clientDev || false;
+  // Note: descDirecto per-unit is handled in the individual sim overlay, not in the aggregate narrative
 
   // Descuento financiero model (from Ramón's Excel)
   // Tasa: 8.7% anual. Base plan: 5% eng. D: 10% dif/25mo. E: 15% dif/31mo.
@@ -1643,6 +1680,18 @@ const PLANT_MAP = {
   'E-A8':'https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20A8.jpg'
 };
 
+
+// ======== TOOLTIPS ========
+function toggleTip(btn){
+  const box=btn.nextElementSibling;
+  const isOpen=box.classList.contains('show');
+  document.querySelectorAll('.tip-box.show').forEach(b=>b.classList.remove('show'));
+  if(!isOpen) box.classList.add('show');
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.tip-wrap')) document.querySelectorAll('.tip-box.show').forEach(b=>b.classList.remove('show'));
+});
+
 // ======== SORTING ========
 let sortState = {col:null, dir:0}; // dir: 0=default, 1=asc, 2=desc
 const ENTREGA_ORDER = {'Inmediata':0,'Nov 2026':1,'Ago 2028':2,'Feb 2029':3};
@@ -1706,14 +1755,29 @@ async function addAsesor(){
   const email=document.getElementById('newAsesorEmail').value.trim();
   const nombre=document.getElementById('newAsesorNombre').value.trim();
   const tel=document.getElementById('newAsesorTel').value.trim();
+  const pass=document.getElementById('newAsesorPass').value;
+  const zoho=document.getElementById('newAsesorZoho').value.trim();
   if(!email||!nombre){toast('Email y nombre son obligatorios');return;}
-  const {error}=await supa.from('asesores').insert({email,nombre,telefono:tel||null,activo:true});
-  if(error){toast('Error: '+error.message);return;}
-  toast('Asesor agregado');
-  document.getElementById('newAsesorEmail').value='';
-  document.getElementById('newAsesorNombre').value='';
-  document.getElementById('newAsesorTel').value='';
+  if(!pass||pass.length<6){toast('Contrase\u00f1a m\u00ednimo 6 caracteres');return;}
+  // 1. Create Supabase auth user via admin API
+  const {data:authData,error:authErr}=await supa.auth.admin.createUser({email,password:pass,email_confirm:true});
+  if(authErr){
+    // Try signUp if admin API not available
+    const {data:suData,error:suErr}=await supa.auth.signUp({email,password:pass});
+    if(suErr){toast('Error creando cuenta: '+suErr.message);return;}
+    var userId=suData.user?.id;
+  } else {
+    var userId=authData.user?.id;
+  }
+  if(!userId){toast('Error: no se obtuvo ID de usuario');return;}
+  // 2. Create perfil
+  await supa.from('perfiles').upsert({id:userId,email,nombre,rol:'asesor',zoho_user_id:zoho||null,activo:true});
+  // 3. Create asesor record
+  await supa.from('asesores').upsert({email,nombre,telefono:tel||null,zoho_id:zoho||null,activo:true});
+  toast('Asesor creado: '+nombre);
+  ['newAsesorEmail','newAsesorNombre','newAsesorTel','newAsesorPass','newAsesorZoho'].forEach(id=>document.getElementById(id).value='');
   loadAdminAsesores();
+  loadAdminUsers();
 }
 
 async function toggleAsesor(email,activo){
