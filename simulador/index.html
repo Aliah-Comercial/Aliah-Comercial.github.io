@@ -691,10 +691,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 <div class="sec">
   <div class="cta">
     <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;opacity:.7">Aliah Lomas Verdes</div>
-    <div style="font-size:clamp(22px,4vw,30px);font-weight:700">Agenda tu presentacion personalizada</div>
+    <div style="font-size:clamp(22px,4vw,30px);font-weight:700">Agenda tu presentación personalizada</div>
     <div style="font-size:14px;margin-top:8px;opacity:.8"><span id="ctaCount">---</span> departamentos disponibles. Modelador financiero en vivo.</div>
     <a href="https://wa.me/5215570055934" class="cta-btn" target="_blank">Contactar por WhatsApp</a>
-    <div style="font-size:12px;margin-top:12px;opacity:.6">ventas@aliah.mx &middot; 55 7005 5934 &middot; aliah.mx</div>
+    <div id="ctaContact" style="font-size:12px;margin-top:12px;opacity:.6">ventas@aliah.mx &middot; 55 7005 5934 &middot; aliah.mx</div>
     <div style="font-size:11px;margin-top:4px;opacity:.5">Av. Lomas Verdes #77, Santa Cruz Acatlán, Naucalpan</div>
   </div>
   <div class="disc"><b>Disclaimer:</b> Proyección ilustrativa. Rendimientos pasados no garantizan resultados futuros. Datos de mercado: <a href="https://aliah-comercial.github.io/studios/EDM%20_ALIAH_LOMAS%20_VERDES_by_MONOPOLIO_MZO2026.pdf" target="_blank" style="color:var(--gold)">Estudio de Mercado Aliah Lomas Verdes, Monopolio.com.mx, marzo 2026</a>. Plusvalía ref: 7% anual (Monopolio). Cap rate Aliah: 6.3% real medido (depto C2 rentado $23K/mes sobre $4.4M). Cap rate zona: 5.7% vivienda nueva ZI 15 min (Monopolio). CETES 28d: 6.54% bruto, ~5.64% neto ISR (Banxico 14-may-2026). Bonos M 10 años: ~8.9% (Banxico jun-2026). Tasa hipotecaria referencial: 10.5% anual a 20 años. Renta estimada: m² interior x tarifa de mercado. Promo devolución hipoteca Torres A/B/C, tope $300,000 MXN. Scotiabank Valora: mención informativa. ESQR Quality Achievements Award 2026 Gold Category, Bruselas.</div>
@@ -886,7 +886,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         u.hip_def = customHipDE;
       }
     });
-    filterBySelected();
+    await filterBySelected();
   }
 });
 
@@ -958,7 +958,7 @@ function setupFilters() {
   });
 }
 
-function filterBySelected() {
+async function filterBySelected() {
   window._clientMode=true;
   document.querySelector('.auth-bar').style.display='none';
   document.getElementById('shareBar').style.display='none';
@@ -969,7 +969,7 @@ function filterBySelected() {
   renderTable();
   updateCounts();
   populateClientNarrative();
-  personalizeCtaForClient();
+  await personalizeCtaForClient();
 }
 function updateShareBar() {
   document.getElementById('selCount').textContent=selectedUnits.size;
@@ -1733,23 +1733,28 @@ const PLANT_MAP = {
 
 // ======== ASESOR CTA ========
 async function personalizeCtaForClient() {
-  if(!window._clientMode || !window._clientAsesor) return;
+  if(!window._clientMode || !window._clientAsesor) { console.log('CTA skip: mode=',window._clientMode,'asesor=',window._clientAsesor); return; }
   try {
     const {data,error} = await supa.from('asesores').select('nombre,telefono').eq('email',window._clientAsesor).eq('activo',true).single();
-    if(error || !data) return;
+    console.log('CTA query:', window._clientAsesor, 'data:', data, 'error:', error);
+    if(error || !data) {
+      // Fallback: show email even if DB lookup fails
+      const ctaContact = document.getElementById('ctaContact');
+      if(ctaContact) ctaContact.textContent = window._clientAsesor + ' \u00b7 aliah.mx';
+      return;
+    }
     const nombre = data.nombre;
     const tel = data.telefono;
-    if(!tel) return;
     // Update WhatsApp CTA
     const ctaBtn = document.querySelector('.cta-btn');
-    if(ctaBtn) {
+    if(ctaBtn && tel) {
       const telClean = tel.replace(/[^0-9]/g,'');
       ctaBtn.href = 'https://wa.me/52'+telClean;
       ctaBtn.textContent = 'Contactar a '+nombre.split(' ')[0]+' por WhatsApp';
     }
     // Update contact info
-    const ctaInfo = document.querySelector('.cta div[style*="font-size:12px"]');
-    if(ctaInfo) ctaInfo.textContent = nombre+' \u00b7 '+tel+' \u00b7 aliah.mx';
+    const ctaContact = document.getElementById('ctaContact');
+    if(ctaContact) ctaContact.textContent = nombre + (tel ? ' \u00b7 '+tel : '') + ' \u00b7 aliah.mx';
   } catch(e) { console.log('Asesor CTA error:', e); }
 }
 // ======== TOOLTIPS ========
