@@ -677,7 +677,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <div class="res-card"><div class="res-v" id="rCapRate">--</div><div class="res-l">Cap rate año 1</div></div>
           <div class="res-card"><div class="res-v" id="rRentaMes">--</div><div class="res-l">Renta mensual est.</div></div>
           <div class="res-card"><div class="res-v" id="rHipMes">--</div><div class="res-l">Mensualidad hipoteca</div></div>
-          <div class="res-card"><div class="res-v" id="rFlujo">--</div><div class="res-l">Flujo neto mensual</div></div>
+          <div class="res-card" id="rFlujoCard1"><div class="res-v" id="rFlujo">--</div><div class="res-l" id="rFlujoLabel">Flujo neto mensual</div></div><div class="res-card" id="rFlujoCard2" style="display:none"><div class="res-v" id="rFlujo2">--</div><div class="res-l">Flujo desde mes 13</div></div>
           <div class="res-card"><div class="res-v" id="rVal5">--</div><div class="res-l">Valor estimado 5 años</div></div>
           <div class="res-card"><div class="res-v" id="rVal10">--</div><div class="res-l">Valor estimado 10 años</div></div>
         </div>
@@ -837,6 +837,33 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupFilters();
   setupSliders();
   updateCounts();
+  // Load saved params from Supabase
+  try {
+    const {data:cfg} = await supa.from('config').select('value').eq('key','params_financieros').single();
+    if(cfg && cfg.value) {
+      const saved = cfg.value;
+      if(saved.plusval\u00eda !== undefined) P.plusval\u00eda = saved.plusval\u00eda;
+      if(saved.caprate_zona !== undefined) P.caprate_zona = saved.caprate_zona;
+      if(saved.tasa_hip !== undefined) P.tasa_hip = saved.tasa_hip;
+      if(saved.plazo_hip !== undefined) P.plazo_hip = saved.plazo_hip;
+      if(saved.renta_m2 !== undefined) P.renta_m2 = saved.renta_m2;
+      if(saved.inc_renta !== undefined) P.inc_renta = saved.inc_renta;
+      if(saved.cetes !== undefined) P.cetes = saved.cetes;
+      if(saved.bonos !== undefined) P.bonos = saved.bonos;
+      if(saved.inflacion !== undefined) P.inflacion = saved.inflacion;
+      if(saved.horizonte !== undefined) P.horizonte = saved.horizonte;
+      if(saved.tasa_desc_fin !== undefined) P.tasa_desc_fin = saved.tasa_desc_fin;
+      // Update admin form if present
+      const fields = {adm_plusval\u00eda:P.plusval\u00eda*100,adm_caprate:P.caprate_zona*100,adm_tasa:P.tasa_hip*100,adm_plazo:P.plazo_hip,adm_renta_m2:P.renta_m2,adm_inc_renta:P.inc_renta*100,adm_cetes:P.cetes*100,adm_bonos:P.bonos*100,adm_inflacion:P.inflacion*100,adm_horizonte:P.horizonte,adm_tasa_desc_fin:P.tasa_desc_fin*100};
+      for(const[id,val] of Object.entries(fields)){const el=document.getElementById(id);if(el)el.value=val;}
+      // Update benchmark bars
+      const bC=document.getElementById('bCetes');if(bC)bC.textContent=(P.cetes*100).toFixed(1)+'%';
+      const bB=document.getElementById('bBonos');if(bB)bB.textContent=(P.bonos*100).toFixed(1)+'%';
+      const bI=document.getElementById('bInflacion');if(bI)bI.textContent=(P.inflacion*100).toFixed(1)+'%';
+      const bCR=document.getElementById('bCaprate');if(bCR)bCR.textContent=(P.caprate_zona*100).toFixed(1)+'%';
+      const bRT=document.getElementById('bRetTotal');if(bRT)bRT.textContent=((P.caprate_zona+P.plusval\u00eda)*100).toFixed(1)+'%';
+    }
+  } catch(e) { console.log('Config load:', e); }
   // Check client mode
   const params = new URLSearchParams(window.location.search);
   const sel = params.get('u');
@@ -846,6 +873,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window._clientMotivo = params.get('motivo')||'';
     window._clientDev = params.get('dev')==='1';
     window._clientEngDE = parseInt(params.get('engDE'))||10;
+    window._clientAsesor = params.get('asesor')||'';
     window._clientDifDE = parseInt(params.get('difDE'))||20;
     // Apply custom eng/dif to D/E units
     const customEngDE = window._clientEngDE;
@@ -941,6 +969,7 @@ function filterBySelected() {
   renderTable();
   updateCounts();
   populateClientNarrative();
+  personalizeCtaForClient();
 }
 function updateShareBar() {
   document.getElementById('selCount').textContent=selectedUnits.size;
@@ -1054,7 +1083,7 @@ function calcAndDisplay() {
   if(descDirecto) {
     // $300K applied as direct price discount - already factored into precioFinal below
   } else if(devolución) {
-    flujoNeto+=300000/24;
+    flujoNeto+=300000/12;
   }
   const val5=precioFinal*Math.pow(1+P.plusvalía,5);
   const val10=precioFinal*Math.pow(1+P.plusvalía,P.horizonte);
@@ -1064,7 +1093,7 @@ function calcAndDisplay() {
     const rentaAnual=rentaMes*12*Math.pow(1+P.inc_renta,y-1);
     const hipAnual=pmtHip*12;
     let flujoAnual=rentaAnual-hipAnual;
-    if(devolución&&!descDirecto&&y<=2) flujoAnual+=150000;
+    if(devolución&&!descDirecto&&y===1) flujoAnual+=300000;
     if(y===P.horizonte) {
       const valT=precioFinal*Math.pow(1+P.plusvalía,y);
       let saldo=montoHip;
@@ -1101,8 +1130,26 @@ function calcAndDisplay() {
   document.getElementById('rCapRate').textContent=(capRate*100).toFixed(2)+'%';
   document.getElementById('rRentaMes').textContent=fmtK(rentaMes);
   document.getElementById('rHipMes').textContent=pmtHip>0?fmtK(pmtHip):'$0';
-  document.getElementById('rFlujo').textContent=fmtK(flujoNeto);
-  document.getElementById('rFlujo').style.color=flujoNeto>=0?'var(--grn2)':'var(--neg)';
+  // Flujo display: 2 phases if devolucion active (not descDirecto)
+  const flujoCard2 = document.getElementById('rFlujoCard2');
+  const flujoLabel = document.getElementById('rFlujoLabel');
+  if(devolución && !descDirecto) {
+    // Phase 1: months 1-12 (with $25K/mo dev)
+    const flujoFase1 = rentaMes - pmtHip + 25000;
+    // Phase 2: from month 13 (no dev)
+    const flujoFase2 = rentaMes - pmtHip;
+    document.getElementById('rFlujo').textContent = fmtK(flujoFase1);
+    document.getElementById('rFlujo').style.color = flujoFase1>=0?'var(--grn2)':'var(--neg)';
+    flujoLabel.textContent = 'Flujo meses 1-12';
+    flujoCard2.style.display = 'block';
+    document.getElementById('rFlujo2').textContent = fmtK(flujoFase2);
+    document.getElementById('rFlujo2').style.color = flujoFase2>=0?'var(--grn2)':'var(--neg)';
+  } else {
+    document.getElementById('rFlujo').textContent = fmtK(flujoNeto);
+    document.getElementById('rFlujo').style.color = flujoNeto>=0?'var(--grn2)':'var(--neg)';
+    flujoLabel.textContent = 'Flujo neto mensual';
+    flujoCard2.style.display = 'none';
+  }
   document.getElementById('rVal5').textContent=fmtK(val5);
   document.getElementById('rVal10').textContent=fmtK(val10);
   document.getElementById('rEquity').textContent=fmtK(equity);
@@ -1149,6 +1196,8 @@ function generateClientLink() {
   if(dev) link+='&dev=1';
   if(engDE && parseInt(engDE)!==10) link+='&engDE='+engDE;
   if(difDE && parseInt(difDE)!==20) link+='&difDE='+difDE;
+  // Add asesor email for CTA personalization
+  if(currentUser && currentUser.email) link+='&asesor='+encodeURIComponent(currentUser.email);
   navigator.clipboard.writeText(link).then(()=>{
     toast('Link copiado al portapapeles');
     saveLinkGenerated(link);
@@ -1344,7 +1393,7 @@ function populateClientNarrative() {
       const ra = rentaM*12*Math.pow(1+P.inc_renta,y-1);
       const ha = pmtH*12;
       let fa = ra - ha;
-      if(devEnabled && u.devolucion_ok && y<=2) fa += 150000;
+      if(devEnabled && u.devolucion_ok && y===1) fa += 300000;
       if(y===P.horizonte){
         const vt = pf*Math.pow(1+P.plusvalía,y);
         let s=hip;for(let m=0;m<y*12&&s>0;m++){s-=(pmtH-s*tasaMes);}
@@ -1681,6 +1730,28 @@ const PLANT_MAP = {
 };
 
 
+
+// ======== ASESOR CTA ========
+async function personalizeCtaForClient() {
+  if(!window._clientMode || !window._clientAsesor) return;
+  try {
+    const {data,error} = await supa.from('asesores').select('nombre,telefono').eq('email',window._clientAsesor).eq('activo',true).single();
+    if(error || !data) return;
+    const nombre = data.nombre;
+    const tel = data.telefono;
+    if(!tel) return;
+    // Update WhatsApp CTA
+    const ctaBtn = document.querySelector('.cta-btn');
+    if(ctaBtn) {
+      const telClean = tel.replace(/[^0-9]/g,'');
+      ctaBtn.href = 'https://wa.me/52'+telClean;
+      ctaBtn.textContent = 'Contactar a '+nombre.split(' ')[0]+' por WhatsApp';
+    }
+    // Update contact info
+    const ctaInfo = document.querySelector('.cta div[style*="font-size:12px"]');
+    if(ctaInfo) ctaInfo.textContent = nombre+' \u00b7 '+tel+' \u00b7 aliah.mx';
+  } catch(e) { console.log('Asesor CTA error:', e); }
+}
 // ======== TOOLTIPS ========
 function toggleTip(btn){
   const box=btn.nextElementSibling;
