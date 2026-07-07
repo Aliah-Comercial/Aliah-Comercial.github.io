@@ -873,7 +873,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window._clientMotivo = params.get('motivo')||'';
     window._clientDev = params.get('dev')==='1';
     window._clientEngDE = parseInt(params.get('engDE'))||10;
-    window._clientAsesor = params.get('asesor')||'';
+    window._clientAsesor = (params.get('asesor')||'').trim().toLowerCase();
     window._clientDifDE = parseInt(params.get('difDE'))||20;
     // Apply custom eng/dif to D/E units
     const customEngDE = window._clientEngDE;
@@ -1733,29 +1733,40 @@ const PLANT_MAP = {
 
 // ======== ASESOR CTA ========
 async function personalizeCtaForClient() {
-  if(!window._clientMode || !window._clientAsesor) { console.log('CTA skip: mode=',window._clientMode,'asesor=',window._clientAsesor); return; }
+  if(!window._clientMode || !window._clientAsesor) return;
+  const email = window._clientAsesor.trim().toLowerCase();
+  if(!email) return;
+  const ctaBtn = document.querySelector('.cta-btn');
+  const ctaContact = document.getElementById('ctaContact');
   try {
-    const {data,error} = await supa.from('asesores').select('nombre,telefono').eq('email',window._clientAsesor).eq('activo',true).single();
-    console.log('CTA query:', window._clientAsesor, 'data:', data, 'error:', error);
+    // Query without activo filter first to diagnose
+    const {data,error} = await supa.from('asesores').select('nombre,telefono,activo').eq('email',email).single();
+    console.log('CTA query:', email, 'data:', data, 'error:', error);
     if(error || !data) {
-      // Fallback: show email even if DB lookup fails
-      const ctaContact = document.getElementById('ctaContact');
-      if(ctaContact) ctaContact.textContent = window._clientAsesor + ' \u00b7 aliah.mx';
+      // No record at all — show email as fallback
+      if(ctaContact) ctaContact.textContent = email + ' \u00b7 aliah.mx';
       return;
     }
-    const nombre = data.nombre;
-    const tel = data.telefono;
-    // Update WhatsApp CTA
-    const ctaBtn = document.querySelector('.cta-btn');
+    const nombre = data.nombre || '';
+    const tel = data.telefono || '';
+    // Update WhatsApp button
     if(ctaBtn && tel) {
       const telClean = tel.replace(/[^0-9]/g,'');
       ctaBtn.href = 'https://wa.me/52'+telClean;
-      ctaBtn.textContent = 'Contactar a '+nombre.split(' ')[0]+' por WhatsApp';
+      ctaBtn.textContent = 'Contactar a '+(nombre?nombre.split(' ')[0]:'asesor')+' por WhatsApp';
     }
-    // Update contact info
-    const ctaContact = document.getElementById('ctaContact');
-    if(ctaContact) ctaContact.textContent = nombre + (tel ? ' \u00b7 '+tel : '') + ' \u00b7 aliah.mx';
-  } catch(e) { console.log('Asesor CTA error:', e); }
+    // Contact info: Nombre · Teléfono · Email
+    if(ctaContact) {
+      const parts = [];
+      if(nombre) parts.push(nombre);
+      if(tel) parts.push(tel);
+      parts.push(email);
+      ctaContact.textContent = parts.join(' \u00b7 ');
+    }
+  } catch(e) {
+    console.log('Asesor CTA error:', e);
+    if(ctaContact) ctaContact.textContent = email + ' \u00b7 aliah.mx';
+  }
 }
 // ======== TOOLTIPS ========
 function toggleTip(btn){
