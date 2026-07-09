@@ -682,7 +682,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <div class="res-card"><div class="res-v" id="rVal5">--</div><div class="res-l">Valor estimado 5 años</div></div>
           <div class="res-card"><div class="res-v" id="rVal10">--</div><div class="res-l">Valor estimado 10 años</div></div>
         </div>
-        <p style="font-size:9px;color:var(--t3);margin-top:12px;line-height:1.4">Proyección ilustrativa. Plusvalía, cap rate y renta basados en EDM Monopolio (mzo 2026). Tasa hipotecaria referencial. CETES: Banxico may-2026. Bonos M: Banxico jun-2026.</p>
+        <p style="font-size:9px;color:var(--t3);margin-top:12px;line-height:1.4">Proyección ilustrativa. Plusvalía base: inflación (4.2%). Referencia: 7% último año, +35% acumulada desde 2022 (EDM Monopolio mzo 2026). Cap rate y renta basados en mercado local. Valor futuro sobre precio base. Tasa hipotecaria referencial.</p>
       </div>
     </div>
   </div>
@@ -1107,7 +1107,10 @@ function calcAndDisplay() {
   const tir=calcIRR(cashflows);
   let saldoHip10=montoHip;
   if(montoHip>0){for(let m=0;m<P.horizonte*12;m++){const int=saldoHip10*tasaMes;saldoHip10-=(pmtHip-int);if(saldoHip10<=0){saldoHip10=0;break;}}}
-  const roe=equity>0?((val10-Math.max(0,saldoHip10))/equity*100):0;
+  // Net equity: if devolución active (not descDirecto), investor gets $300K back in year 1
+  const devActiva = devolución && !descDirecto;
+  const equityNeto = devActiva ? Math.max(0, equity - 300000) : equity;
+  const roe=equityNeto>0?((val10-Math.max(0,saldoHip10))/equityNeto*100):0;
   // Display - full format for precio
   const fP=(v)=>'$'+Math.round(v).toLocaleString('es-MX');
   document.getElementById('rPrecioFinal').textContent=fP(precioFinal);
@@ -1128,6 +1131,8 @@ function calcAndDisplay() {
   document.getElementById('rTIR').textContent=(tir*100).toFixed(1)+'%';
   document.getElementById('rTIR').style.color=tir>.15?'var(--gold)':tir>.10?'var(--grn2)':'var(--neg)';
   document.getElementById('rROE').textContent=roe.toFixed(0)+'%';
+  const roeLabel=document.getElementById('rROE').parentElement.querySelector('.res-l');
+  if(roeLabel) roeLabel.textContent=devActiva?'Retorno sobre equity neto (10a)':'Retorno sobre equity (10a)';
   document.getElementById('rCapRate').textContent=(capRate*100).toFixed(2)+'%';
   document.getElementById('rRentaMes').textContent=fmtK(rentaMes);
   document.getElementById('rHipMes').textContent=pmtHip>0?fmtK(pmtHip):'$0';
@@ -1153,7 +1158,10 @@ function calcAndDisplay() {
   }
   document.getElementById('rVal5').textContent=fmtK(val5);
   document.getElementById('rVal10').textContent=fmtK(val10);
-  document.getElementById('rEquity').textContent=fmtK(equity);
+  document.getElementById('rEquity').textContent=fmtK(devActiva?equityNeto:equity);
+  // Update equity label
+  const eqLabel=document.getElementById('rEquity').parentElement.querySelector('.res-l');
+  if(eqLabel) eqLabel.textContent=devActiva?'Equity neto (eng+dif-dev)':'Equity total (eng+dif)';
   document.getElementById('rPrecioDesc').textContent=fP(precioDesc);
   // Save to Supabase if logged in
   saveSimulation({
