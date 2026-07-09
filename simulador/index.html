@@ -1008,10 +1008,13 @@ function openSim(idx) {
     document.getElementById('chkDev').style.opacity = '.5';
     ddRow.style.display = 'flex';
     ddChk.checked = false;
-  } else if(window._clientMode) {
-    ddRow.style.display = 'none';
+  } else if(showDev) {
+    // Asesor or client: show descDirecto when dev is available
+    ddRow.style.display = 'none'; // will toggle with chkDev below
+    ddChk.checked = false;
   } else {
     ddRow.style.display = 'none';
+    ddChk.checked = false;
   }
   const difG=document.getElementById('difGroup');
   if(u.meses_dif===0) { difG.style.opacity='.3'; document.getElementById('sliderDif').disabled=true; document.getElementById('sliderDif').value=0; }
@@ -1030,7 +1033,17 @@ function setupSliders() {
   ['sliderEng','sliderDif','simDesc'].forEach(id=>{
     document.getElementById(id).addEventListener('input',()=>{ syncSliders(); calcAndDisplay(); });
   });
-  document.getElementById('chkDev').addEventListener('change',calcAndDisplay);
+  document.getElementById('chkDev').addEventListener('change',function(){
+    const ddRow=document.getElementById('descDirectoRow');
+    const ddChk=document.getElementById('chkDescDirecto');
+    if(this.checked && currentUnit && currentUnit.devolucion_ok) {
+      ddRow.style.display='flex';
+    } else {
+      ddRow.style.display='none';
+      ddChk.checked=false;
+    }
+    calcAndDisplay();
+  });
   document.getElementById('chkDescDirecto').addEventListener('change',calcAndDisplay);
 }
 
