@@ -1222,16 +1222,35 @@ async function loadAdminUsers() {
     const {data,error}=await supa.from('perfiles').select('*').order('created_at',{ascending:true});
     if(error) { el.textContent='Error: '+error.message; return; }
     if(!data||!data.length) { el.textContent='No hay usuarios registrados.'; return; }
-    let h='<table class="inv" style="min-width:500px"><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Zoho ID</th><th>Activo</th></tr></thead><tbody>';
+    // Load asesores to get telefono
+    const {data:asesores}=await supa.from('asesores').select('email,telefono');
+    const telMap={};
+    if(asesores) asesores.forEach(a=>{telMap[a.email]=a.telefono||'';});
+    let h='<table class="inv" style="min-width:600px"><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Teléfono</th><th>Zoho ID</th><th>Activo</th></tr></thead><tbody>';
     data.forEach(u=>{
       h+='<tr><td style="color:var(--gold)">'+u.nombre+'</td><td>'+u.email+'</td><td>'+u.rol+'</td>';
+      h+='<td><input type="text" value="'+(telMap[u.email]||'')+'" data-email="'+u.email+'" data-nombre="'+u.nombre+'" class="tel-input" style="width:120px;padding:3px 6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--txt);border-radius:4px;font-size:11px" placeholder="55 1234 5678"></td>';
       h+='<td><input type="text" value="'+(u.zoho_user_id||'')+'" data-uid="'+u.id+'" class="zoho-id-input" style="width:120px;padding:3px 6px;border:1px solid rgba(255,255,255,.1);background:var(--s2);color:var(--txt);border-radius:4px;font-size:11px"></td>';
       h+='<td>'+(u.activo?'Si':'No')+'</td></tr>';
     });
     h+='</tbody></table>';
-    h+='<button class="admin-save" onclick="saveZohoIds()" style="margin-top:8px">Guardar Zoho IDs</button>';
+    h+='<div style="display:flex;gap:8px;margin-top:8px"><button class="admin-save" onclick="saveZohoIds()">Guardar Zoho IDs</button>';
+    h+='<button class="admin-save" onclick="saveAllTelefonos()">Guardar teléfonos</button></div>';
     el.innerHTML=h;
   } catch(e) { el.textContent='Error cargando usuarios'; }
+}
+
+async function saveAllTelefonos(){
+  const inputs=document.querySelectorAll('.tel-input');
+  let saved=0;
+  for(const inp of inputs){
+    const email=inp.dataset.email, nombre=inp.dataset.nombre, tel=inp.value.trim();
+    // Upsert: creates asesor record if doesn't exist, updates if it does
+    await supa.from('asesores').upsert({email,nombre,telefono:tel||null,activo:true},{onConflict:'email'});
+    saved++;
+  }
+  toast(saved+' teléfonos guardados');
+  loadAdminAsesores();
 }
 
 async function saveZohoIds() {
