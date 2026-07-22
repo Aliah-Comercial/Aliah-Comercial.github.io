@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pet Fest — Aliah Lomas Verdes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --olive:#484D31;
+    --green:#5F6844;
+    --sage:#A4AC8C;
+    --charcoal:#282823;
+    --light:#F8F8F8;
+    --brass:#B08D57;
+    --brass-dark:#8C6D40;
+    --error:#9A3B3B;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--light);
+    font-family:'DM Sans', sans-serif;
+    color:var(--charcoal);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Outfit', sans-serif;
+    letter-spacing:0.02em;
+  }
+  a{color:var(--olive);}
+  .wrap{max-width:520px;margin:0 auto;}
+
+  /* HERO (arte oficial) */
+  .hero-img{display:block;width:100%;height:auto;}
+
+  /* Imagen de comunidad, previa al formulario */
+  .community-img{display:block;width:100%;height:auto;border-radius:var(--radius);margin-bottom:14px;}
+  .community-caption{font-size:12.5px;color:#c8cabb;text-align:center;margin:0 0 26px;font-style:italic;}
+
+  /* SCHEDULE */
+  .section{padding:34px 24px;}
+  .section h2{font-size:22px;color:var(--olive);margin:0 0 4px;}
+  .section .lead{font-size:14px;color:#5c5f4e;margin:0 0 22px;line-height:1.5;}
+
+  .timeline{position:relative;padding-left:6px;}
+  .timeline::before{
+    content:'';position:absolute;left:19px;top:8px;bottom:8px;width:2px;
+    background:var(--sage);
+  }
+  .tl-item{position:relative;padding-left:48px;padding-bottom:22px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-dot{
+    position:absolute;left:0;top:2px;border-radius:50%;
+    background:var(--green);border:3px solid var(--light);
+    box-shadow:0 0 0 2px var(--sage);
+  }
+  .tl-item[data-size="chico"] .tl-dot{width:14px;height:14px;top:6px;left:13px;}
+  .tl-item[data-size="mediano"] .tl-dot{width:20px;height:20px;top:3px;left:10px;}
+  .tl-item[data-size="grande"] .tl-dot{width:26px;height:26px;top:0;left:7px;}
+  .tl-time{font-family:'Outfit',sans-serif;font-weight:700;font-size:15px;color:var(--charcoal);}
+  .tl-label{font-size:13px;color:#6b6e5c;margin-top:2px;}
+
+  .rule{
+    background:var(--sage);color:var(--charcoal);border-radius:var(--radius);
+    padding:16px 18px;font-size:13.5px;line-height:1.55;margin-top:24px;
+  }
+  .rule strong{display:block;font-family:'Outfit',sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
+
+  /* FORM */
+  .formsec{background:var(--charcoal);color:var(--light);}
+  .formsec h2{color:var(--light);}
+  .formsec .lead{color:#c8cabb;}
+
+  .field{margin-bottom:18px;}
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:7px;color:#e4e5da;}
+  input[type=text],input[type=tel],select{
+    width:100%;padding:13px 14px;border-radius:10px;border:1px solid #55584a;
+    background:#33352a;color:var(--light);font-family:'DM Sans',sans-serif;font-size:15px;
+  }
+  input::placeholder{color:#8a8d7a;}
+  input:focus,select:focus{outline:2px solid var(--sage);outline-offset:1px;border-color:var(--sage);}
+
+  .radiogroup{display:flex;gap:10px;}
+  .radiocard{
+    flex:1;border:1px solid #55584a;border-radius:10px;padding:12px;
+    text-align:center;font-size:14px;font-weight:600;cursor:pointer;
+    background:#33352a;transition:border-color .15s, background .15s;
+  }
+  .radiocard input{position:absolute;opacity:0;pointer-events:none;}
+  .radiocard.checked{border-color:var(--sage);background:#454833;}
+
+  .subfield{
+    margin-top:12px;padding:14px;background:#2f3126;border-radius:10px;
+    border:1px dashed #55584a;
+  }
+  .hidden{display:none !important;}
+
+  .petrow{
+    background:#33352a;border-radius:10px;padding:14px;margin-bottom:12px;
+    display:flex;gap:10px;align-items:flex-end;
+  }
+  .petrow .field{flex:1;margin-bottom:0;}
+  .petrow .removebtn{
+    background:none;border:1px solid #55584a;color:#c8cabb;border-radius:8px;
+    width:42px;height:42px;font-size:18px;cursor:pointer;flex-shrink:0;
+  }
+  .addbtn{
+    width:100%;padding:12px;border-radius:10px;border:1px dashed var(--sage);
+    background:none;color:var(--sage);font-weight:600;font-size:14px;cursor:pointer;
+    font-family:'DM Sans',sans-serif;
+  }
+  .addbtn:disabled{opacity:0.4;cursor:not-allowed;}
+
+  .checkfield{display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;}
+  .checkfield input{margin-top:3px;flex-shrink:0;width:18px;height:18px;}
+  .checkfield label{font-weight:400;font-size:13px;color:#c8cabb;margin:0;}
+  .checkfield a{color:var(--sage);}
+
+  .submitbtn{
+    width:100%;padding:16px;border-radius:12px;border:none;
+    background:var(--sage);color:var(--charcoal);font-family:'Outfit',sans-serif;
+    font-weight:700;font-size:16px;letter-spacing:0.02em;cursor:pointer;margin-top:6px;
+  }
+  .submitbtn:disabled{opacity:0.5;cursor:not-allowed;}
+  .errormsg{color:#e9a5a5;font-size:12.5px;margin-top:6px;display:none;}
+  .errormsg.show{display:block;}
+
+  /* CONFIRMATION */
+  .confirm{padding:48px 24px;text-align:center;background:var(--light);}
+  .confirm .check{
+    width:64px;height:64px;border-radius:50%;background:var(--green);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
+  }
+  .confirm h2{color:var(--olive);font-size:24px;margin:0 0 10px;}
+  .confirm p{font-size:14px;color:#5c5f4e;line-height:1.6;margin:0 0 20px;}
+  .confirm .horario-card{
+    background:var(--olive);color:var(--light);border-radius:var(--radius);
+    padding:16px;margin-bottom:12px;text-align:left;
+  }
+  .confirm .horario-card .t{font-family:'Outfit',sans-serif;font-weight:700;font-size:16px;}
+  .confirm .horario-card .s{font-size:12.5px;color:var(--sage);margin-top:2px;}
+  .fallback{
+    margin-top:24px;padding:16px;border-radius:var(--radius);background:#fbeeea;
+    border:1px solid #e3c9bd;font-size:13px;color:var(--error);text-align:left;line-height:1.5;
+  }
+
+  .foot{padding:20px 24px 34px;text-align:center;font-size:11.5px;color:#9a9d89;background:var(--light);}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HERO (arte oficial) -->
+  <img class="hero-img" src="hero-petfest.jpg" alt="Pet Fest — Aliah Lomas Verdes. Domingo 2 de agosto, 12:00 h. Celebremos juntos la inauguración del área de mascotas: concursos y dinámicas, premios, descuentos especiales.">
+
+  <!-- HORARIOS -->
+  <div class="section">
+    <h2>Tu horario según el tamaño de tu mascota</h2>
+    <p class="lead">Para una convivencia segura entre todas las mascotas, las actividades de la Zona Pet se realizan por franjas horarias.</p>
+    <div class="timeline">
+      <div class="tl-item" data-size="chico">
+        <div class="tl-dot"></div>
+        <div class="tl-time">12:00 – 13:30 h</div>
+        <div class="tl-label">Razas pequeñas</div>
+      </div>
+      <div class="tl-item" data-size="mediano">
+        <div class="tl-dot"></div>
+        <div class="tl-time">13:30 – 15:00 h</div>
+        <div class="tl-label">Razas medianas</div>
+      </div>
+      <div class="tl-item" data-size="grande">
+        <div class="tl-dot"></div>
+        <div class="tl-time">15:00 – 16:30 h</div>
+        <div class="tl-label">Razas grandes</div>
+      </div>
+    </div>
+    <div class="rule">
+      <strong>Importante</strong>
+      El uso de correa será obligatorio en todo momento durante el evento. La Multicancha permanece abierta para todos los residentes durante el horario general del evento.
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="section formsec" id="formSection">
+    <h2>Registra a tus mascotas</h2>
+    <p class="lead">Acompáñalas a disfrutar de una experiencia creada especialmente para ellas.</p>
+
+    <img class="community-img" src="comunidad-petfest.jpg" alt="Vecinos disfrutando la Zona Pet con sus mascotas en Aliah Lomas Verdes">
+    <p class="community-caption">Así se vive la comunidad en Aliah Lomas Verdes</p>
+
+    <form id="petfestForm" novalidate>
+
+      <!-- honeypot anti-spam, invisible para personas -->
+      <div style="position:absolute;left:-9999px;" aria-hidden="true">
+        <label for="empresa">No llenar</label>
+        <input type="text" id="empresa" name="empresa" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" id="nombre" required placeholder="Nombre y apellido">
+      </div>
+
+      <div class="field">
+        <label for="telefono">Teléfono (WhatsApp)</label>
+        <input type="tel" id="telefono" required placeholder="10 dígitos" inputmode="numeric" maxlength="10">
+        <div class="errormsg" id="errTelefono">Ingresa un teléfono a 10 dígitos.</div>
+      </div>
+
+      <div class="field">
+        <label>¿Eres condómino de Aliah Lomas Verdes?</label>
+        <div class="radiogroup" id="tipoAsistenteGroup">
+          <label class="radiocard" data-value="condomino">
+            <input type="radio" name="tipoAsistente" value="condomino">Sí, soy condómino
+          </label>
+          <label class="radiocard" data-value="externo">
+            <input type="radio" name="tipoAsistente" value="externo">Soy invitado
+          </label>
+        </div>
+      </div>
+
+      <div class="subfield hidden" id="bloqueCondomino">
+        <div class="field" style="margin-bottom:0;">
+          <label for="torreDepa">Torre y depa</label>
+          <input type="text" id="torreDepa" placeholder="Ej: B-202">
+        </div>
+      </div>
+
+      <div class="subfield hidden" id="bloqueExterno">
+        <div class="field">
+          <label>¿Quién te invitó?</label>
+          <div class="radiogroup" id="invitadoPorGroup">
+            <label class="radiocard" data-value="condomino_invita">
+              <input type="radio" name="invitadoPor" value="condomino_invita">Un condómino
+            </label>
+            <label class="radiocard" data-value="ventas">
+              <input type="radio" name="invitadoPor" value="ventas">Equipo de ventas
+            </label>
+          </div>
+        </div>
+
+        <div class="field hidden" id="campoNombreCondomino">
+          <label for="nombreCondomino">Nombre del condómino que te invitó</label>
+          <input type="text" id="nombreCondomino" placeholder="Nombre y apellido">
+        </div>
+
+        <div class="field hidden" id="campoAsesor">
+          <label for="asesorSelect">¿Quién te invitó?</label>
+          <select id="asesorSelect">
+            <option value="">Selecciona...</option>
+            <option value="Carmen Caudillo (Asesor Inmobiliario)">Carmen Caudillo (Asesor Inmobiliario)</option>
+            <option value="Francisco Limones (Asesor Inmobiliario)">Francisco Limones (Asesor Inmobiliario)</option>
+            <option value="Rafael Espinosa (Asesor Inmobiliario)">Rafael Espinosa (Asesor Inmobiliario)</option>
+            <option value="Stephani Montes (Asesor Inmobiliario)">Stephani Montes (Asesor Inmobiliario)</option>
+            <option value="Sacnité Luna (Call Center)">Sacnité Luna (Call Center)</option>
+            <option value="Veronica Romero (Atención a Clientes)">Veronica Romero (Atención a Clientes)</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="field hidden" id="campoAsesorOtro">
+          <label for="asesorOtro">¿Quién te invitó?</label>
+          <input type="text" id="asesorOtro" placeholder="Nombre">
+        </div>
+      </div>
+
+      <!-- MASCOTAS -->
+      <div class="field" style="margin-top:26px;">
+        <label>Tus mascotas</label>
+        <div id="petsContainer"></div>
+        <button type="button" class="addbtn" id="addPetBtn">+ Agregar otra mascota</button>
+      </div>
+
+      <div class="checkfield" style="margin-top:22px;">
+        <input type="checkbox" id="aceptaCorrea" required>
+        <label for="aceptaCorrea">Acepto que el uso de correa es obligatorio para mi(s) mascota(s) durante todo el evento.</label>
+      </div>
+      <div class="checkfield">
+        <input type="checkbox" id="aceptaPrivacidad" required>
+        <label for="aceptaPrivacidad">He leído y acepto el <a href="https://aliah.mx/legal/aviso-privacidad.html" target="_blank" rel="noopener">aviso de privacidad</a>.</label>
+      </div>
+
+      <button type="submit" class="submitbtn" id="submitBtn">Confirmar registro</button>
+    </form>
+  </div>
+
+  <!-- CONFIRMACIÓN (oculta hasta el envío) -->
+  <div class="confirm hidden" id="confirmSection">
+    <div class="check">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M4 12L9 17L20 6" stroke="#F8F8F8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2>Tu registro quedó confirmado</h2>
+    <p>Te esperamos el domingo 2 de agosto. Este es tu horario:</p>
+    <div id="horariosResumen"></div>
+    <p style="margin-top:18px;">Recuerda: el uso de correa es obligatorio durante todo el evento.</p>
+    <div class="fallback hidden" id="fallbackMsg">
+      No pudimos confirmar tu registro automáticamente por una falla de conexión. Escríbenos por WhatsApp para asegurar tu lugar: <a id="fallbackLink" href="#">enviar mensaje</a>.
+    </div>
+  </div>
+
+  <div class="foot">Aliah Lomas Verdes · Av. Lomas Verdes #77, Santa Cruz Acatlán, Naucalpan</div>
+
+</div>
+
+<script>
+(function(){
+
+  // ======= CONFIGURACIÓN — RELLENAR ANTES DE PUBLICAR =======
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcBiXWy46eW4U-_iVF190Lgx0wlBonytdT4TC63ScVpxoc511hL1CMDCwTFuxgrJsy8w/exec";
+  var CONTACTO_WHATSAPP = "5641771493"; // Atención a Clientes
+  // ============================================================
+
+  var HORARIOS = {
+    chico:   {label:"Razas pequeñas", rango:"12:00 – 13:30 h"},
+    mediano: {label:"Razas medianas", rango:"13:30 – 15:00 h"},
+    grande:  {label:"Razas grandes",  rango:"15:00 – 16:30 h"}
+  };
+  var MAX_MASCOTAS = 4;
+  var petCount = 0;
+
+  var petsContainer = document.getElementById('petsContainer');
+  var addPetBtn = document.getElementById('addPetBtn');
+
+  function addPetRow(){
+    if(petCount >= MAX_MASCOTAS) return;
+    petCount++;
+    var row = document.createElement('div');
+    row.className = 'petrow';
+    row.innerHTML =
+      '<div class="field">' +
+        '<label>Nombre de la mascota</label>' +
+        '<input type="text" class="petNombre" placeholder="Nombre">' +
+      '</div>' +
+      '<div class="field">' +
+        '<label>Tamaño</label>' +
+        '<select class="petTamano">' +
+          '<option value="">Selecciona...</option>' +
+          '<option value="chico">Chico</option>' +
+          '<option value="mediano">Mediano</option>' +
+          '<option value="grande">Grande</option>' +
+        '</select>' +
+      '</div>' +
+      (petCount > 1 ? '<button type="button" class="removebtn">×</button>' : '');
+    petsContainer.appendChild(row);
+
+    var removeBtn = row.querySelector('.removebtn');
+    if(removeBtn){
+      removeBtn.addEventListener('click', function(){
+        row.remove();
+        petCount--;
+        addPetBtn.disabled = false;
+      });
+    }
+    if(petCount >= MAX_MASCOTAS){
+      addPetBtn.disabled = true;
+      addPetBtn.textContent = "Máximo 4 mascotas. ¿Traes más? Que cada dueño se registre por separado.";
+    }
+  }
+  addPetRow();
+  addPetBtn.addEventListener('click', addPetRow);
+
+  // Radio cards visuales
+  function wireRadioGroup(groupId, onChange){
+    var group = document.getElementById(groupId);
+    var cards = group.querySelectorAll('.radiocard');
+    cards.forEach(function(card){
+      card.addEventListener('click', function(){
+        cards.forEach(function(c){ c.classList.remove('checked'); });
+        card.classList.add('checked');
+        card.querySelector('input').checked = true;
+        onChange(card.getAttribute('data-value'));
+      });
+    });
+  }
+
+  var bloqueCondomino = document.getElementById('bloqueCondomino');
+  var bloqueExterno = document.getElementById('bloqueExterno');
+
+  wireRadioGroup('tipoAsistenteGroup', function(value){
+    bloqueCondomino.classList.toggle('hidden', value !== 'condomino');
+    bloqueExterno.classList.toggle('hidden', value !== 'externo');
+  });
+
+  var campoNombreCondomino = document.getElementById('campoNombreCondomino');
+  var campoAsesor = document.getElementById('campoAsesor');
+  var campoAsesorOtro = document.getElementById('campoAsesorOtro');
+
+  wireRadioGroup('invitadoPorGroup', function(value){
+    campoNombreCondomino.classList.toggle('hidden', value !== 'condomino_invita');
+    campoAsesor.classList.toggle('hidden', value !== 'ventas');
+    if(value !== 'ventas') campoAsesorOtro.classList.add('hidden');
+  });
+
+  document.getElementById('asesorSelect').addEventListener('change', function(){
+    campoAsesorOtro.classList.toggle('hidden', this.value !== 'otro');
+  });
+
+  // Teléfono: solo dígitos
+  var telInput = document.getElementById('telefono');
+  telInput.addEventListener('input', function(){
+    this.value = this.value.replace(/\D/g,'').slice(0,10);
+  });
+
+  function normalizarWhatsapp(tel){
+    var digits = tel.replace(/\D/g,'');
+    if(digits.length === 10) return '521' + digits;
+    return '521' + digits.slice(-10);
+  }
+
+  // Envío
+  var form = document.getElementById('petfestForm');
+  var submitBtn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+
+    // Honeypot
+    if(document.getElementById('empresa').value){ return; }
+
+    var nombre = document.getElementById('nombre').value.trim();
+    var telefono = telInput.value.trim();
+    var errTel = document.getElementById('errTelefono');
+
+    if(telefono.length !== 10){
+      errTel.classList.add('show');
+      telInput.focus();
+      return;
+    }
+    errTel.classList.remove('show');
+
+    if(!nombre){ document.getElementById('nombre').focus(); return; }
+
+    var tipoAsistenteEl = document.querySelector('input[name="tipoAsistente"]:checked');
+    if(!tipoAsistenteEl){ alert('Indica si eres condómino o invitado.'); return; }
+    var tipoAsistente = tipoAsistenteEl.value;
+
+    var torreDepa = '', invitadoPorTipo = '', invitadoPorNombre = '';
+
+    if(tipoAsistente === 'condomino'){
+      torreDepa = document.getElementById('torreDepa').value.trim();
+      if(!torreDepa){ alert('Indica tu torre y depa.'); return; }
+    } else {
+      var invitadoPorEl = document.querySelector('input[name="invitadoPor"]:checked');
+      if(!invitadoPorEl){ alert('Indica quién te invitó.'); return; }
+      invitadoPorTipo = invitadoPorEl.value;
+      if(invitadoPorTipo === 'condomino_invita'){
+        invitadoPorNombre = document.getElementById('nombreCondomino').value.trim();
+        if(!invitadoPorNombre){ alert('Indica el nombre del condómino que te invitó.'); return; }
+      } else {
+        var asesorVal = document.getElementById('asesorSelect').value;
+        if(!asesorVal){ alert('Indica quién te invitó.'); return; }
+        if(asesorVal === 'otro'){
+          invitadoPorNombre = document.getElementById('asesorOtro').value.trim();
+          if(!invitadoPorNombre){ alert('Indica el nombre de quien te invitó.'); return; }
+        } else {
+          invitadoPorNombre = asesorVal;
+        }
+      }
+    }
+
+    // Mascotas
+    var petRows = petsContainer.querySelectorAll('.petrow');
+    var mascotas = [];
+    var tamanosUnicos = {};
+    for(var i=0;i<petRows.length;i++){
+      var pNombre = petRows[i].querySelector('.petNombre').value.trim();
+      var pTamano = petRows[i].querySelector('.petTamano').value;
+      if(!pNombre || !pTamano){
+        alert('Completa el nombre y tamaño de cada mascota.');
+        return;
+      }
+      mascotas.push({nombre:pNombre, tamano:pTamano});
+      tamanosUnicos[pTamano] = true;
+    }
+    if(mascotas.length === 0){ alert('Agrega al menos una mascota.'); return; }
+
+    if(!document.getElementById('aceptaCorrea').checked){ alert('Debes aceptar el uso obligatorio de correa.'); return; }
+    if(!document.getElementById('aceptaPrivacidad').checked){ alert('Debes aceptar el aviso de privacidad.'); return; }
+
+    var payload = {
+      nombre: nombre,
+      telefono: telefono,
+      tipoAsistente: tipoAsistente,
+      torreDepa: torreDepa,
+      invitadoPorTipo: invitadoPorTipo,
+      invitadoPorNombre: invitadoPorNombre,
+      mascotas: mascotas,
+      fecha: new Date().toISOString()
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando...';
+
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(){ mostrarConfirmacion(tamanosUnicos, false); })
+    .catch(function(){ mostrarConfirmacion(tamanosUnicos, true); });
+  });
+
+  function mostrarConfirmacion(tamanosUnicos, huboError){
+    document.getElementById('formSection').classList.add('hidden');
+    var confirmSection = document.getElementById('confirmSection');
+    confirmSection.classList.remove('hidden');
+
+    var resumen = document.getElementById('horariosResumen');
+    resumen.innerHTML = '';
+    Object.keys(tamanosUnicos).forEach(function(tam){
+      var info = HORARIOS[tam];
+      var card = document.createElement('div');
+      card.className = 'horario-card';
+      card.innerHTML = '<div class="t">' + info.rango + '</div><div class="s">' + info.label + '</div>';
+      resumen.appendChild(card);
+    });
+
+    if(huboError){
+      var fb = document.getElementById('fallbackMsg');
+      fb.classList.remove('hidden');
+      document.getElementById('fallbackLink').href = 'https://wa.me/' + normalizarWhatsapp(CONTACTO_WHATSAPP) + '?text=' + encodeURIComponent('Hola, quiero confirmar mi registro al Pet Fest de Aliah Lomas Verdes, mi formulario no se envió correctamente.');
+    }
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+})();
+</script>
+
+</body>
+</html>
