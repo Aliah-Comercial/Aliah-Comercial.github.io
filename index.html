@@ -7,14 +7,97 @@
 <meta name="theme-color" content="#282823">
 <title>Aliah Lomas Verdes — Herramientas Comerciales</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
+/* ── Reset ── */
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
-.wrap{text-align:center;max-width:800px;width:100%}
-.logo{height:80px;margin:0 auto 24px;display:block}
-.kicker{font-size:14px;color:#A4AC8C;letter-spacing:4px;text-transform:uppercase;margin-bottom:48px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;width:100%}
-.card{border-radius:16px;padding:28px;cursor:pointer;transition:transform .3s;text-decoration:none;display:block;text-align:center}
+
+/* ── Pantallas ── */
+.screen{display:none;width:100%;max-width:860px;text-align:center;animation:fadeIn .35s ease}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Logo + kicker ── */
+.logo{height:72px;margin:0 auto 20px;display:block}
+.kicker{font-size:12px;color:#A4AC8C;letter-spacing:4px;text-transform:uppercase;margin-bottom:36px}
+
+/* ── Login ── */
+.login-box{background:#1e1e1a;border:1px solid #3a3a33;border-radius:16px;padding:36px 32px;width:100%;max-width:400px}
+.login-box h2{font-size:18px;font-weight:600;margin-bottom:6px;color:#F8F8F8}
+.login-box p{font-size:13px;color:#A4AC8C;margin-bottom:28px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;text-align:left}
+.field label{font-size:11px;color:#A4AC8C;letter-spacing:1px;text-transform:uppercase}
+.field input{background:#282823;border:1px solid #3a3a33;border-radius:8px;padding:11px 14px;color:#F8F8F8;font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.field input:focus{border-color:#5F6844}
+.btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,#484D31,#5F6844);border:none;border-radius:10px;color:#F8F8F8;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s;letter-spacing:.5px}
+.btn-primary:hover{opacity:.88}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.msg-error{font-size:12px;color:#c0392b;margin-top:12px;text-align:center;min-height:18px}
+
+/* ── Gate Zoho ── */
+.gate-box{width:100%;max-width:560px}
+.gate-title{font-size:20px;font-weight:600;margin-bottom:6px}
+.gate-sub{font-size:13px;color:#A4AC8C;margin-bottom:28px}
+.search-row{display:flex;gap:10px;margin-bottom:8px}
+.search-input{flex:1;background:#1e1e1a;border:1px solid #3a3a33;border-radius:10px;padding:12px 16px;color:#F8F8F8;font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:#5F6844}
+.btn-search{padding:12px 20px;background:#5F6844;border:none;border-radius:10px;color:#F8F8F8;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.btn-search:hover{opacity:.85}
+.btn-search:disabled{opacity:.45;cursor:not-allowed}
+
+/* Resultados de búsqueda */
+.results-list{width:100%;margin-top:8px;display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto}
+.result-item{background:#1e1e1a;border:1px solid #3a3a33;border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .2s;text-align:left}
+.result-item:hover{border-color:#5F6844}
+.result-info{}
+.result-name{font-size:14px;font-weight:600;color:#F8F8F8}
+.result-meta{font-size:11px;color:#A4AC8C;margin-top:2px}
+.result-badge{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.5px;white-space:nowrap}
+.badge-lead{background:#484D3122;color:#A4AC8C;border:1px solid #484D31}
+.badge-deal{background:#B8A97E22;color:#B8A97E;border:1px solid #B8A97E55}
+.btn-select{padding:7px 16px;background:#484D31;border:none;border-radius:8px;color:#F8F8F8;font-size:12px;font-weight:600;cursor:pointer;transition:background .2s;white-space:nowrap;margin-left:12px}
+.btn-select:hover{background:#5F6844}
+
+/* No encontrado */
+.no-results{background:#1e1e1a;border:1px solid #3a3a33;border-radius:12px;padding:24px;margin-top:8px}
+.no-results p{font-size:13px;color:#A4AC8C;margin-bottom:16px}
+.alta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-alta{padding:11px 20px;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .2s;flex:1;min-width:160px}
+.btn-alta-showroom{background:linear-gradient(135deg,#B8A97E,#8a7a5a);color:#fff}
+.btn-alta-remoto{background:#1e1e1a;border:1px solid #5F6844;color:#A4AC8C}
+.btn-alta:hover{opacity:.85}
+
+/* Formulario de alta */
+.alta-form{background:#1e1e1a;border:1px solid #3a3a33;border-radius:12px;padding:24px;margin-top:12px;text-align:left}
+.alta-form h3{font-size:14px;font-weight:600;margin-bottom:4px;color:#F8F8F8}
+.alta-form .alta-sub{font-size:11px;color:#A4AC8C;margin-bottom:18px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-row.single{grid-template-columns:1fr}
+.source-select{background:#282823;border:1px solid #3a3a33;border-radius:8px;padding:11px 14px;color:#F8F8F8;font-family:'Outfit',sans-serif;font-size:14px;outline:none;width:100%}
+.alta-actions{display:flex;gap:10px;margin-top:16px}
+.btn-confirm{flex:1;padding:12px;background:linear-gradient(135deg,#484D31,#5F6844);border:none;border-radius:10px;color:#F8F8F8;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s}
+.btn-confirm:hover{opacity:.88}
+.btn-confirm:disabled{opacity:.45;cursor:not-allowed}
+.btn-cancel{padding:12px 18px;background:transparent;border:1px solid #3a3a33;border-radius:10px;color:#A4AC8C;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer}
+
+/* Spinner */
+.spinner{width:20px;height:20px;border:2px solid #3a3a33;border-top-color:#A4AC8C;border-radius:50%;animation:spin .7s linear infinite;margin:20px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Prospecto seleccionado (chip) */
+.prospect-chip{background:#484D3133;border:1px solid #5F6844;border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:24px}
+.prospect-chip-info{text-align:left}
+.prospect-chip-name{font-size:14px;font-weight:600;color:#F8F8F8}
+.prospect-chip-meta{font-size:11px;color:#A4AC8C;margin-top:2px}
+.btn-change{font-size:11px;color:#A4AC8C;background:none;border:none;cursor:pointer;text-decoration:underline;padding:4px}
+
+/* ── Hub: tarjetas de herramientas ── */
+.hub-header{margin-bottom:28px}
+.hub-header h1{font-size:15px;color:#A4AC8C;letter-spacing:3px;text-transform:uppercase;font-weight:400}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;width:100%}
+.card{border-radius:14px;padding:26px;cursor:pointer;transition:transform .25s;text-decoration:none;display:block;text-align:center}
 .card:hover{transform:translateY(-4px)}
 .card h2{font-weight:700;margin-bottom:6px}
 .card p{font-size:12px;line-height:1.5}
@@ -28,15 +111,95 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
 .card-decide{background:linear-gradient(135deg,#282823,#3a3a33);border:1px solid rgba(184,169,126,.27)}
 .card-decide h2{font-size:18px;color:#B8A97E}
 .card-decide p{color:#999}
-.footer{font-size:10px;color:#444;margin-top:40px;line-height:1.6}
+
+/* ── Footer / sesión ── */
+.footer{font-size:10px;color:#444;margin-top:32px;line-height:1.6}
+.session-bar{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:860px;margin-bottom:20px;padding:0 4px}
+.session-name{font-size:12px;color:#A4AC8C}
+.btn-logout{font-size:11px;color:#555;background:none;border:none;cursor:pointer;padding:4px 8px}
+.btn-logout:hover{color:#A4AC8C}
+
+/* ── Status de búsqueda ── */
+.search-status{font-size:12px;color:#A4AC8C;margin-top:6px;min-height:16px;text-align:left}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Logo%20ALV%20blanco.png" alt="Aliah Lomas Verdes" class="logo" onerror="this.style.display='none'">
+
+<!-- ══════════════════════════════════════════
+     PANTALLA 1: LOGIN SUPABASE
+     ══════════════════════════════════════════ -->
+<div id="screen-login" class="screen active">
+  <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Logo%20ALV%20blanco.png"
+       alt="Aliah Lomas Verdes" class="logo" onerror="this.style.display='none'">
   <p class="kicker">Herramientas Comerciales</p>
+  <div class="login-box">
+    <h2>Acceso al equipo</h2>
+    <p>Ingresa con tu cuenta de asesor</p>
+    <div class="field">
+      <label>Correo</label>
+      <input type="email" id="inp-email" placeholder="tu@correo.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" id="btn-login">Ingresar</button>
+    <p class="msg-error" id="login-error"></p>
+  </div>
+  <p class="footer">Aliah Developments &copy; 2026 &middot; Uso exclusivo equipo comercial</p>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PANTALLA 2: GATE ZOHO — BUSCAR PROSPECTO
+     ══════════════════════════════════════════ -->
+<div id="screen-gate" class="screen">
+  <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Logo%20ALV%20blanco.png"
+       alt="Aliah Lomas Verdes" class="logo" onerror="this.style.display='none'">
+
+  <div class="gate-box">
+    <p class="gate-title">¿Con quién vas a trabajar?</p>
+    <p class="gate-sub">Busca al prospecto antes de abrir cualquier herramienta</p>
+
+    <div class="search-row">
+      <input type="text" class="search-input" id="inp-search"
+             placeholder="Nombre, teléfono o correo..."
+             autocomplete="off" autocorrect="off">
+      <button class="btn-search" id="btn-search">Buscar</button>
+    </div>
+    <p class="search-status" id="search-status"></p>
+
+    <!-- Resultados dinámicos -->
+    <div id="results-container"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PANTALLA 3: HUB — HERRAMIENTAS
+     ══════════════════════════════════════════ -->
+<div id="screen-hub" class="screen">
+  <div class="session-bar">
+    <span class="session-name" id="session-name"></span>
+    <button class="btn-logout" id="btn-logout">Cerrar sesión</button>
+  </div>
+
+  <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Logo%20ALV%20blanco.png"
+       alt="Aliah Lomas Verdes" class="logo" onerror="this.style.display='none'">
+
+  <!-- Chip del prospecto activo -->
+  <div class="prospect-chip" id="prospect-chip">
+    <div class="prospect-chip-info">
+      <div class="prospect-chip-name" id="chip-name">—</div>
+      <div class="prospect-chip-meta" id="chip-meta">—</div>
+    </div>
+    <button class="btn-change" id="btn-change-prospect">Cambiar</button>
+  </div>
+
+  <div class="hub-header">
+    <h1>Herramientas Comerciales</h1>
+  </div>
+
   <div class="grid">
-    <a href="/ialiah/" class="card card-main">
+    <a href="/ialiah/" class="card card-main" id="link-ialiah">
       <h2>iALIAH</h2>
       <p>Perfilador inteligente — Encuentra el departamento ideal en 2 minutos</p>
       <div class="badge">Herramienta principal de showroom</div>
@@ -52,5 +215,364 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
   </div>
   <p class="footer">Fuentes: Monopolio/DD360 mzo 2026 &middot; 4S mzo 2025 &middot; Banxico may 2026<br>Aliah Developments &copy; 2026</p>
 </div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// CONFIGURACIÓN
+// ══════════════════════════════════════════════════════════
+const SUPABASE_URL  = 'https://wmpilczlxzwpygebrgks.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtcGlsY3pseHp3cHlnZWJyZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxNDQxNDYsImV4cCI6MjA1OTcyMDE0Nn0.XwFhMoaKRzJ5MATFNLzMRFBbVRmf1Ni0VR-Qre30_1k';
+const BACKEND_URL   = 'https://ialiah-backend-production.up.railway.app';
+
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ══════════════════════════════════════════════════════════
+// NAVEGACIÓN ENTRE PANTALLAS
+// ══════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════
+// PANTALLA 1: LOGIN
+// ══════════════════════════════════════════════════════════
+const btnLogin    = document.getElementById('btn-login');
+const inpEmail    = document.getElementById('inp-email');
+const inpPass     = document.getElementById('inp-pass');
+const loginError  = document.getElementById('login-error');
+
+btnLogin.addEventListener('click', async () => {
+  const email = inpEmail.value.trim();
+  const pass  = inpPass.value.trim();
+  if (!email || !pass) { loginError.textContent = 'Ingresa tu correo y contraseña.'; return; }
+
+  btnLogin.disabled = true;
+  btnLogin.textContent = 'Verificando...';
+  loginError.textContent = '';
+
+  const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
+
+  if (error) {
+    loginError.textContent = 'Correo o contraseña incorrectos.';
+    btnLogin.disabled = false;
+    btnLogin.textContent = 'Ingresar';
+    return;
+  }
+
+  // Guardar nombre del asesor en sesión
+  const { data: perfil } = await supa
+    .from('perfiles')
+    .select('nombre')
+    .eq('user_id', data.user.id)
+    .maybeSingle();
+
+  const nombreAsesor = perfil?.nombre || data.user.email;
+  sessionStorage.setItem('asesor_nombre', nombreAsesor);
+  sessionStorage.setItem('asesor_email', data.user.email);
+
+  document.getElementById('session-name').textContent = nombreAsesor;
+  showScreen('screen-gate');
+});
+
+// Enter en login
+[inpEmail, inpPass].forEach(el => el.addEventListener('keydown', e => {
+  if (e.key === 'Enter') btnLogin.click();
+}));
+
+// ══════════════════════════════════════════════════════════
+// PANTALLA 2: GATE ZOHO
+// ══════════════════════════════════════════════════════════
+const btnSearch       = document.getElementById('btn-search');
+const inpSearch       = document.getElementById('inp-search');
+const searchStatus    = document.getElementById('search-status');
+const resultsContainer = document.getElementById('results-container');
+
+let altaMode = null; // 'showroom' | 'remoto'
+
+btnSearch.addEventListener('click', buscarProspecto);
+inpSearch.addEventListener('keydown', e => { if (e.key === 'Enter') buscarProspecto(); });
+
+async function buscarProspecto() {
+  const q = inpSearch.value.trim();
+  if (q.length < 2) { searchStatus.textContent = 'Escribe al menos 2 caracteres.'; return; }
+
+  btnSearch.disabled = true;
+  btnSearch.textContent = 'Buscando...';
+  searchStatus.textContent = 'Consultando CRM...';
+  resultsContainer.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const resp = await fetch(`${BACKEND_URL}/api/zoho/search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: q })
+    });
+    const data = await resp.json();
+    renderResultados(data.results || []);
+  } catch (err) {
+    searchStatus.textContent = 'Error de conexión. Intenta de nuevo.';
+    resultsContainer.innerHTML = '';
+  } finally {
+    btnSearch.disabled = false;
+    btnSearch.textContent = 'Buscar';
+  }
+}
+
+function renderResultados(results) {
+  searchStatus.textContent = '';
+
+  if (results.length === 0) {
+    resultsContainer.innerHTML = `
+      <div class="no-results">
+        <p>No se encontró el prospecto en el CRM. ¿Cómo lo das de alta?</p>
+        <div class="alta-btns">
+          <button class="btn-alta btn-alta-showroom" onclick="mostrarFormAlta('showroom')">
+            Ya está aquí<br><small style="font-weight:400;opacity:.8">Visita al showroom</small>
+          </button>
+          <button class="btn-alta btn-alta-remoto" onclick="mostrarFormAlta('remoto')">
+            No ha venido<br><small style="font-weight:400;opacity:.8">Llamada o WhatsApp</small>
+          </button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  searchStatus.textContent = `${results.length} resultado${results.length > 1 ? 's' : ''} encontrado${results.length > 1 ? 's' : ''}`;
+
+  const html = results.map(r => `
+    <div class="result-item" onclick="seleccionarProspecto('${r.id}','${r.module}','${escHtml(r.name)}','${escHtml(r.phone||'')}','${escHtml(r.owner||'')}','${escHtml(r.owner_email||'')}')">
+      <div class="result-info">
+        <div class="result-name">${escHtml(r.name)}</div>
+        <div class="result-meta">${r.phone || ''}${r.phone && r.email ? ' · ' : ''}${r.email || ''}${r.stage ? ' · ' + escHtml(r.stage) : ''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <span class="result-badge ${r.module === 'Deals' ? 'badge-deal' : 'badge-lead'}">
+          ${r.module === 'Deals' ? 'Visita' : 'Lead'}
+        </span>
+        <button class="btn-select">Seleccionar</button>
+      </div>
+    </div>`).join('');
+
+  resultsContainer.innerHTML = `<div class="results-list">${html}</div>`;
+
+  // También ofrecer alta aunque haya resultados
+  resultsContainer.innerHTML += `
+    <p style="font-size:11px;color:#555;margin-top:10px;text-align:left">
+      ¿No es ninguno? 
+      <button onclick="mostrarFormAlta('showroom')" style="background:none;border:none;color:#A4AC8C;font-size:11px;cursor:pointer;text-decoration:underline">Alta nuevo prospecto</button>
+    </p>`;
+}
+
+function mostrarFormAlta(modo) {
+  altaMode = modo;
+  const esShowroom = modo === 'showroom';
+  const queryActual = inpSearch.value.trim();
+
+  // Intenta prellenar nombre si la búsqueda parece un nombre
+  const preFill = (!queryActual.includes('@') && !/^\d+$/.test(queryActual)) ? queryActual : '';
+
+  resultsContainer.innerHTML = `
+    <div class="alta-form">
+      <h3>${esShowroom ? 'Alta de Visita (Deal)' : 'Alta de Lead'}</h3>
+      <p class="alta-sub">${esShowroom
+        ? 'El prospecto está en el showroom — se registra como Visita en el CRM'
+        : 'Contacto remoto — se registra como Lead en el CRM'}</p>
+      <div class="form-row">
+        <div class="field">
+          <label>Nombre</label>
+          <input type="text" class="search-input" id="alta-nombre" placeholder="Juan" value="${escHtml(preFill.split(' ')[0] || '')}">
+        </div>
+        <div class="field">
+          <label>Apellidos</label>
+          <input type="text" class="search-input" id="alta-apellidos" placeholder="García López" value="${escHtml(preFill.split(' ').slice(1).join(' ') || '')}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Teléfono</label>
+          <input type="tel" class="search-input" id="alta-tel" placeholder="55 1234 5678">
+        </div>
+        <div class="field">
+          <label>Correo <span style="color:#555">(opcional)</span></label>
+          <input type="email" class="search-input" id="alta-email" placeholder="correo@ejemplo.com">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="field">
+          <label>Fuente</label>
+          <select class="source-select" id="alta-fuente">
+            <option value="Show room">Show room</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Instagram">Instagram</option>
+            <option value="Google">Google</option>
+            <option value="Referido">Referido</option>
+            <option value="Broker">Broker</option>
+            <option value="WhatsApp">WhatsApp</option>
+            <option value="Llamada">Llamada</option>
+          </select>
+        </div>
+      </div>
+      <div class="alta-actions">
+        <button class="btn-cancel" onclick="cancelarAlta()">Cancelar</button>
+        <button class="btn-confirm" id="btn-confirmar-alta">
+          ${esShowroom ? 'Registrar visita' : 'Registrar lead'}
+        </button>
+      </div>
+      <p class="msg-error" id="alta-error"></p>
+    </div>`;
+
+  document.getElementById('btn-confirmar-alta').addEventListener('click', confirmarAlta);
+}
+
+function cancelarAlta() {
+  altaMode = null;
+  resultsContainer.innerHTML = '';
+  searchStatus.textContent = '';
+}
+
+async function confirmarAlta() {
+  const nombre   = document.getElementById('alta-nombre').value.trim();
+  const apellidos= document.getElementById('alta-apellidos').value.trim();
+  const tel      = document.getElementById('alta-tel').value.trim();
+  const email    = document.getElementById('alta-email').value.trim();
+  const fuente   = document.getElementById('alta-fuente').value;
+  const errEl    = document.getElementById('alta-error');
+  const btnConf  = document.getElementById('btn-confirmar-alta');
+
+  if (!apellidos || !tel) {
+    errEl.textContent = 'Apellidos y teléfono son obligatorios.';
+    return;
+  }
+
+  btnConf.disabled = true;
+  btnConf.textContent = 'Registrando...';
+  errEl.textContent = '';
+
+  const endpoint = altaMode === 'showroom'
+    ? '/api/zoho/create-deal'
+    : '/api/zoho/create-lead';
+
+  try {
+    const resp = await fetch(`${BACKEND_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName: nombre,
+        lastName:  apellidos,
+        phone:     tel,
+        email:     email || undefined,
+        source:    fuente
+      })
+    });
+    const data = await resp.json();
+
+    if (data.id) {
+      const fullName   = `${nombre} ${apellidos}`.trim();
+      const modLabel   = altaMode === 'showroom' ? 'Deals' : 'Leads';
+      seleccionarProspecto(data.id, modLabel, fullName, tel, '', '');
+    } else {
+      errEl.textContent = 'No se pudo crear el registro. Intenta de nuevo.';
+      btnConf.disabled = false;
+      btnConf.textContent = altaMode === 'showroom' ? 'Registrar visita' : 'Registrar lead';
+    }
+  } catch (err) {
+    errEl.textContent = 'Error de conexión. Intenta de nuevo.';
+    btnConf.disabled = false;
+    btnConf.textContent = altaMode === 'showroom' ? 'Registrar visita' : 'Registrar lead';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// SELECCIONAR PROSPECTO → ir al Hub
+// ══════════════════════════════════════════════════════════
+function seleccionarProspecto(id, modulo, nombre, telefono, ownerNombre, ownerEmail) {
+  // Guardar en sessionStorage para que todas las herramientas lo lean
+  sessionStorage.setItem('zoho_id',           id);
+  sessionStorage.setItem('zoho_module',       modulo);
+  sessionStorage.setItem('zoho_nombre',       nombre);
+  sessionStorage.setItem('zoho_telefono',     telefono);
+  sessionStorage.setItem('zoho_owner_nombre', ownerNombre);
+  sessionStorage.setItem('zoho_owner_email',  ownerEmail);
+
+  // Detectar conflicto de ownership y alertar (se registra via nota)
+  const asesorEmail = sessionStorage.getItem('asesor_email') || '';
+  if (ownerEmail && ownerEmail !== asesorEmail) {
+    // Registrar en consola — la alerta WhatsApp va en Fase 3
+    console.warn(`[iALIAH] Cross-asesor: ${asesorEmail} trabajando prospecto de ${ownerEmail}`);
+    // TODO Fase 3: POST /api/zoho/alert con estos datos
+  }
+
+  // Actualizar chip en el Hub
+  const modLabel = modulo === 'Deals' ? 'Visita (showroom)' : 'Lead';
+  document.getElementById('chip-name').textContent = nombre || '—';
+  document.getElementById('chip-meta').textContent = `${modLabel}${telefono ? ' · ' + telefono : ''}${ownerNombre ? ' · Asesor: ' + ownerNombre : ''}`;
+
+  showScreen('screen-hub');
+}
+
+// Botón "Cambiar prospecto"
+document.getElementById('btn-change-prospect').addEventListener('click', () => {
+  sessionStorage.removeItem('zoho_id');
+  sessionStorage.removeItem('zoho_module');
+  sessionStorage.removeItem('zoho_nombre');
+  resultsContainer.innerHTML = '';
+  searchStatus.textContent   = '';
+  inpSearch.value            = '';
+  showScreen('screen-gate');
+});
+
+// ══════════════════════════════════════════════════════════
+// LOGOUT
+// ══════════════════════════════════════════════════════════
+document.getElementById('btn-logout').addEventListener('click', async () => {
+  await supa.auth.signOut();
+  sessionStorage.clear();
+  showScreen('screen-login');
+  inpEmail.value = '';
+  inpPass.value  = '';
+  loginError.textContent = '';
+});
+
+// ══════════════════════════════════════════════════════════
+// INIT: verificar sesión activa al cargar
+// ══════════════════════════════════════════════════════════
+(async () => {
+  const { data: { session } } = await supa.auth.getSession();
+  if (!session) { showScreen('screen-login'); return; }
+
+  const { data: perfil } = await supa
+    .from('perfiles')
+    .select('nombre')
+    .eq('user_id', session.user.id)
+    .maybeSingle();
+
+  const nombreAsesor = perfil?.nombre || session.user.email;
+  sessionStorage.setItem('asesor_nombre', nombreAsesor);
+  sessionStorage.setItem('asesor_email',  session.user.email);
+  document.getElementById('session-name').textContent = nombreAsesor;
+
+  // Si ya hay un prospecto en sesión, ir directo al Hub
+  if (sessionStorage.getItem('zoho_id')) {
+    const nombre   = sessionStorage.getItem('zoho_nombre') || '—';
+    const modulo   = sessionStorage.getItem('zoho_module') || '—';
+    const telefono = sessionStorage.getItem('zoho_telefono') || '';
+    const owner    = sessionStorage.getItem('zoho_owner_nombre') || '';
+    const modLabel = modulo === 'Deals' ? 'Visita (showroom)' : 'Lead';
+    document.getElementById('chip-name').textContent = nombre;
+    document.getElementById('chip-meta').textContent = `${modLabel}${telefono ? ' · ' + telefono : ''}${owner ? ' · Asesor: ' + owner : ''}`;
+    showScreen('screen-hub');
+  } else {
+    showScreen('screen-gate');
+  }
+})();
+
+// ══════════════════════════════════════════════════════════
+// UTILIDADES
+// ══════════════════════════════════════════════════════════
+function escHtml(str) {
+  return String(str || '').replace(/'/g, '&apos;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+</script>
 </body>
 </html>
