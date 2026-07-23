@@ -36,6 +36,12 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 .msg-error{font-size:12px;color:#c0392b;margin-top:12px;text-align:center;min-height:18px}
 
+/* ── Reset contraseña ── */
+.reset-box{background:#1e1e1a;border:1px solid #3a3a33;border-radius:16px;padding:36px 32px;width:100%;max-width:400px}
+.reset-box h2{font-size:18px;font-weight:600;margin-bottom:6px;color:#F8F8F8}
+.reset-box p{font-size:13px;color:#A4AC8C;margin-bottom:28px}
+.msg-ok{font-size:12px;color:#5F6844;margin-top:12px;text-align:center;min-height:18px}
+
 /* ── Gate Zoho ── */
 .gate-box{width:100%;max-width:560px}
 .gate-title{font-size:20px;font-weight:600;margin-bottom:6px}
@@ -147,6 +153,30 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
     <p class="msg-error" id="login-error"></p>
   </div>
   <p class="footer">Aliah Developments &copy; 2026 &middot; Uso exclusivo equipo comercial</p>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PANTALLA 1B: RESET DE CONTRASEÑA
+     ══════════════════════════════════════════ -->
+<div id="screen-reset" class="screen">
+  <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Logo%20ALV%20blanco.png"
+       alt="Aliah Lomas Verdes" class="logo" onerror="this.style.display='none'">
+  <p class="kicker">Herramientas Comerciales</p>
+  <div class="reset-box">
+    <h2>Nueva contraseña</h2>
+    <p>Elige una contraseña segura para tu cuenta</p>
+    <div class="field">
+      <label>Nueva contraseña</label>
+      <input type="password" id="inp-newpass" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+    </div>
+    <div class="field">
+      <label>Confirmar contraseña</label>
+      <input type="password" id="inp-newpass2" placeholder="Repite la contraseña" autocomplete="new-password">
+    </div>
+    <button class="btn-primary" id="btn-savepass">Guardar contraseña</button>
+    <p class="msg-error" id="reset-error"></p>
+    <p class="msg-ok" id="reset-ok"></p>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -535,9 +565,56 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
 });
 
 // ══════════════════════════════════════════════════════════
+// RESET DE CONTRASEÑA — intercepta token en la URL
+// ══════════════════════════════════════════════════════════
+(function checkResetToken() {
+  const hash   = window.location.hash;
+  const params = new URLSearchParams(hash.replace('#', ''));
+  const type   = params.get('type');
+  // Supabase envía type=recovery cuando es reset de contraseña
+  if (type === 'recovery') {
+    showScreen('screen-reset');
+
+    document.getElementById('btn-savepass').addEventListener('click', async () => {
+      const p1     = document.getElementById('inp-newpass').value;
+      const p2     = document.getElementById('inp-newpass2').value;
+      const errEl  = document.getElementById('reset-error');
+      const okEl   = document.getElementById('reset-ok');
+      const btn    = document.getElementById('btn-savepass');
+
+      errEl.textContent = '';
+      okEl.textContent  = '';
+
+      if (p1.length < 8)   { errEl.textContent = 'La contraseña debe tener al menos 8 caracteres.'; return; }
+      if (p1 !== p2)        { errEl.textContent = 'Las contraseñas no coinciden.'; return; }
+
+      btn.disabled     = true;
+      btn.textContent  = 'Guardando...';
+
+      const { error } = await supa.auth.updateUser({ password: p1 });
+      if (error) {
+        errEl.textContent = 'Error al guardar. Solicita un nuevo link de reset.';
+        btn.disabled      = false;
+        btn.textContent   = 'Guardar contraseña';
+      } else {
+        okEl.textContent  = 'Contraseña actualizada. Redirigiendo...';
+        // Limpiar hash de la URL y redirigir al login
+        setTimeout(() => {
+          window.location.hash = '';
+          showScreen('screen-login');
+        }, 1800);
+      }
+    });
+  }
+})();
+
+// ══════════════════════════════════════════════════════════
 // INIT: verificar sesión activa al cargar
 // ══════════════════════════════════════════════════════════
 (async () => {
+  // Si estamos en pantalla de reset, no hacer nada más
+  if (document.getElementById('screen-reset').classList.contains('active')) return;
+
   const { data: { session } } = await supa.auth.getSession();
   if (!session) { showScreen('screen-login'); return; }
 
