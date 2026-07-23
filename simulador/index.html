@@ -271,7 +271,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
       <div class="admin-field"><label>Inflación (%)</label><input type="number" id="adm_inflacion" value="4.2" step="0.1"></div>
       <div class="admin-field"><label>Horizonte (años)</label><input type="number" id="adm_horizonte" value="10" step="1"></div>
       <div class="admin-field"><label>Tasa desc. financiero anual (%)</label><input type="number" id="adm_tasa_desc_fin" value="8.7" step="0.1"></div>
-      <div class="admin-field"><label>Tasa BBVA convenio Aliah (%)</label><input type="number" id="adm_tasa_bbva" value="9.65" step="0.05"></div>
+      <div class="admin-field"><label>Tasa BBVA Oferta Prime Aliah (%)</label><input type="number" id="adm_tasa_bbva" value="9.10" step="0.05"></div>
       <div class="admin-field"><label>Tasa BX+ convenio Aliah (%)</label><input type="number" id="adm_tasa_bx" value="9.30" step="0.05"></div>
     </div>
     <button class="admin-save" onclick="saveAdminParams()">Guardar supuestos</button>
@@ -420,7 +420,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   <h2 class="sec-h">Riesgos y <b>mitigantes</b></h2>
   <div class="risk-grid">
     <div class="risk"><div><div class="risk-label">Flujo negativo inicial</div><p>La renta no cubre la hipoteca los primeros años.</p></div><div><div class="risk-mit">Mitigante</div><p>Es aportacion a capital de un activo que se aprecia. Entrada escalonada dosifica el desembolso.</p></div></div>
-    <div class="risk"><div><div class="risk-label">Tasa hipotecaria</div><p>El costo financiero presiona el flujo mensual.</p></div><div><div class="risk-mit">Mitigante</div><p>Modelo a tasa conservadora (10.5%). Convenios exclusivos: BBVA 9.65% sin comisión de apertura ni penalización por aportaciones a capital; BX+ 9.30%. Refinanciar a la baja mejora retorno.</p></div></div>
+    <div class="risk"><div><div class="risk-label">Tasa hipotecaria</div><p>El costo financiero presiona el flujo mensual.</p></div><div><div class="risk-mit">Mitigante</div><p>Modelo a tasa conservadora (10.5%). Convenios exclusivos: BX+ 9.30%, aliado financiero del proyecto; BBVA Oferta Prime 9.10%, sin comisión de apertura (score min. 750). Refinanciar a la baja mejora retorno.</p></div></div>
     <div class="risk"><div><div class="risk-label">Vacancia</div><p>Riesgo de unidades sin rentar.</p></div><div><div class="risk-mit">Mitigante</div><p>Zona consolidada con demanda profunda. 30+ amenidades reducen dias en mercado.</p></div></div>
     <div class="risk"><div><div class="risk-label">Plazo de entrega</div><p>Torres D/E: capital comprometido antes de rentar.</p></div><div><div class="risk-mit">Mitigante</div><p>Captura de plusvalía durante obra. Preventa por debajo del valor de entrega.</p></div></div>
   </div>
@@ -558,7 +558,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     </div>
 
     <div class="promo" id="cAcelerador">
-      <b>Convenio bancario exclusivo Aliah:</b> El modelo conservador usa una tasa de <span id="cTasaRef">10.5</span>%. Pero Aliah tiene convenios preferenciales negociados directamente: <b>BBVA al <span id="cTasaBbva">9.65</span>%</b> sin comisión por apertura y sin penalización por aportaciones a capital desde el primer mes (mercado: 10.1-10.4%), y <b>BX+ al <span id="cTasaBx">9.30</span>%</b> (mercado: 10.8-11.2%). Con tu paquete, la tasa BBVA representa <b id="cAhorroBbva">---</b> menos al mes. A 20 años, <b id="cAhorroTotal">---</b> que se quedan en tu bolsillo. Y con aportaciones libres a capital desde el primer mes, cada peso extra que apliques reduce plazo e intereses sin penalización.
+      <b>Convenio bancario exclusivo Aliah:</b> El modelo conservador usa una tasa de <span id="cTasaRef">10.5</span>%. Pero Aliah tiene convenios preferenciales negociados directamente: <b>BX+ al <span id="cTasaBx">9.30</span>%</b> (mercado: 10.8-11.2%), aliado financiero del proyecto, y <b>BBVA Oferta Prime al <span id="cTasaBbva">9.10</span>%</b> sin comisión por apertura (mercado: 10.1-10.4%). Con tu paquete, la mejor tasa representa <b id="cAhorroBbva">---</b> menos al mes. A 20 años, <b id="cAhorroTotal">---</b> que se quedan en tu bolsillo.
     </div>
   </div>
 
@@ -690,20 +690,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <div style="font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:10px">Convenio bancario exclusivo Aliah</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="simConvenioGrid">
             <div style="background:rgba(255,255,255,.03);border-radius:8px;padding:10px">
-              <div style="font-size:11px;font-weight:600;color:var(--txt)">BBVA <span style="font-size:9px;color:var(--gold);font-weight:400">(exclusiva)</span></div>
-              <div style="font-size:18px;font-weight:700;color:var(--gold);margin:4px 0" id="simBbvaPmt">--</div>
-              <div style="font-size:10px;color:var(--t2)" id="simBbvaTasa">Tasa: 9.65%</div>
-              <div style="font-size:10px;color:var(--grn2);font-weight:500;margin-top:2px" id="simBbvaAhorro">--</div>
-              <div style="font-size:9px;color:var(--t2);margin-top:3px;line-height:1.3">Sin comisión apertura. Sin penalización por aportaciones a capital desde mes 1.</div>
-            </div>
-            <div style="background:rgba(255,255,255,.03);border-radius:8px;padding:10px">
-              <div style="font-size:11px;font-weight:600;color:var(--txt)">BX+ <span style="font-size:9px;color:var(--gold);font-weight:400">(exclusiva)</span></div>
+              <div style="font-size:11px;font-weight:600;color:var(--txt)">BX+ <span style="font-size:9px;color:var(--gold);font-weight:400">(aliado del proyecto)</span></div>
               <div style="font-size:18px;font-weight:700;color:var(--gold);margin:4px 0" id="simBxPmt">--</div>
               <div style="font-size:10px;color:var(--t2)" id="simBxTasa">Tasa: 9.30%</div>
               <div style="font-size:10px;color:var(--grn2);font-weight:500;margin-top:2px" id="simBxAhorro">--</div>
             </div>
+            <div style="background:rgba(255,255,255,.03);border-radius:8px;padding:10px">
+              <div style="font-size:11px;font-weight:600;color:var(--txt)">BBVA <span style="font-size:9px;color:var(--gold);font-weight:400">(Oferta Prime)</span></div>
+              <div style="font-size:18px;font-weight:700;color:var(--gold);margin:4px 0" id="simBbvaPmt">--</div>
+              <div style="font-size:10px;color:var(--t2)" id="simBbvaTasa">Tasa: 9.10%</div>
+              <div style="font-size:10px;color:var(--grn2);font-weight:500;margin-top:2px" id="simBbvaAhorro">--</div>
+              <div style="font-size:9px;color:var(--t2);margin-top:3px;line-height:1.3">Sin comisión apertura. Score mínimo 750. Aforo hasta 80%.</div>
+            </div>
           </div>
-          <div style="font-size:10px;color:var(--t3);margin-top:8px;line-height:1.4">Tasas preferenciales negociadas por Aliah Developments. BBVA: sin comisión apertura, aportaciones a capital libres desde mes 1 (mercado 10.1-10.4%). BX+: mercado 10.8-11.2%. Modelo usa <span id="simConvenioTasaRef">10.5%</span> conservador.</div>
+          <div style="font-size:10px;color:var(--t3);margin-top:8px;line-height:1.4">Tasas preferenciales negociadas por Aliah Developments. BX+: aliado financiero del proyecto (mercado 10.8-11.2%). BBVA Oferta Prime: sin comisión apertura, score min. 750 (mercado 10.1-10.4%). Modelo usa <span id="simConvenioTasaRef">10.5%</span> conservador.</div>
           <div style="font-size:10px;color:var(--t2);margin-top:2px" id="simM2Comunes"></div>
         </div>
       </div>
@@ -721,7 +721,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <div id="ctaContact" style="font-size:12px;margin-top:12px;opacity:.6">ventas@aliah.mx &middot; 55 7005 5934 &middot; aliah.mx</div>
     <div style="font-size:11px;margin-top:4px;opacity:.5">Av. Lomas Verdes #77, Santa Cruz Acatlán, Naucalpan</div>
   </div>
-  <div class="disc"><b>Disclaimer:</b> Proyección ilustrativa. Rendimientos pasados no garantizan resultados futuros. Datos de mercado: <a href="https://aliah-comercial.github.io/studios/EDM%20_ALIAH_LOMAS%20_VERDES_by_MONOPOLIO_MZO2026.pdf" target="_blank" style="color:var(--gold)">Estudio de Mercado Aliah Lomas Verdes, Monopolio.com.mx, marzo 2026</a>. Plusvalía proyectada: 4.2% anual (base inflación). Referencia: plusvalía real último año 7%, acumulada +35% desde 2022 (Monopolio). Valor futuro calculado sobre precio base (antes de descuento). Cap rate Aliah: 6.3% real medido (depto C2 rentado $23K/mes sobre $4.4M). Cap rate zona: 5.7% vivienda nueva ZI 15 min (Monopolio). CETES 28d: 6.54% bruto, ~5.64% neto ISR (Banxico 14-may-2026). Bonos M 10 años: ~8.9% (Banxico jun-2026). Tasa hipotecaria referencial: 10.5% anual a 20 años. Convenios bancarios exclusivos Aliah: BBVA 9.65% sin comisión por apertura y sin penalización por aportaciones a capital, BX+ 9.30% (tasas preferenciales negociadas, sujetas a perfil crediticio del comprador y vigencia del convenio; mercado BBVA 10.1-10.4%, BX+ 10.8-11.2%). Renta estimada: m² rentable ponderado x tarifa de mercado. Promo devolución hipoteca Torres A/B/C, tope $300,000 MXN. Áreas comunes construidas: 83,790 m² totales (~182 m²/depto) incluyen estacionamiento, lobbies, casa club, jardines, roofs comunes, SUM y servicios de torres (fuente: tabla de áreas indivisos del proyecto). Scotiabank Valora: mención informativa. ESQR Quality Achievements Award 2026 Gold Category, Bruselas. Luxury Lifestyle Awards: Best Luxury Apartment Living in Mexico, 2025.</div>
+  <div class="disc"><b>Disclaimer:</b> Proyección ilustrativa. Rendimientos pasados no garantizan resultados futuros. Datos de mercado: <a href="https://aliah-comercial.github.io/studios/EDM%20_ALIAH_LOMAS%20_VERDES_by_MONOPOLIO_MZO2026.pdf" target="_blank" style="color:var(--gold)">Estudio de Mercado Aliah Lomas Verdes, Monopolio.com.mx, marzo 2026</a>. Plusvalía proyectada: 4.2% anual (base inflación). Referencia: plusvalía real último año 7%, acumulada +35% desde 2022 (Monopolio). Valor futuro calculado sobre precio base (antes de descuento). Cap rate Aliah: 6.3% real medido (depto C2 rentado $23K/mes sobre $4.4M). Cap rate zona: 5.7% vivienda nueva ZI 15 min (Monopolio). CETES 28d: 6.54% bruto, ~5.64% neto ISR (Banxico 14-may-2026). Bonos M 10 años: ~8.9% (Banxico jun-2026). Tasa hipotecaria referencial: 10.5% anual a 20 años. Convenios bancarios exclusivos Aliah: BX+ 9.30%, BBVA Oferta Prime desde 9.10% sin comisión por apertura (score mínimo 750, aforo hasta 80%). Tasas preferenciales negociadas, sujetas a perfil crediticio del comprador y vigencia del convenio; mercado BBVA 10.1-10.4%, BX+ 10.8-11.2%. Renta estimada: m² rentable ponderado x tarifa de mercado. Promo devolución hipoteca Torres A/B/C, tope $300,000 MXN. Áreas comunes construidas: 83,790 m² totales (~182 m²/depto) incluyen estacionamiento, lobbies, casa club, jardines, roofs comunes, SUM y servicios de torres (fuente: tabla de áreas indivisos del proyecto). Scotiabank Valora: mención informativa. ESQR Quality Achievements Award 2026 Gold Category, Bruselas. Luxury Lifestyle Awards: Best Luxury Apartment Living in Mexico, 2025.</div>
 </div>
 
 <div style="text-align:center;padding:20px">
@@ -815,7 +815,7 @@ async function loadInventoryFromSupabase() {
 }
 
 // ======== PARAMS ========
-let P = {plusvalía:.042,caprate_zona:.063,tasa_hip:.105,plazo_hip:20,renta_m2:350,inc_renta:.05,cetes:.0564,bonos:.089,inflacion:.042,horizonte:10,tasa_desc_fin:.087,tasa_bbva:.0965,tasa_bx:.093};
+let P = {plusvalía:.042,caprate_zona:.063,tasa_hip:.105,plazo_hip:20,renta_m2:350,inc_renta:.05,cetes:.0564,bonos:.089,inflacion:.042,horizonte:10,tasa_desc_fin:.087,tasa_bbva:.091,tasa_bx:.093};
 const M2_COMUNES_TOTAL = 83790;
 const TOTAL_DEPTOS_PROYECTO = 461;
 const M2_COMUNES_POR_DEPTO = Math.round(M2_COMUNES_TOTAL / TOTAL_DEPTOS_PROYECTO);
@@ -1675,11 +1675,13 @@ function populateClientNarrative() {
   document.getElementById('cTasaBx').textContent = (P.tasa_bx*100).toFixed(2);
   if(totalHip > 0) {
     const nP = P.plazo_hip * 12;
-    const tBbvaM = P.tasa_bbva / 12;
-    const pmtBbvaTotal = totalHip * tBbvaM * Math.pow(1+tBbvaM,nP) / (Math.pow(1+tBbvaM,nP)-1);
-    const ahorroBbvaMes = totalHipMes - pmtBbvaTotal;
-    const ahorroTotalVida = ahorroBbvaMes * nP;
-    document.getElementById('cAhorroBbva').textContent = ahorroBbvaMes > 0 ? fM(Math.round(ahorroBbvaMes)) : '$0';
+    // Usa la mejor tasa disponible (la menor entre BBVA y BX+)
+    const mejorTasa = Math.min(P.tasa_bbva, P.tasa_bx);
+    const tMejorM = mejorTasa / 12;
+    const pmtMejorTotal = totalHip * tMejorM * Math.pow(1+tMejorM,nP) / (Math.pow(1+tMejorM,nP)-1);
+    const ahorroMejorMes = totalHipMes - pmtMejorTotal;
+    const ahorroTotalVida = ahorroMejorMes * nP;
+    document.getElementById('cAhorroBbva').textContent = ahorroMejorMes > 0 ? fM(Math.round(ahorroMejorMes)) : '$0';
     document.getElementById('cAhorroTotal').textContent = ahorroTotalVida > 0 ? fM(Math.round(ahorroTotalVida)) : '$0';
   } else {
     document.getElementById('cAhorroBbva').textContent = '$0';
