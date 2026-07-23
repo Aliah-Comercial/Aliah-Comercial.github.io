@@ -567,38 +567,52 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
 // ══════════════════════════════════════════════════════════
 // RESET DE CONTRASEÑA — intercepta token en la URL
 // ══════════════════════════════════════════════════════════
-(function checkResetToken() {
+(async function checkResetToken() {
   const hash   = window.location.hash;
   const params = new URLSearchParams(hash.replace('#', ''));
-  const type   = params.get('type');
-  // Supabase envía type=recovery cuando es reset de contraseña
-  if (type === 'recovery') {
+  const type         = params.get('type');
+  const accessToken  = params.get('access_token');
+  const refreshToken = params.get('refresh_token');
+
+  if (type === 'recovery' && accessToken) {
     showScreen('screen-reset');
 
+    // Establecer sesión con los tokens del link ANTES de poder updateUser
+    const { error: sessionError } = await supa.auth.setSession({
+      access_token:  accessToken,
+      refresh_token: refreshToken || ''
+    });
+
+    if (sessionError) {
+      document.getElementById('reset-error').textContent =
+        'Link inválido o expirado. Solicita uno nuevo desde Supabase.';
+      return;
+    }
+
     document.getElementById('btn-savepass').addEventListener('click', async () => {
-      const p1     = document.getElementById('inp-newpass').value;
-      const p2     = document.getElementById('inp-newpass2').value;
-      const errEl  = document.getElementById('reset-error');
-      const okEl   = document.getElementById('reset-ok');
-      const btn    = document.getElementById('btn-savepass');
+      const p1    = document.getElementById('inp-newpass').value;
+      const p2    = document.getElementById('inp-newpass2').value;
+      const errEl = document.getElementById('reset-error');
+      const okEl  = document.getElementById('reset-ok');
+      const btn   = document.getElementById('btn-savepass');
 
       errEl.textContent = '';
       okEl.textContent  = '';
 
-      if (p1.length < 8)   { errEl.textContent = 'La contraseña debe tener al menos 8 caracteres.'; return; }
-      if (p1 !== p2)        { errEl.textContent = 'Las contraseñas no coinciden.'; return; }
+      if (p1.length < 8) { errEl.textContent = 'La contraseña debe tener al menos 8 caracteres.'; return; }
+      if (p1 !== p2)     { errEl.textContent = 'Las contraseñas no coinciden.'; return; }
 
-      btn.disabled     = true;
-      btn.textContent  = 'Guardando...';
+      btn.disabled    = true;
+      btn.textContent = 'Guardando...';
 
       const { error } = await supa.auth.updateUser({ password: p1 });
       if (error) {
-        errEl.textContent = 'Error al guardar. Solicita un nuevo link de reset.';
-        btn.disabled      = false;
-        btn.textContent   = 'Guardar contraseña';
+        errEl.textContent = 'Error al guardar: ' + error.message;
+        btn.disabled    = false;
+        btn.textContent = 'Guardar contraseña';
       } else {
-        okEl.textContent  = 'Contraseña actualizada. Redirigiendo...';
-        // Limpiar hash de la URL y redirigir al login
+        okEl.textContent = 'Contraseña actualizada. Redirigiendo...';
+        await supa.auth.signOut();
         setTimeout(() => {
           window.location.hash = '';
           showScreen('screen-login');
