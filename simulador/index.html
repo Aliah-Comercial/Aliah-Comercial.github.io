@@ -1435,27 +1435,24 @@ function saveServiceKey() {
   toast('Llave guardada en esta sesión');
 }
 
-function getAdminClient() {
-  const key = sessionStorage.getItem('aliah_admin_sk') || document.getElementById('adminServiceKey').value.trim();
-  if (!key) { toast('Primero pega la llave de servicio de Supabase'); return null; }
-  return window.supabase.createClient(SUPA_URL, key);
-}
-
 async function resetUserPwd(userId, nombre) {
   const pwdInput = document.getElementById('pwd_' + userId);
   const newPwd = pwdInput ? pwdInput.value.trim() : '';
   if (!newPwd) { toast('Escribe la nueva clave primero'); return; }
   if (newPwd.length < 6) { toast('Mínimo 6 caracteres'); return; }
-  const adminClient = getAdminClient();
-  if (!adminClient) return;
+  const sk = sessionStorage.getItem('aliah_admin_sk') || document.getElementById('adminServiceKey').value.trim();
+  if (!sk) { toast('Primero pega la llave de servicio de Supabase'); return; }
   try {
-    const { data, error } = await adminClient.auth.admin.updateUserById(userId, { password: newPwd });
-    if (error) { toast('Error: ' + error.message); console.error('Reset pwd error:', error); return; }
+    const res = await fetch(SUPA_URL + '/auth/v1/admin/users/' + userId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sk, 'apikey': sk },
+      body: JSON.stringify({ password: newPwd })
+    });
+    if (!res.ok) { const err = await res.json().catch(() => ({})); toast('Error: ' + (err.message || err.msg || res.status)); return; }
     pwdInput.value = '';
     toast('Clave actualizada para ' + nombre);
   } catch(e) {
-    toast('Error: ' + e.message);
-    console.error('Reset pwd exception:', e);
+    toast('Error de red: ' + e.message);
   }
 }
 
