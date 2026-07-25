@@ -293,8 +293,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 
   <div class="admin-section">
     <h3>Usuarios del sistema</h3>
+    <div style="margin-bottom:12px;padding:12px;background:var(--s2);border-radius:8px;border:1px solid rgba(196,169,106,.12)">
+      <div style="font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Llave de servicio Supabase (requerida para gestionar claves)</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="password" id="adminServiceKey" placeholder="Pegar service_role key de Supabase" style="flex:1;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--txt);font-family:inherit;font-size:11px" value="">
+        <button class="admin-save" onclick="saveServiceKey()" style="margin:0;font-size:11px;padding:6px 12px">Guardar en sesión</button>
+      </div>
+      <div style="font-size:9px;color:var(--t3);margin-top:4px">Se guarda solo en este navegador, solo esta sesión. Supabase Dashboard > Settings > API > service_role (secret).</div>
+    </div>
     <div id="adminUsersTable" style="font-size:12px;color:var(--t2)">Cargando...</div>
-    <p style="font-size:10px;color:var(--t3);margin-top:8px">Para crear usuarios nuevos, usa el Dashboard de Supabase (Authentication > Users) y luego actualiza el Zoho ID aqui.</p>
+    <p style="font-size:10px;color:var(--t3);margin-top:8px">Para crear usuarios nuevos, usa el Dashboard de Supabase (Authentication > Users) y luego actualiza el Zoho ID aquí.</p>
   </div>
   
   <div class="admin-section">
@@ -888,6 +896,7 @@ async function logout() {
   toast('Sesion cerrada');
 }
 
+// ======== CAMBIAR CONTRASEÑA ========
 // ======== TOAST ========
 function toast(msg) {
   const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
@@ -1368,6 +1377,9 @@ function closeAdmin() { document.getElementById('adminPanel').classList.remove('
 
 async function loadAdminUsers() {
   const el=document.getElementById('adminUsersTable');
+  // Restore service key if saved in session
+  const savedKey = sessionStorage.getItem('aliah_admin_sk');
+  if(savedKey) document.getElementById('adminServiceKey').value = savedKey;
   try {
     const {data,error}=await supa.from('perfiles').select('*').order('created_at',{ascending:true});
     if(error) { el.textContent='Error: '+error.message; return; }
@@ -1376,12 +1388,15 @@ async function loadAdminUsers() {
     const {data:asesores}=await supa.from('asesores').select('email,telefono');
     const telMap={};
     if(asesores) asesores.forEach(a=>{telMap[a.email]=a.telefono||'';});
-    let h='<table class="inv" style="min-width:600px"><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Teléfono</th><th>Zoho ID</th><th>Activo</th></tr></thead><tbody>';
+    let h='<table class="inv" style="min-width:700px"><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Teléfono</th><th>Zoho ID</th><th>Activo</th><th>Nueva clave</th></tr></thead><tbody>';
     data.forEach(u=>{
       h+='<tr><td style="color:var(--gold)">'+u.nombre+'</td><td>'+u.email+'</td><td>'+u.rol+'</td>';
       h+='<td><input type="text" value="'+(telMap[u.email]||'')+'" data-email="'+u.email+'" data-nombre="'+u.nombre+'" class="tel-input" style="width:120px;padding:3px 6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--txt);border-radius:4px;font-size:11px" placeholder="55 1234 5678"></td>';
       h+='<td><input type="text" value="'+(u.zoho_user_id||'')+'" data-uid="'+u.id+'" class="zoho-id-input" style="width:120px;padding:3px 6px;border:1px solid rgba(255,255,255,.1);background:var(--s2);color:var(--txt);border-radius:4px;font-size:11px"></td>';
-      h+='<td>'+(u.activo?'Si':'No')+'</td></tr>';
+      h+='<td>'+(u.activo?'Si':'No')+'</td>';
+      h+='<td style="white-space:nowrap"><input type="password" id="pwd_'+u.id+'" placeholder="nueva clave" style="width:100px;padding:3px 6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--txt);border-radius:4px;font-size:11px">';
+      h+=' <button onclick="resetUserPwd(\''+u.id+'\',\''+u.nombre+'\')" style="padding:2px 8px;border-radius:4px;border:1px solid var(--gold);background:transparent;color:var(--gold);font-size:10px;cursor:pointer">Aplicar</button></td>';
+      h+='</tr>';
     });
     h+='</tbody></table>';
     h+='<div style="display:flex;gap:8px;margin-top:8px"><button class="admin-save" onclick="saveZohoIds()">Guardar Zoho IDs</button>';
@@ -1410,6 +1425,38 @@ async function saveZohoIds() {
     await supa.from('perfiles').update({zoho_user_id:val}).eq('id',uid);
   }
   toast('Zoho IDs actualizados');
+}
+
+// ======== ADMIN PASSWORD MANAGEMENT ========
+function saveServiceKey() {
+  const key = document.getElementById('adminServiceKey').value.trim();
+  if (!key) { toast('Pega la service_role key primero'); return; }
+  sessionStorage.setItem('aliah_admin_sk', key);
+  toast('Llave guardada en esta sesión');
+}
+
+function getAdminClient() {
+  const key = sessionStorage.getItem('aliah_admin_sk') || document.getElementById('adminServiceKey').value.trim();
+  if (!key) { toast('Primero pega la llave de servicio de Supabase'); return null; }
+  return window.supabase.createClient(SUPA_URL, key);
+}
+
+async function resetUserPwd(userId, nombre) {
+  const pwdInput = document.getElementById('pwd_' + userId);
+  const newPwd = pwdInput ? pwdInput.value.trim() : '';
+  if (!newPwd) { toast('Escribe la nueva clave primero'); return; }
+  if (newPwd.length < 6) { toast('Mínimo 6 caracteres'); return; }
+  const adminClient = getAdminClient();
+  if (!adminClient) return;
+  try {
+    const { data, error } = await adminClient.auth.admin.updateUserById(userId, { password: newPwd });
+    if (error) { toast('Error: ' + error.message); console.error('Reset pwd error:', error); return; }
+    pwdInput.value = '';
+    toast('Clave actualizada para ' + nombre);
+  } catch(e) {
+    toast('Error: ' + e.message);
+    console.error('Reset pwd exception:', e);
+  }
 }
 
 async function loadAdminSims() {
