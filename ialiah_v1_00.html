@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>iALIAH — Aliah Lomas Verdes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --olive-dark:#484D31; --near-black:#282823; --gray:#ACACAC; --bg:#F8F8F8;
+  --olive-mid:#5F6844; --sage:#A4AC8C; --white:#FFFFFF;
+  --radius:16px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:'DM Sans', sans-serif; background:var(--bg); color:var(--near-black);
+  min-height:100vh; display:flex; flex-direction:column;
+}
+.app{max-width:720px; margin:0 auto; width:100%; padding:32px 24px 60px; flex:1; display:flex; flex-direction:column;}
+.eyebrow{font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--olive-mid); font-weight:500; margin-bottom:10px;}
+h1{font-family:'Outfit',sans-serif; font-weight:600; font-size:28px; line-height:1.25; color:var(--near-black); margin-bottom:8px;}
+.sub{font-size:15px; color:#5b5b56; margin-bottom:28px; line-height:1.5;}
+.progress{display:flex; gap:6px; margin-bottom:36px;}
+.progress span{height:3px; flex:1; background:#e2e0d8; border-radius:2px; overflow:hidden;}
+.progress span i{display:block; height:100%; width:0; background:var(--olive-dark); transition:width .3s;}
+.progress span.done i{width:100%;}
+.options{display:flex; flex-direction:column; gap:12px;}
+.opt{
+  text-align:left; border:1px solid #e2e0d8; background:var(--white); border-radius:var(--radius);
+  padding:18px 20px; font-size:16px; font-family:'DM Sans',sans-serif; color:var(--near-black);
+  cursor:pointer; transition:.15s; line-height:1.4;
+}
+.opt:hover{border-color:var(--olive-mid); background:#fbfaf7;}
+.opt:active{transform:scale(.99);}
+.opt.selected{border-color:var(--olive-dark); background:var(--sage); background:rgba(164,172,140,.18);}
+.opt-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+@media (max-width:520px){.opt-grid{grid-template-columns:1fr;}}
+textarea, input[type=text]{
+  width:100%; border:1px solid #e2e0d8; border-radius:12px; padding:14px 16px; font-size:15px;
+  font-family:'DM Sans',sans-serif; resize:vertical; min-height:90px;
+}
+.nav{display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:28px;}
+.btn{
+  border:none; border-radius:999px; padding:13px 26px; font-size:15px; font-weight:500;
+  font-family:'DM Sans',sans-serif; cursor:pointer; transition:.15s;
+}
+.btn-primary{background:var(--olive-dark); color:var(--white);}
+.btn-primary:hover{background:var(--near-black);}
+.btn-primary:disabled{background:#d3d1c7; cursor:not-allowed;}
+.btn-text{background:none; color:#5b5b56; padding:13px 8px;}
+.btn-text:hover{color:var(--near-black);}
+.loading{display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:18px; text-align:center;}
+.spinner{width:36px; height:36px; border:3px solid #e2e0d8; border-top-color:var(--olive-dark); border-radius:50%; animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.card{
+  border:1px solid #e2e0d8; border-radius:var(--radius); padding:22px; margin-bottom:16px; background:var(--white);
+}
+.card .torre-tag{display:inline-block; font-size:12px; font-weight:500; color:var(--olive-mid); background:rgba(164,172,140,.25); padding:4px 10px; border-radius:999px; margin-bottom:10px;}
+.card h3{font-family:'Outfit',sans-serif; font-size:20px; margin-bottom:6px;}
+.card .specs{font-size:14px; color:#5b5b56; margin-bottom:10px;}
+.card .precio{font-family:'Outfit',sans-serif; font-size:22px; font-weight:600; color:var(--olive-dark); margin-bottom:10px;}
+.card .justif{font-size:14px; line-height:1.55; color:var(--near-black);}
+.positioning{background:rgba(72,77,49,.06); border-radius:12px; padding:16px 18px; font-size:14px; line-height:1.5; margin:20px 0;}
+.advisor-note{border-left:3px solid var(--olive-mid); padding:12px 16px; font-size:13px; color:#5b5b56; margin-top:20px; background:#fbfaf7; border-radius:0 12px 12px 0;}
+.advisor-note b{color:var(--near-black);}
+.honest-msg{background:#fbfaf7; border:1px solid var(--sage); border-radius:12px; padding:18px; font-size:15px; line-height:1.55; margin-bottom:20px;}
+.bifurcacion{display:flex; gap:12px; margin-top:24px;}
+.bifurcacion a{flex:1; text-align:center; text-decoration:none; padding:15px; border-radius:12px; font-weight:500; font-size:15px;}
+.bif-invest{background:var(--olive-dark); color:#fff;}
+.bif-live{background:var(--white); border:1px solid var(--olive-dark); color:var(--olive-dark);}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// iALIAH Frontend v1.0 — Aliah Lomas Verdes
+// Julio 2026 — perfilador de 5 pantallas + motor de recomendación
+// ═══════════════════════════════════════════════════════════
+
+// ── Supabase (mismo proyecto que Simulador) ────────────────
+const SUPABASE_URL  = 'https://mlndwgoynhjjqbxmvhho.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1sbmR3Z295bmhqanFieG12aGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1OTI3MDcsImV4cCI6MjA5ODE2ODcwN30.HWVjttYYR1rmJNmMFL6Qt00d3cZRj5OPW2yPOXUEA6A';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ── Backend Railway ─────────────────────────────────────────
+const BACKEND_URL = 'https://ialiah-backend-production.up.railway.app';
+
+// ── Google Sheet Mappen (precio + disponibilidad — fuente autoritativa) ──
+const MAPPEN_SHEET_ID = '190EibkhjYRaJbEDWuEXYuD0JR0t-c7_DHFC-BoyPmhk';
+const TORRES = ['A','B','C','D','E'];
+const DELIVERY_MAP = {A:'Inmediata', B:'Inmediata', C:'Nov 2026', D:'Ago 2028', E:'Feb 2029'};
+
+// ── Catálogo de tipologías (Torre|Tipo -> m2/rec/banos/exterior) ──
+// Fuente: EXCEL_DE_PROTOTIPOS_ALL_ALIAH.xlsx (29 jul 2026) — 93 prototipos
+const TYPOLOGY = {"B|A":{"m2i":82.3,"m2t":88.8,"rec":2,"banos":2,"ext":null},"B|A2":{"m2i":98.6,"m2t":105.0,"rec":3,"banos":2,"ext":null},"B|A5":{"m2i":137.2,"m2t":214.7,"rec":3,"banos":3,"ext":"Terraza"},"B|A6":{"m2i":140.4,"m2t":180.9,"rec":3,"banos":3,"ext":"Terraza"},"B|A9":{"m2i":152.8,"m2t":217.0,"rec":3,"banos":4,"ext":"Garden"},"A|B":{"m2i":102.2,"m2t":106.7,"rec":" 2 - 3","banos":2,"ext":null},"A|C":{"m2i":70.2,"m2t":75.0,"rec":2,"banos":2,"ext":null},"A|C2":{"m2i":64.3,"m2t":68.8,"rec":2,"banos":2,"ext":null},"A|C3":{"m2i":75.0,"m2t":131.1,"rec":2,"banos":2,"ext":"Garden"},"A|C4":{"m2i":65.8,"m2t":108.1,"rec":2,"banos":2,"ext":"Garden"},"A|D":{"m2i":74.4,"m2t":79.3,"rec":2,"banos":2,"ext":null},"A|D2":{"m2i":80.2,"m2t":160.4,"rec":2,"banos":2,"ext":"Garden"},"A|GPHB":{"m2i":102.2,"m2t":137.4,"rec":" 2 - 3","banos":2,"ext":"Roof Garden"},"A|GPHC":{"m2i":70.2,"m2t":94.5,"rec":2,"banos":2,"ext":"Roof Garden"},"A|GPHD":{"m2i":74.4,"m2t":119.9,"rec":2,"banos":2,"ext":"Roof Garden"},"A|GPHC2":{"m2i":64.3,"m2t":102.4,"rec":2,"banos":2,"ext":"Roof Garden"},"B|M":{"m2i":121.6,"m2t":207.6,"rec":3,"banos":null,"ext":"Garden"},"B|E":{"m2i":68.2,"m2t":75.0,"rec":2,"banos":2,"ext":null},"B|F":{"m2i":68.5,"m2t":73.2,"rec":2,"banos":2,"ext":null},"B|G":{"m2i":64.3,"m2t":68.8,"rec":2,"banos":" 1.5 - 2","ext":null},"B|G2":{"m2i":64.8,"m2t":68.8,"rec":2,"banos":2,"ext":null},"B|G3":{"m2i":65.4,"m2t":132.0,"rec":2,"banos":2,"ext":"Terraza"},"B|G4":{"m2i":65.9,"m2t":119.0,"rec":2,"banos":2,"ext":"Terraza"},"B|GPHE":{"m2i":68.2,"m2t":103.1,"rec":2,"banos":2,"ext":"Roof Garden"},"B|GPHA":{"m2i":82.3,"m2t":114.6,"rec":2,"banos":2,"ext":"Roof Garden"},"B|GPHG":{"m2i":64.3,"m2t":98.5,"rec":2,"banos":2,"ext":"Roof Garden"},"B|GPHG2":{"m2i":64.8,"m2t":99.6,"rec":2,"banos":2,"ext":"Roof Garden"},"B|GPHA2":{"m2i":98.6,"m2t":131.2,"rec":3,"banos":2,"ext":"Roof Garden"},"B|GPHF":{"m2i":68.5,"m2t":106.3,"rec":2,"banos":2,"ext":"Roof Garden"},"C|H":{"m2i":102.2,"m2t":111.4,"rec":3,"banos":2,"ext":null},"C|H3":{"m2i":100.5,"m2t":134.9,"rec":3,"banos":2,"ext":"Terraza"},"C|H5":{"m2i":150.5,"m2t":241.6,"rec":3,"banos":4.5,"ext":"Garden"},"C|I":{"m2i":88.9,"m2t":94.9,"rec":3,"banos":2,"ext":null},"C|I2":{"m2i":93.6,"m2t":151.9,"rec":3,"banos":2,"ext":"Terraza"},"C|J":{"m2i":106.4,"m2t":111.2,"rec":3,"banos":2.5,"ext":null},"C|J3":{"m2i":103.0,"m2t":119.0,"rec":3,"banos":2.5,"ext":"Garden"},"C|GPHH":{"m2i":102.2,"m2t":142.5,"rec":3,"banos":null,"ext":"Roof Garden"},"C|GPHJ":{"m2i":106.4,"m2t":151.2,"rec":3,"banos":null,"ext":"Roof Garden"},"C|GPHI":{"m2i":88.9,"m2t":121.9,"rec":3,"banos":null,"ext":"Roof Garden"},"D|L7":{"m2i":156.4,"m2t":212.8,"rec":3,"banos":4,"ext":"Garden"},"D|A17":{"m2i":119.2,"m2t":170.3,"rec":3,"banos":3,"ext":"Garden"},"D|L8":{"m2i":157.2,"m2t":214.3,"rec":3,"banos":4,"ext":"Garden"},"D|Q3":{"m2i":131.3,"m2t":211.4,"rec":3,"banos":2.5,"ext":"Garden"},"D|O5":{"m2i":111.4,"m2t":293.5,"rec":3,"banos":2,"ext":"Garden"},"D|O3":{"m2i":105.3,"m2t":153.1,"rec":" 2 - 3","banos":2,"ext":"Terraza"},"D|P2":{"m2i":87.0,"m2t":109.5,"rec":2,"banos":2,"ext":"Terraza"},"D|L5":{"m2i":87.9,"m2t":156.4,"rec":2,"banos":2,"ext":"Terraza"},"D|A14":{"m2i":82.9,"m2t":100.9,"rec":2,"banos":2,"ext":"Terraza"},"D|L6":{"m2i":87.6,"m2t":156.1,"rec":2,"banos":2,"ext":"Terraza"},"D|A15":{"m2i":82.9,"m2t":100.9,"rec":2,"banos":2,"ext":"Terraza"},"D|O4":{"m2i":102.5,"m2t":148.6,"rec":" 2 - 3","banos":2,"ext":"Terraza"},"D|A16":{"m2i":81.8,"m2t":93.5,"rec":2,"banos":2,"ext":"Terraza"},"D|Q2":{"m2i":105.4,"m2t":110.5,"rec":" 2 - 3","banos":2,"ext":"Terraza"},"D|O":{"m2i":105.3,"m2t":109.8,"rec":" 2 - 3","banos":2,"ext":null},"D|P":{"m2i":86.5,"m2t":90.9,"rec":2,"banos":2,"ext":null},"D|L3":{"m2i":82.6,"m2t":87.9,"rec":2,"banos":2,"ext":null},"D|A12":{"m2i":77.1,"m2t":83.1,"rec":2,"banos":2,"ext":null},"D|L4":{"m2i":82.3,"m2t":87.6,"rec":2,"banos":2,"ext":null},"D|A13":{"m2i":77.0,"m2t":82.9,"rec":2,"banos":2,"ext":null},"D|O2":{"m2i":102.5,"m2t":108.8,"rec":" 2 - 3","banos":2,"ext":null},"D|A121":{"m2i":76.1,"m2t":81.8,"rec":2,"banos":2,"ext":null},"D|Q":{"m2i":105.4,"m2t":110.5,"rec":" 2 - 3","banos":2,"ext":null},"D|GPHO":{"m2i":105.3,"m2t":153.5,"rec":" 2 - 3","banos":2,"ext":"Roof Garden"},"D|GPHP":{"m2i":86.5,"m2t":116.1,"rec":2,"banos":2,"ext":"Roof Garden"},"D|GPHL3":{"m2i":82.6,"m2t":117.1,"rec":2,"banos":2,"ext":"Roof Garden"},"D|GPHA12":{"m2i":77.0,"m2t":109.7,"rec":2,"banos":2,"ext":"Roof Garden"},"D|GPHL4":{"m2i":82.3,"m2t":114.3,"rec":2,"banos":2,"ext":"Roof Garden"},"D|GPHA13":{"m2i":77.0,"m2t":111.5,"rec":2,"banos":2,"ext":"Roof Garden"},"D|GPHO2":{"m2i":102.5,"m2t":153.1,"rec":" 2 - 3","banos":2,"ext":"Roof Garden"},"D|GPHA121":{"m2i":76.1,"m2t":109.8,"rec":2,"banos":2,"ext":"Roof Garden"},"D|GPHQ":{"m2i":105.4,"m2t":138.4,"rec":" 2 - 3","banos":2,"ext":"Roof Garden"},"E|A10":{"m2i":111.8,"m2t":164.0,"rec":3,"banos":3,"ext":"Garden"},"E|N":{"m2i":126.9,"m2t":271.4,"rec":3,"banos":2,"ext":"Garden"},"E|A11":{"m2i":114.2,"m2t":167.0,"rec":3,"banos":3,"ext":"Garden"},"E|J5":{"m2i":95.1,"m2t":187.6,"rec":2,"banos":2,"ext":"Garden"},"E|K2":{"m2i":93.3,"m2t":115.3,"rec":3,"banos":3,"ext":"Terraza"},"E|L2":{"m2i":90.1,"m2t":114.7,"rec":2,"banos":2,"ext":"Terraza"},"E|A7":{"m2i":88.0,"m2t":102.1,"rec":2,"banos":2,"ext":"Terraza"},"E|A8":{"m2i":90.4,"m2t":104.8,"rec":2,"banos":2,"ext":"Terraza"},"E|H4":{"m2i":95.1,"m2t":123.0,"rec":2,"banos":2,"ext":"Terraza"},"E|J4":{"m2i":92.6,"m2t":117.8,"rec":2,"banos":2,"ext":"Terraza"},"E|K":{"m2i":90.1,"m2t":95.0,"rec":3,"banos":3,"ext":null},"E|L":{"m2i":82.5,"m2t":89.2,"rec":2,"banos":2,"ext":null},"E|A3":{"m2i":83.5,"m2t":89.7,"rec":2,"banos":2,"ext":null},"E|A4":{"m2i":85.4,"m2t":91.7,"rec":2,"banos":2,"ext":null},"E|H2":{"m2i":97.8,"m2t":104.2,"rec":2,"banos":2,"ext":null},"E|J2":{"m2i":92.2,"m2t":96.5,"rec":2,"banos":2,"ext":null},"E|GPHK":{"m2i":90.1,"m2t":133.0,"rec":3,"banos":3,"ext":"Roof Garden"},"E|GPHL":{"m2i":82.5,"m2t":126.5,"rec":2,"banos":2,"ext":"Roof Garden"},"E|GPHA3":{"m2i":83.5,"m2t":121.1,"rec":2,"banos":2,"ext":"Roof Garden"},"E|GPHA4":{"m2i":85.4,"m2t":122.4,"rec":2,"banos":2,"ext":"Roof Garden"},"E|GPHH2":{"m2i":97.8,"m2t":134.5,"rec":2,"banos":2,"ext":"Roof Garden"},"E|GPHJ2":{"m2i":92.2,"m2t":125.6,"rec":2,"banos":2,"ext":"Roof Garden"}};
+
+// ── Mapeo unidad -> Tipo (de Lista_precios_Aliah_LV, columna "Tipo") ──
+// 487 unidades. Se actualiza cuando cambie el catálogo de precios interno.
+const UNIT_TIPO = {"AGH01":{"nombre":"A-GH01","torre":"A","tipo":"D2"},"AGH02":{"nombre":"A-GH02","torre":"A","tipo":"C4"},"AGH03":{"nombre":"A-GH03","torre":"A","tipo":"C3"},"AT101":{"nombre":"A-T101","torre":"A","tipo":"B"},"AT102":{"nombre":"A-T102","torre":"A","tipo":"D"},"AT103":{"nombre":"A-T103","torre":"A","tipo":"C2"},"AT104":{"nombre":"A-T104","torre":"A","tipo":"C"},"A201":{"nombre":"A-201","torre":"A","tipo":"B"},"A204":{"nombre":"A-204","torre":"A","tipo":"C"},"A202":{"nombre":"A-202","torre":"A","tipo":"D"},"A203":{"nombre":"A-203","torre":"A","tipo":"C2"},"A301":{"nombre":"A-301","torre":"A","tipo":"B"},"A304":{"nombre":"A-304","torre":"A","tipo":"C"},"A302":{"nombre":"A-302","torre":"A","tipo":"D"},"A303":{"nombre":"A-303","torre":"A","tipo":"C2"},"A401":{"nombre":"A-401","torre":"A","tipo":"B"},"A404":{"nombre":"A-404","torre":"A","tipo":"C"},"A402":{"nombre":"A-402","torre":"A","tipo":"D"},"A403":{"nombre":"A-403","torre":"A","tipo":"C2"},"A501":{"nombre":"A-501","torre":"A","tipo":"B"},"A504":{"nombre":"A-504","torre":"A","tipo":"C"},"A502":{"nombre":"A-502","torre":"A","tipo":"D"},"A503":{"nombre":"A-503","torre":"A","tipo":"C2"},"A601":{"nombre":"A-601","torre":"A","tipo":"B"},"A604":{"nombre":"A-604","torre":"A","tipo":"C"},"A602":{"nombre":"A-602","torre":"A","tipo":"D"},"A603":{"nombre":"A-603","torre":"A","tipo":"C2"},"A701":{"nombre":"A-701","torre":"A","tipo":"B"},"A704":{"nombre":"A-704","torre":"A","tipo":"C"},"A702":{"nombre":"A-702","torre":"A","tipo":"D"},"A703":{"nombre":"A-703","torre":"A","tipo":"C2"},"A801":{"nombre":"A-801","torre":"A","tipo":"B"},"A804":{"nombre":"A-804","torre":"A","tipo":"C"},"A802":{"nombre":"A-802","torre":"A","tipo":"D"},"A803":{"nombre":"A-803","torre":"A","tipo":"C2"},"A901":{"nombre":"A-901","torre":"A","tipo":"B"},"A904":{"nombre":"A-904","torre":"A","tipo":"C"},"A902":{"nombre":"A-902","torre":"A","tipo":"D"},"A903":{"nombre":"A-903","torre":"A","tipo":"C2"},"A1001":{"nombre":"A-1001","torre":"A","tipo":"B"},"A1004":{"nombre":"A-1004","torre":"A","tipo":"C"},"A1002":{"nombre":"A-1002","torre":"A","tipo":"D"},"A1003":{"nombre":"A-1003","torre":"A","tipo":"C2"},"A1101":{"nombre":"A-1101","torre":"A","tipo":"B"},"A1104":{"nombre":"A-1104","torre":"A","tipo":"C"},"A1102":{"nombre":"A-1102","torre":"A","tipo":"D"},"A1103":{"nombre":"A-1103","torre":"A","tipo":"C2"},"A1201":{"nombre":"A-1201","torre":"A","tipo":"B"},"A1204":{"nombre":"A-1204","torre":"A","tipo":"C"},"A1202":{"nombre":"A-1202","torre":"A","tipo":"D"},"A1203":{"nombre":"A-1203","torre":"A","tipo":"C2"},"A1301":{"nombre":"A-1301","torre":"A","tipo":"B"},"A1304":{"nombre":"A-1304","torre":"A","tipo":"C"},"A1302":{"nombre":"A-1302","torre":"A","tipo":"D"},"A1303":{"nombre":"A-1303","torre":"A","tipo":"C2"},"A1401":{"nombre":"A-1401","torre":"A","tipo":"B"},"A1404":{"nombre":"A-1404","torre":"A","tipo":"C"},"A1402":{"nombre":"A-1402","torre":"A","tipo":"D"},"A1403":{"nombre":"A-1403","torre":"A","tipo":"C2"},"APH01":{"nombre":"A-PH01","torre":"A","tipo":"B"},"APH04":{"nombre":"A-PH04","torre":"A","tipo":"C"},"APH02":{"nombre":"A-PH02","torre":"A","tipo":"D"},"APH03":{"nombre":"A-PH03","torre":"A","tipo":"C2"},"AGPH01":{"nombre":"A-GPH01","torre":"A","tipo":"GPH-B"},"AGPH04":{"nombre":"A-GPH04","torre":"A","tipo":"GPH-C"},"AGPH02":{"nombre":"A-GPH02","torre":"A","tipo":"GPH-D"},"AGPH03":{"nombre":"A-GPH03","torre":"A","tipo":"GPH-C2"},"BGH01":{"nombre":"B-GH01","torre":"B","tipo":"A9"},"BGH02":{"nombre":"B-GH02","torre":"B","tipo":"M"},"BT101":{"nombre":"B-T101","torre":"B","tipo":"A5"},"BT102":{"nombre":"B-T102","torre":"B","tipo":"G3"},"BT103":{"nombre":"B-T103","torre":"B","tipo":"G4"},"BT104":{"nombre":"B-T104","torre":"B","tipo":"A6"},"B201":{"nombre":"B-201","torre":"B","tipo":"E"},"B202":{"nombre":"B-202","torre":"B","tipo":"A"},"B203":{"nombre":"B-203","torre":"B","tipo":"G"},"B204":{"nombre":"B-204","torre":"B","tipo":"G2"},"B205":{"nombre":"B-205","torre":"B","tipo":"A2"},"B206":{"nombre":"B-206","torre":"B","tipo":"F"},"B301":{"nombre":"B-301","torre":"B","tipo":"E"},"B302":{"nombre":"B-302","torre":"B","tipo":"A"},"B303":{"nombre":"B-303","torre":"B","tipo":"G"},"B304":{"nombre":"B-304","torre":"B","tipo":"G2"},"B305":{"nombre":"B-305","torre":"B","tipo":"A2"},"B306":{"nombre":"B-306","torre":"B","tipo":"F"},"B401":{"nombre":"B-401","torre":"B","tipo":"E"},"B402":{"nombre":"B-402","torre":"B","tipo":"A"},"B403":{"nombre":"B-403","torre":"B","tipo":"G"},"B404":{"nombre":"B-404","torre":"B","tipo":"G2"},"B405":{"nombre":"B-405","torre":"B","tipo":"A2"},"B406":{"nombre":"B-406","torre":"B","tipo":"F"},"B501":{"nombre":"B-501","torre":"B","tipo":"E"},"B502":{"nombre":"B-502","torre":"B","tipo":"A"},"B503":{"nombre":"B-503","torre":"B","tipo":"G"},"B504":{"nombre":"B-504","torre":"B","tipo":"G2"},"B505":{"nombre":"B-505","torre":"B","tipo":"A2"},"B506":{"nombre":"B-506","torre":"B","tipo":"F"},"B601":{"nombre":"B-601","torre":"B","tipo":"E"},"B602":{"nombre":"B-602","torre":"B","tipo":"A"},"B603":{"nombre":"B-603","torre":"B","tipo":"G"},"B604":{"nombre":"B-604","torre":"B","tipo":"G2"},"B605":{"nombre":"B-605","torre":"B","tipo":"A2"},"B606":{"nombre":"B-606","torre":"B","tipo":"F"},"B701":{"nombre":"B-701","torre":"B","tipo":"E"},"B702":{"nombre":"B-702","torre":"B","tipo":"A"},"B703":{"nombre":"B-703","torre":"B","tipo":"G"},"B704":{"nombre":"B-704","torre":"B","tipo":"G2"},"B705":{"nombre":"B-705","torre":"B","tipo":"A2"},"B706":{"nombre":"B-706","torre":"B","tipo":"F"},"B801":{"nombre":"B-801","torre":"B","tipo":"E"},"B802":{"nombre":"B-802","torre":"B","tipo":"A"},"B803":{"nombre":"B-803","torre":"B","tipo":"G"},"B804":{"nombre":"B-804","torre":"B","tipo":"G2"},"B805":{"nombre":"B-805","torre":"B","tipo":"A2"},"B806":{"nombre":"B-806","torre":"B","tipo":"F"},"B901":{"nombre":"B-901","torre":"B","tipo":"E"},"B902":{"nombre":"B-902","torre":"B","tipo":"A"},"B903":{"nombre":"B-903","torre":"B","tipo":"G"},"B904":{"nombre":"B-904","torre":"B","tipo":"G2"},"B905":{"nombre":"B-905","torre":"B","tipo":"A2"},"B906":{"nombre":"B-906","torre":"B","tipo":"F"},"B1001":{"nombre":"B-1001","torre":"B","tipo":"E"},"B1002":{"nombre":"B-1002","torre":"B","tipo":"A"},"B1003":{"nombre":"B-1003","torre":"B","tipo":"G"},"B1004":{"nombre":"B-1004","torre":"B","tipo":"G2"},"B1005":{"nombre":"B-1005","torre":"B","tipo":"A2"},"B1006":{"nombre":"B-1006","torre":"B","tipo":"F"},"B1101":{"nombre":"B-1101","torre":"B","tipo":"E"},"B1102":{"nombre":"B-1102","torre":"B","tipo":"A"},"B1103":{"nombre":"B-1103","torre":"B","tipo":"G"},"B1104":{"nombre":"B-1104","torre":"B","tipo":"G2"},"B1105":{"nombre":"B-1105","torre":"B","tipo":"A2"},"B1106":{"nombre":"B-1106","torre":"B","tipo":"F"},"B1201":{"nombre":"B-1201","torre":"B","tipo":"E"},"B1202":{"nombre":"B-1202","torre":"B","tipo":"A"},"B1203":{"nombre":"B-1203","torre":"B","tipo":"G"},"B1204":{"nombre":"B-1204","torre":"B","tipo":"G2"},"B1205":{"nombre":"B-1205","torre":"B","tipo":"A2"},"B1206":{"nombre":"B-1206","torre":"B","tipo":"F"},"B1301":{"nombre":"B-1301","torre":"B","tipo":"E"},"B1302":{"nombre":"B-1302","torre":"B","tipo":"A"},"B1303":{"nombre":"B-1303","torre":"B","tipo":"G"},"B1304":{"nombre":"B-1304","torre":"B","tipo":"G2"},"B1305":{"nombre":"B-1305","torre":"B","tipo":"A2"},"B1306":{"nombre":"B-1306","torre":"B","tipo":"F"},"B1401":{"nombre":"B-1401","torre":"B","tipo":"E"},"B1402":{"nombre":"B-1402","torre":"B","tipo":"A"},"B1403":{"nombre":"B-1403","torre":"B","tipo":"G"},"B1404":{"nombre":"B-1404","torre":"B","tipo":"G2"},"B1405":{"nombre":"B-1405","torre":"B","tipo":"A2"},"B1406":{"nombre":"B-1406","torre":"B","tipo":"F"},"BPH01":{"nombre":"B-PH01","torre":"B","tipo":"E"},"BPH02":{"nombre":"B-PH02","torre":"B","tipo":"A"},"BPH03":{"nombre":"B-PH03","torre":"B","tipo":"G"},"BPH04":{"nombre":"B-PH04","torre":"B","tipo":"G2"},"BPH05":{"nombre":"B-PH05","torre":"B","tipo":"A2"},"BPH06":{"nombre":"B-PH06","torre":"B","tipo":"F"},"BGPH01":{"nombre":"B-GPH01","torre":"B","tipo":"GPH-E"},"BGPH02":{"nombre":"B-GPH02","torre":"B","tipo":"GPH-A"},"BGPH03":{"nombre":"B-GPH03","torre":"B","tipo":"GPH-G"},"BGPH04":{"nombre":"B-GPH04","torre":"B","tipo":"GPH-G2"},"BGPH05":{"nombre":"B-GPH05","torre":"B","tipo":"GPH-A2"},"BGPH06":{"nombre":"B-GPH06","torre":"B","tipo":"GPH-F"},"CGH01":{"nombre":"C-GH01","torre":"C","tipo":"H5"},"CT101":{"nombre":"C-T101","torre":"C","tipo":"H3"},"CT102":{"nombre":"C-T102","torre":"C","tipo":"J3"},"CT103":{"nombre":"C-T103","torre":"C","tipo":"I2"},"C201":{"nombre":"C-201","torre":"C","tipo":"H"},"C202":{"nombre":"C-202","torre":"C","tipo":"J"},"C203":{"nombre":"C-203","torre":"C","tipo":"I"},"C301":{"nombre":"C-301","torre":"C","tipo":"H"},"C302":{"nombre":"C-302","torre":"C","tipo":"J"},"C303":{"nombre":"C-303","torre":"C","tipo":"I"},"C401":{"nombre":"C-401","torre":"C","tipo":"H"},"C402":{"nombre":"C-402","torre":"C","tipo":"J"},"C403":{"nombre":"C-403","torre":"C","tipo":"I"},"C501":{"nombre":"C-501","torre":"C","tipo":"H"},"C502":{"nombre":"C-502","torre":"C","tipo":"J"},"C503":{"nombre":"C-503","torre":"C","tipo":"I"},"C601":{"nombre":"C-601","torre":"C","tipo":"H"},"C602":{"nombre":"C-602","torre":"C","tipo":"J"},"C603":{"nombre":"C-603","torre":"C","tipo":"I"},"C701":{"nombre":"C-701","torre":"C","tipo":"H"},"C702":{"nombre":"C-702","torre":"C","tipo":"J"},"C703":{"nombre":"C-703","torre":"C","tipo":"I"},"C801":{"nombre":"C-801","torre":"C","tipo":"H"},"C802":{"nombre":"C-802","torre":"C","tipo":"J"},"C803":{"nombre":"C-803","torre":"C","tipo":"I"},"C901":{"nombre":"C-901","torre":"C","tipo":"H"},"C902":{"nombre":"C-902","torre":"C","tipo":"J"},"C903":{"nombre":"C-903","torre":"C","tipo":"I"},"C1001":{"nombre":"C-1001","torre":"C","tipo":"H"},"C1002":{"nombre":"C-1002","torre":"C","tipo":"J"},"C1003":{"nombre":"C-1003","torre":"C","tipo":"I"},"C1101":{"nombre":"C-1101","torre":"C","tipo":"H"},"C1102":{"nombre":"C-1102","torre":"C","tipo":"J"},"C1103":{"nombre":"C-1103","torre":"C","tipo":"I"},"C1201":{"nombre":"C-1201","torre":"C","tipo":"H"},"C1202":{"nombre":"C-1202","torre":"C","tipo":"J"},"C1203":{"nombre":"C-1203","torre":"C","tipo":"I"},"C1301":{"nombre":"C-1301","torre":"C","tipo":"H"},"C1302":{"nombre":"C-1302","torre":"C","tipo":"J"},"C1303":{"nombre":"C-1303","torre":"C","tipo":"I"},"C1401":{"nombre":"C-1401","torre":"C","tipo":"H"},"C1402":{"nombre":"C-1402","torre":"C","tipo":"J"},"C1403":{"nombre":"C-1403","torre":"C","tipo":"I"},"CPH01":{"nombre":"C-PH01","torre":"C","tipo":"H"},"CPH02":{"nombre":"C-PH02","torre":"C","tipo":"J"},"CPH03":{"nombre":"C-PH03","torre":"C","tipo":"I"},"CGPH01":{"nombre":"C-GPH01","torre":"C","tipo":"GPH-H"},"CGPH02":{"nombre":"C-GPH02","torre":"C","tipo":"GPH-J"},"CGPH03":{"nombre":"C-GPH03","torre":"C","tipo":"GPH-I"},"BROOF2":{"nombre":"B-ROOF-2","torre":"B","tipo":"ROOF"},"CROOF5":{"nombre":"C-ROOF-5","torre":"C","tipo":"ROOF"},"DGH01":{"nombre":"D-GH01","torre":"D","tipo":"L7"},"DGH05":{"nombre":"D-GH05","torre":"D","tipo":"A17"},"DGH02":{"nombre":"D-GH02","torre":"D","tipo":"L8"},"DGH04":{"nombre":"D-GH04","torre":"D","tipo":"Q3"},"DGH03":{"nombre":"D-GH03","torre":"D","tipo":"O5"},"DT101":{"nombre":"D-T101","torre":"D","tipo":"O3"},"DT109":{"nombre":"D-T109","torre":"D","tipo":"P2"},"DT102":{"nombre":"D-T102","torre":"D","tipo":"L5"},"DT108":{"nombre":"D-T108","torre":"D","tipo":"A14"},"DT103":{"nombre":"D-T103","torre":"D","tipo":"L6"},"DT107":{"nombre":"D-T107","torre":"D","tipo":"A15"},"DT104":{"nombre":"D-T104","torre":"D","tipo":"O4"},"DT106":{"nombre":"D-T106","torre":"D","tipo":"A16"},"DT105":{"nombre":"D-T105","torre":"D","tipo":"Q2"},"D201":{"nombre":"D-201","torre":"D","tipo":"O"},"D209":{"nombre":"D-209","torre":"D","tipo":"P"},"D202":{"nombre":"D-202","torre":"D","tipo":"L3"},"D208":{"nombre":"D-208","torre":"D","tipo":"A12"},"D203":{"nombre":"D-203","torre":"D","tipo":"L4"},"D207":{"nombre":"D-207","torre":"D","tipo":"A13"},"D204":{"nombre":"D-204","torre":"D","tipo":"O2"},"D206":{"nombre":"D-206","torre":"D","tipo":"A12 (1)"},"D205":{"nombre":"D-205","torre":"D","tipo":"Q"},"D301":{"nombre":"D-301","torre":"D","tipo":"O"},"D309":{"nombre":"D-309","torre":"D","tipo":"P"},"D302":{"nombre":"D-302","torre":"D","tipo":"L3"},"D308":{"nombre":"D-308","torre":"D","tipo":"A12"},"D303":{"nombre":"D-303","torre":"D","tipo":"L4"},"D307":{"nombre":"D-307","torre":"D","tipo":"A13"},"D304":{"nombre":"D-304","torre":"D","tipo":"O2"},"D306":{"nombre":"D-306","torre":"D","tipo":"A12 (1)"},"D305":{"nombre":"D-305","torre":"D","tipo":"Q"},"D401":{"nombre":"D-401","torre":"D","tipo":"O"},"D409":{"nombre":"D-409","torre":"D","tipo":"P"},"D402":{"nombre":"D-402","torre":"D","tipo":"L3"},"D408":{"nombre":"D-408","torre":"D","tipo":"A12"},"D403":{"nombre":"D-403","torre":"D","tipo":"L4"},"D407":{"nombre":"D-407","torre":"D","tipo":"A13"},"D404":{"nombre":"D-404","torre":"D","tipo":"O2"},"D406":{"nombre":"D-406","torre":"D","tipo":"A12 (1)"},"D405":{"nombre":"D-405","torre":"D","tipo":"Q"},"D501":{"nombre":"D-501","torre":"D","tipo":"O"},"D509":{"nombre":"D-509","torre":"D","tipo":"P"},"D502":{"nombre":"D-502","torre":"D","tipo":"L3"},"D508":{"nombre":"D-508","torre":"D","tipo":"A12"},"D503":{"nombre":"D-503","torre":"D","tipo":"L4"},"D507":{"nombre":"D-507","torre":"D","tipo":"A13"},"D504":{"nombre":"D-504","torre":"D","tipo":"O2"},"D506":{"nombre":"D-506","torre":"D","tipo":"A12 (1)"},"D505":{"nombre":"D-505","torre":"D","tipo":"Q"},"D601":{"nombre":"D-601","torre":"D","tipo":"O"},"D609":{"nombre":"D-609","torre":"D","tipo":"P"},"D602":{"nombre":"D-602","torre":"D","tipo":"L3"},"D608":{"nombre":"D-608","torre":"D","tipo":"A12"},"D603":{"nombre":"D-603","torre":"D","tipo":"L4"},"D607":{"nombre":"D-607","torre":"D","tipo":"A13"},"D604":{"nombre":"D-604","torre":"D","tipo":"O2"},"D606":{"nombre":"D-606","torre":"D","tipo":"A12 (1)"},"D605":{"nombre":"D-605","torre":"D","tipo":"Q"},"D701":{"nombre":"D-701","torre":"D","tipo":"O"},"D709":{"nombre":"D-709","torre":"D","tipo":"P"},"D702":{"nombre":"D-702","torre":"D","tipo":"L3"},"D708":{"nombre":"D-708","torre":"D","tipo":"A12"},"D703":{"nombre":"D-703","torre":"D","tipo":"L4"},"D707":{"nombre":"D-707","torre":"D","tipo":"A13"},"D704":{"nombre":"D-704","torre":"D","tipo":"O2"},"D706":{"nombre":"D-706","torre":"D","tipo":"A12 (1)"},"D705":{"nombre":"D-705","torre":"D","tipo":"Q"},"D801":{"nombre":"D-801","torre":"D","tipo":"O"},"D809":{"nombre":"D-809","torre":"D","tipo":"P"},"D802":{"nombre":"D-802","torre":"D","tipo":"L3"},"D808":{"nombre":"D-808","torre":"D","tipo":"A12"},"D803":{"nombre":"D-803","torre":"D","tipo":"L4"},"D807":{"nombre":"D-807","torre":"D","tipo":"A13"},"D804":{"nombre":"D-804","torre":"D","tipo":"O2"},"D806":{"nombre":"D-806","torre":"D","tipo":"A12 (1)"},"D805":{"nombre":"D-805","torre":"D","tipo":"Q"},"D901":{"nombre":"D-901","torre":"D","tipo":"O"},"D909":{"nombre":"D-909","torre":"D","tipo":"P"},"D902":{"nombre":"D-902","torre":"D","tipo":"L3"},"D908":{"nombre":"D-908","torre":"D","tipo":"A12"},"D903":{"nombre":"D-903","torre":"D","tipo":"L4"},"D907":{"nombre":"D-907","torre":"D","tipo":"A13"},"D904":{"nombre":"D-904","torre":"D","tipo":"O2"},"D906":{"nombre":"D-906","torre":"D","tipo":"A12 (1)"},"D905":{"nombre":"D-905","torre":"D","tipo":"Q"},"D1001":{"nombre":"D-1001","torre":"D","tipo":"O"},"D1009":{"nombre":"D-1009","torre":"D","tipo":"P"},"D1002":{"nombre":"D-1002","torre":"D","tipo":"L3"},"D1008":{"nombre":"D-1008","torre":"D","tipo":"A12"},"D1003":{"nombre":"D-1003","torre":"D","tipo":"L4"},"D1007":{"nombre":"D-1007","torre":"D","tipo":"A13"},"D1004":{"nombre":"D-1004","torre":"D","tipo":"O2"},"D1006":{"nombre":"D-1006","torre":"D","tipo":"A12 (1)"},"D1005":{"nombre":"D-1005","torre":"D","tipo":"Q"},"D1101":{"nombre":"D-1101","torre":"D","tipo":"O"},"D1109":{"nombre":"D-1109","torre":"D","tipo":"P"},"D1102":{"nombre":"D-1102","torre":"D","tipo":"L3"},"D1108":{"nombre":"D-1108","torre":"D","tipo":"A12"},"D1103":{"nombre":"D-1103","torre":"D","tipo":"L4"},"D1107":{"nombre":"D-1107","torre":"D","tipo":"A13"},"D1104":{"nombre":"D-1104","torre":"D","tipo":"O2"},"D1106":{"nombre":"D-1106","torre":"D","tipo":"A12 (1)"},"D1105":{"nombre":"D-1105","torre":"D","tipo":"Q"},"D1201":{"nombre":"D-1201","torre":"D","tipo":"O"},"D1209":{"nombre":"D-1209","torre":"D","tipo":"P"},"D1202":{"nombre":"D-1202","torre":"D","tipo":"L3"},"D1208":{"nombre":"D-1208","torre":"D","tipo":"A12"},"D1203":{"nombre":"D-1203","torre":"D","tipo":"L4"},"D1207":{"nombre":"D-1207","torre":"D","tipo":"A13"},"D1204":{"nombre":"D-1204","torre":"D","tipo":"O2"},"D1206":{"nombre":"D-1206","torre":"D","tipo":"A12 (1)"},"D1205":{"nombre":"D-1205","torre":"D","tipo":"Q"},"D1301":{"nombre":"D-1301","torre":"D","tipo":"O"},"D1309":{"nombre":"D-1309","torre":"D","tipo":"P"},"D1302":{"nombre":"D-1302","torre":"D","tipo":"L3"},"D1308":{"nombre":"D-1308","torre":"D","tipo":"A12"},"D1303":{"nombre":"D-1303","torre":"D","tipo":"L4"},"D1307":{"nombre":"D-1307","torre":"D","tipo":"A13"},"D1304":{"nombre":"D-1304","torre":"D","tipo":"O2"},"D1306":{"nombre":"D-1306","torre":"D","tipo":"A12 (1)"},"D1305":{"nombre":"D-1305","torre":"D","tipo":"Q"},"D1401":{"nombre":"D-1401","torre":"D","tipo":"O"},"D1409":{"nombre":"D-1409","torre":"D","tipo":"P"},"D1402":{"nombre":"D-1402","torre":"D","tipo":"L3"},"D1408":{"nombre":"D-1408","torre":"D","tipo":"A12"},"D1403":{"nombre":"D-1403","torre":"D","tipo":"L4"},"D1407":{"nombre":"D-1407","torre":"D","tipo":"A13"},"D1404":{"nombre":"D-1404","torre":"D","tipo":"O2"},"D1406":{"nombre":"D-1406","torre":"D","tipo":"A12 (1)"},"D1405":{"nombre":"D-1405","torre":"D","tipo":"Q"},"DPH01":{"nombre":"D-PH01","torre":"D","tipo":"O"},"DPH09":{"nombre":"D-PH09","torre":"D","tipo":"P"},"DPH02":{"nombre":"D-PH02","torre":"D","tipo":"L3"},"DPH08":{"nombre":"D-PH08","torre":"D","tipo":"A12"},"DPH03":{"nombre":"D-PH03","torre":"D","tipo":"L4"},"DPH07":{"nombre":"D-PH07","torre":"D","tipo":"A13"},"DPH04":{"nombre":"D-PH04","torre":"D","tipo":"O2"},"DPH06":{"nombre":"D-PH06","torre":"D","tipo":"A12 (1)"},"DPH05":{"nombre":"D-PH05","torre":"D","tipo":"Q"},"DGPH01":{"nombre":"D-GPH01","torre":"D","tipo":"GPH-O"},"DGPH09":{"nombre":"D-GPH09","torre":"D","tipo":"GPH-P"},"DGPH02":{"nombre":"D-GPH02","torre":"D","tipo":"GPH-L3"},"DGPH08":{"nombre":"D-GPH08","torre":"D","tipo":"GPH-A12"},"DGPH03":{"nombre":"D-GPH03","torre":"D","tipo":"GPH-L4"},"DGPH07":{"nombre":"D-GPH07","torre":"D","tipo":"GPH-A13"},"DGPH04":{"nombre":"D-GPH04","torre":"D","tipo":"GPH-O2"},"DGPH06":{"nombre":"D-GPH06","torre":"D","tipo":"GPH-A12 (1)"},"DGPH05":{"nombre":"D-GPH05","torre":"D","tipo":"GPH-Q"},"DROOF1":{"nombre":"D-ROOF-1","torre":"D","tipo":"ROOF"},"DROOF2":{"nombre":"D-ROOF-2","torre":"D","tipo":"ROOF"},"DROOF5":{"nombre":"D-ROOF-5","torre":"D","tipo":"ROOF"},"DROOF6":{"nombre":"D-ROOF-6","torre":"D","tipo":"ROOF"},"DROOF7":{"nombre":"D-ROOF-7","torre":"D","tipo":"ROOF"},"DROOF8":{"nombre":"D-ROOF-8","torre":"D","tipo":"ROOF"},"DROOF11":{"nombre":"D-ROOF-11","torre":"D","tipo":"ROOF"},"DROOF12":{"nombre":"D-ROOF-12","torre":"D","tipo":"ROOF"},"DROOF13":{"nombre":"D-ROOF-13","torre":"D","tipo":"ROOF"},"DROOF14":{"nombre":"D-ROOF-14","torre":"D","tipo":"ROOF"},"DROOF17":{"nombre":"D-ROOF-17","torre":"D","tipo":"ROOF"},"DROOF20":{"nombre":"D-ROOF-20","torre":"D","tipo":"ROOF"},"DROOF21":{"nombre":"D-ROOF-21","torre":"D","tipo":"ROOF"},"DROOF23":{"nombre":"D-ROOF-23","torre":"D","tipo":"ROOF"},"DROOF24":{"nombre":"D-ROOF-24","torre":"D","tipo":"ROOF"},"EGH02":{"nombre":"E-GH02","torre":"E","tipo":"A10"},"EGH01":{"nombre":"E-GH01","torre":"E","tipo":"N"},"EGH04":{"nombre":"E-GH04","torre":"E","tipo":"A11"},"EGH03":{"nombre":"E-GH03","torre":"E","tipo":"J5"},"ET101":{"nombre":"E-T101","torre":"E","tipo":"K2"},"ET106":{"nombre":"E-T106","torre":"E","tipo":"L2"},"ET102":{"nombre":"E-T102","torre":"E","tipo":"A7"},"ET105":{"nombre":"E-T105","torre":"E","tipo":"A8"},"ET103":{"nombre":"E-T103","torre":"E","tipo":"H4"},"ET104":{"nombre":"E-T104","torre":"E","tipo":"J4"},"E201":{"nombre":"E-201","torre":"E","tipo":"K"},"E206":{"nombre":"E-206","torre":"E","tipo":"L"},"E202":{"nombre":"E-202","torre":"E","tipo":"A3"},"E205":{"nombre":"E-205","torre":"E","tipo":"A4"},"E203":{"nombre":"E-203","torre":"E","tipo":"H2"},"E204":{"nombre":"E-204","torre":"E","tipo":"J2"},"E301":{"nombre":"E-301","torre":"E","tipo":"K"},"E306":{"nombre":"E-306","torre":"E","tipo":"L"},"E302":{"nombre":"E-302","torre":"E","tipo":"A3"},"E305":{"nombre":"E-305","torre":"E","tipo":"A4"},"E303":{"nombre":"E-303","torre":"E","tipo":"H2"},"E304":{"nombre":"E-304","torre":"E","tipo":"J2"},"E401":{"nombre":"E-401","torre":"E","tipo":"K"},"E406":{"nombre":"E-406","torre":"E","tipo":"L"},"E402":{"nombre":"E-402","torre":"E","tipo":"A3"},"E405":{"nombre":"E-405","torre":"E","tipo":"A4"},"E403":{"nombre":"E-403","torre":"E","tipo":"H2"},"E404":{"nombre":"E-404","torre":"E","tipo":"J2"},"E501":{"nombre":"E-501","torre":"E","tipo":"K"},"E506":{"nombre":"E-506","torre":"E","tipo":"L"},"E502":{"nombre":"E-502","torre":"E","tipo":"A3"},"E505":{"nombre":"E-505","torre":"E","tipo":"A4"},"E503":{"nombre":"E-503","torre":"E","tipo":"H2"},"E504":{"nombre":"E-504","torre":"E","tipo":"J2"},"E601":{"nombre":"E-601","torre":"E","tipo":"K"},"E606":{"nombre":"E-606","torre":"E","tipo":"L"},"E602":{"nombre":"E-602","torre":"E","tipo":"A3"},"E605":{"nombre":"E-605","torre":"E","tipo":"A4"},"E603":{"nombre":"E-603","torre":"E","tipo":"H2"},"E604":{"nombre":"E-604","torre":"E","tipo":"J2"},"E701":{"nombre":"E-701","torre":"E","tipo":"K"},"E706":{"nombre":"E-706","torre":"E","tipo":"L"},"E702":{"nombre":"E-702","torre":"E","tipo":"A3"},"E705":{"nombre":"E-705","torre":"E","tipo":"A4"},"E703":{"nombre":"E-703","torre":"E","tipo":"H2"},"E704":{"nombre":"E-704","torre":"E","tipo":"J2"},"E801":{"nombre":"E-801","torre":"E","tipo":"K"},"E806":{"nombre":"E-806","torre":"E","tipo":"L"},"E802":{"nombre":"E-802","torre":"E","tipo":"A3"},"E805":{"nombre":"E-805","torre":"E","tipo":"A4"},"E803":{"nombre":"E-803","torre":"E","tipo":"H2"},"E804":{"nombre":"E-804","torre":"E","tipo":"J2"},"E901":{"nombre":"E-901","torre":"E","tipo":"K"},"E906":{"nombre":"E-906","torre":"E","tipo":"L"},"E902":{"nombre":"E-902","torre":"E","tipo":"A3"},"E905":{"nombre":"E-905","torre":"E","tipo":"A4"},"E903":{"nombre":"E-903","torre":"E","tipo":"H2"},"E904":{"nombre":"E-904","torre":"E","tipo":"J2"},"E1001":{"nombre":"E-1001","torre":"E","tipo":"K"},"E1006":{"nombre":"E-1006","torre":"E","tipo":"L"},"E1002":{"nombre":"E-1002","torre":"E","tipo":"A3"},"E1005":{"nombre":"E-1005","torre":"E","tipo":"A4"},"E1003":{"nombre":"E-1003","torre":"E","tipo":"H2"},"E1004":{"nombre":"E-1004","torre":"E","tipo":"J2"},"E1101":{"nombre":"E-1101","torre":"E","tipo":"K"},"E1106":{"nombre":"E-1106","torre":"E","tipo":"L"},"E1102":{"nombre":"E-1102","torre":"E","tipo":"A3"},"E1105":{"nombre":"E-1105","torre":"E","tipo":"A4"},"E1103":{"nombre":"E-1103","torre":"E","tipo":"H2"},"E1104":{"nombre":"E-1104","torre":"E","tipo":"J2"},"E1201":{"nombre":"E-1201","torre":"E","tipo":"K"},"E1206":{"nombre":"E-1206","torre":"E","tipo":"L"},"E1202":{"nombre":"E-1202","torre":"E","tipo":"A3"},"E1205":{"nombre":"E-1205","torre":"E","tipo":"A4"},"E1203":{"nombre":"E-1203","torre":"E","tipo":"H2"},"E1204":{"nombre":"E-1204","torre":"E","tipo":"J2"},"E1301":{"nombre":"E-1301","torre":"E","tipo":"K"},"E1306":{"nombre":"E-1306","torre":"E","tipo":"L"},"E1302":{"nombre":"E-1302","torre":"E","tipo":"A3"},"E1305":{"nombre":"E-1305","torre":"E","tipo":"A4"},"E1303":{"nombre":"E-1303","torre":"E","tipo":"H2"},"E1304":{"nombre":"E-1304","torre":"E","tipo":"J2"},"E1401":{"nombre":"E-1401","torre":"E","tipo":"K"},"E1406":{"nombre":"E-1406","torre":"E","tipo":"L"},"E1402":{"nombre":"E-1402","torre":"E","tipo":"A3"},"E1405":{"nombre":"E-1405","torre":"E","tipo":"A4"},"E1403":{"nombre":"E-1403","torre":"E","tipo":"H2"},"E1404":{"nombre":"E-1404","torre":"E","tipo":"J2"},"EPH01":{"nombre":"E-PH01","torre":"E","tipo":"K"},"EPH06":{"nombre":"E-PH06","torre":"E","tipo":"L"},"EPH02":{"nombre":"E-PH02","torre":"E","tipo":"A3"},"EPH05":{"nombre":"E-PH05","torre":"E","tipo":"A4"},"EPH03":{"nombre":"E-PH03","torre":"E","tipo":"H2"},"EPH04":{"nombre":"E-PH04","torre":"E","tipo":"J2"},"EGPH01":{"nombre":"E-GPH01","torre":"E","tipo":"GPH-K"},"EGPH06":{"nombre":"E-GPH06","torre":"E","tipo":"GPH-L"},"EGPH02":{"nombre":"E-GPH02","torre":"E","tipo":"GPH-A3"},"EGPH05":{"nombre":"E-GPH05","torre":"E","tipo":"GPH-A4"},"EGPH03":{"nombre":"E-GPH03","torre":"E","tipo":"GPH-H2"},"EGPH04":{"nombre":"E-GPH04","torre":"E","tipo":"GPH-J2"},"EROOF2":{"nombre":"E-ROOF-2","torre":"E","tipo":"ROOF"},"EROOF3":{"nombre":"E-ROOF-3","torre":"E","tipo":"ROOF"},"EROOF6":{"nombre":"E-ROOF-6","torre":"E","tipo":"ROOF"},"EROOF7":{"nombre":"E-ROOF-7","torre":"E","tipo":"ROOF"},"EROOF8":{"nombre":"E-ROOF-8","torre":"E","tipo":"ROOF"},"EROOF11":{"nombre":"E-ROOF-11","torre":"E","tipo":"ROOF"},"EROOF12":{"nombre":"E-ROOF-12","torre":"E","tipo":"ROOF"},"EROOF13":{"nombre":"E-ROOF-13","torre":"E","tipo":"ROOF"},"EROOF14":{"nombre":"E-ROOF-14","torre":"E","tipo":"ROOF"}};
+
+// ── Tasas bancarias (fallback si no se puede leer Supabase config) ──
+let BANK_RATE_ANNUAL = 0.093; // BX+ conservador; se intenta sobreescribir desde Supabase
+const LOAN_TERM_MONTHS = 240; // 20 años — SUPUESTO, validar con Francisco / Simulador
+
+// ═══════════════════════════════════════════════════════════
+// CONTENIDO — nichos de mercado y preguntas
+// ═══════════════════════════════════════════════════════════
+const NICHOS = [
+  {id:'a', label:'Quiero darle algo mejor a mi familia de lo que tenemos hoy'},
+  {id:'b', label:'Busco un buen negocio inmobiliario: comprar y revender cuando suba de valor'},
+  {id:'c', label:'Quiero ver si este depa se ajusta a mi nueva vida en pareja',
+    sub:{q:'¿Buscan algo compacto para empezar, o ya piensan en crecer la familia pronto?',
+         opts:['Compacto para empezar','Con margen para crecer']}},
+  {id:'d', label:'Busco un patrimonio seguro, que no pierda valor',
+    sub:{q:'¿Buscas que también te genere renta mensual, o solo que no pierda valor?',
+         opts:['Que me rente','Solo que no pierda valor']}},
+  {id:'e', label:'Donde vivo ya me queda grande — mis hijos ya hicieron su vida'},
+  {id:'f', label:'Estoy comenzando una nueva etapa por mi cuenta'},
+  {id:'g', label:'Necesito estar más cerca de mi trabajo o mi negocio'},
+  {id:'h', label:'Quiero comprarle un lugar a mis hijos para cuando empiecen su vida independiente'},
+  {id:'otra', label:'Otra razón', freeText:true}
+];
+
+const TIMING_OPTS = ['Lo antes posible','En los próximos meses','Sin prisa, voy viendo opciones'];
+const ESPACIO_OPTS = ['Terraza','Roof garden','Jardín','No es indispensable para mí'];
+
+const ENGANCHE_OPTS = [
+  {label:'Menos de $700,000', val:500000},
+  {label:'$700,000 – $1,500,000', val:1100000},
+  {label:'$1,500,000 – $3,000,000', val:2250000},
+  {label:'Más de $3,000,000', val:3500000},
+];
+const MENSUALIDAD_OPTS = [
+  {label:'Menos de $40,000', val:30000},
+  {label:'$40,000 – $70,000', val:55000},
+  {label:'$70,000 – $110,000', val:90000},
+  {label:'Más de $110,000', val:130000},
+];
+
+const PRIORIDADES = [
+  {id:'vista', label:'Vista', sub:{q:'¿Qué tipo de vista prefieres?', opts:['Ciudad','Amenidades y áreas verdes','Atardecer']}},
+  {id:'amenidades', label:'Amenidades', sub:{q:'¿Cuál usarías más seguido?', opts:['Alberca','Gym','Roof garden','Coworking']}},
+  {id:'rendimiento', label:'Rendimiento', sub:{q:'¿En cuánto tiempo esperas el resultado?', opts:['1-2 años','3-5 años','Sin prisa']}},
+  {id:'tamano', label:'Tamaño', sub:{q:'¿Priorizas más recámaras, o más metros?', opts:['Más recámaras','Más metros']}}
+];
+
+// ═══════════════════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════════════════
+let answers = {};
+let screenIndex = 0;
+let screens = ['nicho'];
+
+function rebuildScreens(){
+  screens = ['nicho'];
+  const nicho = NICHOS.find(n=>n.id===answers.nicho);
+  if (nicho && nicho.sub) screens.push('nicho_sub');
+  if (nicho && nicho.freeText) screens.push('nicho_freetext');
+  screens.push('timing','espacio','enganche','mensualidad');
+  screens.push('prioridad');
+  const pr = PRIORIDADES.find(p=>p.id===answers.prioridad);
+  if (pr && pr.sub) screens.push('prioridad_sub');
+  screens.push('loading','results');
+}
+rebuildScreens();
+
+function goNext(){ rebuildScreens(); screenIndex++; render(); }
+function goBack(){ if(screenIndex>0){ screenIndex--; render(); } }
+
+// ═══════════════════════════════════════════════════════════
+// UTILIDADES DE DATOS
+// ═══════════════════════════════════════════════════════════
+function normName(s){ return (s||'').toString().replace(/[\s\-\(\)']+/g,'').toUpperCase(); }
+
+function parseCSV(text){
+  return text.trim().split('\n').map(line=>{
+    const vals=[]; let cur='', inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){inQ=!inQ;}
+      else if(c===',' && !inQ){vals.push(cur); cur='';}
+      else{cur+=c;}
+    }
+    vals.push(cur);
+    return vals;
+  });
+}
+
+async function fetchMappenTorre(torre){
+  const url = `https://docs.google.com/spreadsheets/d/${MAPPEN_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Torre%20${torre}`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const rows = parseCSV(text);
+  const out = [];
+  for(const r of rows.slice(1)){
+    const nombre=r[2], precio=r[4], disp=r[8];
+    if(!nombre) continue;
+    if(disp && disp.trim()==='Disponible' && precio!=='55555555'){
+      out.push({nombre, torre, precio:parseFloat(precio)||null});
+    }
+  }
+  return out;
+}
+
+async function buildInventory(){
+  const all = [];
+  for(const t of TORRES){
+    try{ const units = await fetchMappenTorre(t); all.push(...units); }
+    catch(e){ console.error('Mappen fetch falló para torre', t, e); }
+  }
+  const built = [];
+  for(const u of all){
+    const key = normName(u.nombre);
+    const ut = UNIT_TIPO[key];
+    let tip = null;
+    if(ut){ tip = TYPOLOGY[`${ut.torre}|${normName(ut.tipo)}`]; }
+    built.push({
+      nombre: u.nombre,
+      torre: u.torre,
+      m2_int: tip ? tip.m2i : null,
+      rec: tip ? tip.rec : null,
+      banos: tip ? tip.banos : null,
+      extra: tip ? (tip.ext || 'NA') : 'NA',
+      precio: u.precio,
+      delivery: DELIVERY_MAP[u.torre] || '?'
+    });
+  }
+  return built;
+}
+
+async function fetchBankRate(){
+  try{
+    const {data, error} = await supa.from('config').select('value').eq('key','params_financieros').single();
+    if(error || !data) return;
+    const params = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
+    const rate = params.tasa_bx || params.tasa_bbva;
+    if(rate) BANK_RATE_ANNUAL = rate > 1 ? rate/100 : rate;
+  }catch(e){ console.warn('No se pudo leer tasa de Supabase, usando fallback', e); }
+}
+
+function computeBudgetCeiling(enganche, mensualidad){
+  const r = BANK_RATE_ANNUAL/12;
+  const n = LOAN_TERM_MONTHS;
+  const maxFinanciado = mensualidad * (1-Math.pow(1+r,-n)) / r;
+  return Math.round(enganche + maxFinanciado);
+}
+
+function filterAndCapInventory(inventory, presupuesto){
+  const withPrice = inventory.filter(u=>u.precio);
+  const dentro = withPrice.filter(u=>u.precio <= presupuesto*1.15);
+  const pool = dentro.length >= 10 ? dentro : withPrice.sort((a,b)=>a.precio-b.precio);
+  return pool.sort((a,b)=>Math.abs(a.precio-presupuesto)-Math.abs(b.precio-presupuesto)).slice(0,60);
+}
+
+// ═══════════════════════════════════════════════════════════
+// LLAMADA AL MOTOR DE RECOMENDACIÓN
+// ═══════════════════════════════════════════════════════════
+async function callRecommend(profile, inventory){
+  const res = await fetch(`${BACKEND_URL}/api/recommend`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({profile, inventory})
+  });
+  return res.json();
+}
+
+async function logSession(profile, recommendation){
+  try{
+    await supa.from('ialiah_sesiones').insert({
+      profile: profile,
+      recommendation: recommendation,
+      asesor_nombre: sessionStorage.getItem('asesor_nombre') || null,
+      zoho_id: sessionStorage.getItem('zoho_id') || null,
+      zoho_module: sessionStorage.getItem('zoho_module') || null,
+      created_at: new Date().toISOString()
+    });
+  }catch(e){ console.warn('No se pudo guardar la sesión (¿existe la tabla ialiah_sesiones?)', e); }
+}
+
+async function saveToZohoIfPresent(profile, recommendation){
+  const zohoId = sessionStorage.getItem('zoho_id');
+  const zohoModule = sessionStorage.getItem('zoho_module');
+  if(!zohoId) return;
+  const notaTexto = `Sesión iALIAH — Nicho: ${profile.nicho_label}${profile.nicho_detalle ? ' ('+profile.nicho_detalle+')' : ''}. `+
+    `Timing: ${profile.timing}. Espacio: ${profile.espacio}. Prioridad: ${profile.prioridad}${profile.prioridad_detalle ? ' ('+profile.prioridad_detalle+')' : ''}. `+
+    `Presupuesto estimado: $${profile.presupuesto_estimado.toLocaleString('es-MX')}. `+
+    `Recomendado: ${(recommendation.recommendations||[]).map(r=>r.unit_name).join(', ')}. `+
+    `Nota IA: ${recommendation.advisor_insight || ''}`;
+  try{
+    await fetch(`${BACKEND_URL}/api/zoho/note`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({recordId:zohoId, module:zohoModule, content:notaTexto})
+    });
+  }catch(e){ console.warn('No se pudo guardar nota en Zoho', e); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+const app = document.getElementById('app');
+
+function progressBar(){
+  const total = screens.filter(s=>!['loading','results'].includes(s)).length;
+  let html = '<div class="progress">';
+  for(let i=0;i<total;i++){
+    html += `<span class="${i<screenIndex?'done':''}"><i></i></span>`;
+  }
+  return html + '</div>';
+}
+
+function render(){
+  const screen = screens[screenIndex];
+  app.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.style.display='flex'; wrap.style.flexDirection='column'; wrap.style.flex='1';
+
+  if(screen!=='loading' && screen!=='results') wrap.innerHTML += progressBar();
+
+  if(screen==='nicho') wrap.innerHTML += renderNicho();
+  else if(screen==='nicho_sub') wrap.innerHTML += renderNichoSub();
+  else if(screen==='nicho_freetext') wrap.innerHTML += renderNichoFreeText();
+  else if(screen==='timing') wrap.innerHTML += renderChoiceScreen('¿Para cuándo te gustaría mudarte?','', TIMING_OPTS, 'timing');
+  else if(screen==='espacio') wrap.innerHTML += renderChoiceScreen('¿Qué tan importante es tener un espacio exterior?','Balcón, terraza, roof garden o jardín', ESPACIO_OPTS, 'espacio');
+  else if(screen==='enganche') wrap.innerHTML += renderChoiceScreen('¿Cuánto tienes disponible para el enganche hoy?','', ENGANCHE_OPTS.map(o=>o.label), 'enganche_label');
+  else if(screen==='mensualidad') wrap.innerHTML += renderMensualidad();
+  else if(screen==='prioridad') wrap.innerHTML += renderPrioridad();
+  else if(screen==='prioridad_sub') wrap.innerHTML += renderPrioridadSub();
+  else if(screen==='loading'){ wrap.innerHTML += renderLoading(); app.appendChild(wrap); runRecommendation(); return; }
+  else if(screen==='results') wrap.innerHTML += renderResults();
+
+  app.appendChild(wrap);
+  attachHandlers(screen);
+}
+
+function renderNicho(){
+  return `
+    <div class="eyebrow">Antes que nada</div>
+    <h1>¿Qué te trae a buscar un nuevo hogar?</h1>
+    <div class="sub">Elige la que más se parezca a tu situación — de ahí partimos.</div>
+    <div class="options">
+      ${NICHOS.map(n=>`<button class="opt" data-nicho="${n.id}">${n.label}</button>`).join('')}
+    </div>`;
+}
+
+function renderNichoSub(){
+  const nicho = NICHOS.find(n=>n.id===answers.nicho);
+  return `
+    <h1>${nicho.sub.q}</h1>
+    <div class="sub"></div>
+    <div class="options">
+      ${nicho.sub.opts.map(o=>`<button class="opt" data-sub="${o}">${o}</button>`).join('')}
+    </div>`;
+}
+
+function renderNichoFreeText(){
+  return `
+    <h1>Cuéntanos con tus palabras</h1>
+    <div class="sub">Lo que nos digas nos ayuda a entender mejor qué buscas.</div>
+    <textarea id="freeTextInput" placeholder="Escribe aquí..."></textarea>
+    <div class="nav">
+      <button class="btn-text" onclick="goBack()">Atrás</button>
+      <button class="btn btn-primary" id="freeTextNext">Continuar</button>
+    </div>`;
+}
+
+function renderChoiceScreen(title, sub, opts, field){
+  return `
+    <h1>${title}</h1>
+    <div class="sub">${sub}</div>
+    <div class="options">
+      ${opts.map(o=>`<button class="opt" data-field="${field}" data-value="${o}">${o}</button>`).join('')}
+    </div>
+    <div class="nav"><button class="btn-text" onclick="goBack()">Atrás</button></div>`;
+}
+
+function renderMensualidad(){
+  return `
+    <h1>¿Con qué mensualidad te sentirías cómodo?</h1>
+    <div class="sub"></div>
+    <div class="options">
+      ${MENSUALIDAD_OPTS.map(o=>`<button class="opt" data-field="mensualidad_label" data-value="${o.label}">${o.label}</button>`).join('')}
+      <button class="opt" data-field="mensualidad_label" data-value="No estoy seguro, ayúdenme a calcularlo">No estoy seguro, ayúdenme a calcularlo</button>
+    </div>
+    <div class="nav"><button class="btn-text" onclick="goBack()">Atrás</button></div>`;
+}
+
+function renderPrioridad(){
+  return `
+    <h1>Si solo pudieras quedarte con una cosa, ¿cuál sería?</h1>
+    <div class="sub"></div>
+    <div class="opt-grid">
+      ${PRIORIDADES.map(p=>`<button class="opt" data-prioridad="${p.id}">${p.label}</button>`).join('')}
+    </div>
+    <div class="nav"><button class="btn-text" onclick="goBack()">Atrás</button></div>`;
+}
+
+function renderPrioridadSub(){
+  const pr = PRIORIDADES.find(p=>p.id===answers.prioridad);
+  return `
+    <h1>${pr.sub.q}</h1>
+    <div class="sub"></div>
+    <div class="options">
+      ${pr.sub.opts.map(o=>`<button class="opt" data-subpr="${o}">${o}</button>`).join('')}
+    </div>`;
+}
+
+function renderLoading(){
+  return `<div class="loading"><div class="spinner"></div><div>Buscando las mejores opciones para ti...</div></div>`;
+}
+
+let lastRecommendation = null;
+function renderResults(){
+  const rec = lastRecommendation;
+  if(!rec) return `<div class="honest-msg">Hubo un problema generando tu recomendación. Pide ayuda a tu asesor.</div>`;
+  let html = '';
+  if(rec.honest_fit === false){
+    html += `<h1>Encontramos algo cercano</h1><div class="honest-msg">${rec.fit_message||''}</div>`;
+  } else {
+    html += `<div class="eyebrow">Para ti</div><h1>Estas son tus mejores opciones</h1>`;
+  }
+  (rec.recommendations||[]).forEach(u=>{
+    html += `
+      <div class="card">
+        <span class="torre-tag">Torre ${u.torre} · ${u.delivery||''}</span>
+        <h3>${u.unit_name}</h3>
+        <div class="specs">${u.m2_total||u.m2_int||'?'} m² · ${u.bedrooms||'?'} rec · ${u.bathrooms||'?'} baños${u.ext_type && u.ext_type!=='NA' ? ' · '+u.ext_type : ''}</div>
+        <div class="precio">$${(u.list_price||0).toLocaleString('es-MX')}</div>
+        <div class="justif">${u.justification||''}</div>
+      </div>`;
+  });
+  if(rec.positioning_fact){
+    html += `<div class="positioning">${rec.positioning_fact}</div>`;
+  }
+  const esInversion = ['b','d'].includes(answers.nicho);
+  html += `
+    <div class="bifurcacion">
+      <a class="${esInversion?'bif-invest':'bif-live'}" href="https://aliah-comercial.github.io/simulador/" target="_blank">Ver simulador de inversión</a>
+      <a class="${!esInversion?'bif-invest':'bif-live'}" href="#" target="_blank">Ver precios y planes</a>
+    </div>`;
+  if(rec.advisor_insight){
+    html += `<div class="advisor-note"><b>Nota para el asesor:</b> ${rec.advisor_insight}</div>`;
+  }
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// HANDLERS
+// ═══════════════════════════════════════════════════════════
+function attachHandlers(screen){
+  app.querySelectorAll('[data-nicho]').forEach(b=>b.onclick=()=>{ answers.nicho=b.dataset.nicho; goNext(); });
+  app.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{ answers.nicho_detalle=b.dataset.sub; goNext(); });
+  app.querySelectorAll('[data-field]').forEach(b=>b.onclick=()=>{ answers[b.dataset.field]=b.dataset.value; goNext(); });
+  app.querySelectorAll('[data-prioridad]').forEach(b=>b.onclick=()=>{ answers.prioridad=b.dataset.prioridad; goNext(); });
+  app.querySelectorAll('[data-subpr]').forEach(b=>b.onclick=()=>{ answers.prioridad_detalle=b.dataset.subpr; goNext(); });
+  const ftBtn = document.getElementById('freeTextNext');
+  if(ftBtn) ftBtn.onclick=()=>{ answers.freeText = document.getElementById('freeTextInput').value; goNext(); };
+}
+
+async function runRecommendation(){
+  await fetchBankRate();
+  const enganche = ENGANCHE_OPTS.find(o=>o.label===answers.enganche_label)?.val || 1100000;
+  let mensualidad;
+  const sinSeguro = answers.mensualidad_label === 'No estoy seguro, ayúdenme a calcularlo';
+  if(sinSeguro){ mensualidad = 55000; } // valor medio conservador cuando el cliente no sabe
+  else { mensualidad = MENSUALIDAD_OPTS.find(o=>o.label===answers.mensualidad_label)?.val || 55000; }
+  const presupuesto = computeBudgetCeiling(enganche, mensualidad);
+
+  const nicho = NICHOS.find(n=>n.id===answers.nicho);
+  const profile = {
+    nicho: answers.nicho,
+    nicho_label: nicho ? nicho.label : '',
+    nicho_detalle: answers.nicho_detalle || null,
+    timing: answers.timing,
+    espacio: answers.espacio,
+    presupuesto_estimado: presupuesto,
+    presupuesto_no_seguro: sinSeguro,
+    prioridad: answers.prioridad,
+    prioridad_detalle: answers.prioridad_detalle || null,
+    freeText: answers.freeText || null
+  };
+
+  try{
+    const inventoryFull = await buildInventory();
+    const inventory = filterAndCapInventory(inventoryFull, presupuesto);
+    const rec = await callRecommend(profile, inventory);
+    lastRecommendation = rec;
+    await logSession(profile, rec);
+    await saveToZohoIfPresent(profile, rec);
+  }catch(e){
+    console.error('Error generando recomendación', e);
+    lastRecommendation = {honest_fit:false, fit_message:'Hubo un problema técnico. Tu asesor puede ayudarte directamente.', recommendations:[]};
+  }
+  screenIndex++;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
