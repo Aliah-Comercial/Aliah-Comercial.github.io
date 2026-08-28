@@ -929,6 +929,8 @@ function renderTable() {
 
 function matchesFilter(u) {
   if(!u.proto || u.m2_int <= 0) return false;
+  // Skip standalone ROOF units (not GPH which are penthouses)
+  if(/ROOF/i.test(u.unidad) && !/GPH/i.test(u.unidad)) return false;
   if(window._clientMode && !selectedUnits.has(u.unidad)) return false;
   if(filterTorre!=='all'&&u.torre!==filterTorre) return false;
   if(filterSearch) { const s=filterSearch.toLowerCase(); if(!u.unidad.toLowerCase().includes(s)&&!u.proto.toLowerCase().includes(s)) return false; }
@@ -1615,6 +1617,9 @@ function parseMappen(file) {
         disponibles.forEach(r => {
           let nombre = String(r['Nombre']||'').trim();
           if(!nombre || nombre==='nan') return;
+          // Skip standalone ROOF units (not GPH which are penthouses with roofs)
+          const nombreUpper = nombre.toUpperCase().replace(/[\s-]/g,'');
+          if(nombreUpper.match(/^ROOF\d*$/) || nombreUpper.match(/^[A-E]?ROOF\d*$/)) return;
           const precio = parseFloat(r['Precio Total'])||0;
           if(precio < 100000 || precio > 50000000) return;
           const supMappen = parseFloat(r['Superficie'])||0;
