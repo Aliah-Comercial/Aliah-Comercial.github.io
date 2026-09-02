@@ -44,6 +44,7 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
 
 /* ── Gate Zoho ── */
 .gate-box{width:100%;max-width:560px}
+.gate-back{display:none;background:none;border:none;color:#A4AC8C;font-size:12px;cursor:pointer;text-decoration:underline;margin-bottom:18px;padding:4px}
 .gate-title{font-size:20px;font-weight:600;margin-bottom:6px}
 .gate-sub{font-size:13px;color:#A4AC8C;margin-bottom:28px}
 .search-row{display:flex;gap:10px;margin-bottom:8px}
@@ -93,7 +94,8 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* Prospecto seleccionado (chip) */
-.prospect-chip{background:#484D3133;border:1px solid #5F6844;border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:24px}
+.prospect-chip{background:#484D3133;border:1px solid #5F6844;border-radius:10px;padding:12px 16px;display:none;align-items:center;justify-content:space-between;width:100%;margin-bottom:24px}
+.prospect-chip.visible{display:flex}
 .prospect-chip-info{text-align:left}
 .prospect-chip-name{font-size:14px;font-weight:600;color:#F8F8F8}
 .prospect-chip-meta{font-size:11px;color:#A4AC8C;margin-top:2px}
@@ -117,6 +119,13 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
 .card-decide{background:linear-gradient(135deg,#282823,#3a3a33);border:1px solid rgba(184,169,126,.27)}
 .card-decide h2{font-size:18px;color:#B8A97E}
 .card-decide p{color:#999}
+.card-hipo{background:linear-gradient(135deg,#282823,#3a3a33);border:1px solid rgba(164,172,140,.35)}
+.card-hipo h2{font-size:18px;color:#A4AC8C}
+.card-hipo p{color:#999}
+
+/* Link "vincular a lead/deal" dentro de cada tarjeta libre */
+.card-link-vincular{display:inline-block;margin-top:10px;font-size:10px;background:none;border:none;color:inherit;opacity:.65;text-decoration:underline;cursor:pointer;padding:0;font-family:'Outfit',sans-serif}
+.card-link-vincular:hover{opacity:1}
 
 /* ── Footer / sesión ── */
 .footer{font-size:10px;color:#444;margin-top:32px;line-height:1.6}
@@ -181,14 +190,18 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
 
 <!-- ══════════════════════════════════════════
      PANTALLA 2: GATE ZOHO — BUSCAR PROSPECTO
+     Ahora se dispara SOLO desde iALIAH (obligatorio)
+     o desde el link "Vincular a un lead/deal" de las
+     herramientas libres (opcional). Ver gateMode/gateTarget.
      ══════════════════════════════════════════ -->
 <div id="screen-gate" class="screen">
   <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Logo%20ALV%20blanco.png"
        alt="Aliah Lomas Verdes" class="logo" onerror="this.style.display='none'">
 
   <div class="gate-box">
-    <p class="gate-title">¿Con quién vas a trabajar?</p>
-    <p class="gate-sub">Busca al prospecto antes de abrir cualquier herramienta</p>
+    <button class="gate-back" id="gate-back-link" onclick="cancelarGate()">‹ Volver al Hub sin seleccionar</button>
+    <p class="gate-title" id="gate-title-text">¿Con quién vas a trabajar?</p>
+    <p class="gate-sub" id="gate-sub-text">Busca al prospecto antes de abrir cualquier herramienta</p>
 
     <div class="search-row">
       <input type="text" class="search-input" id="inp-search"
@@ -204,7 +217,7 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
 </div>
 
 <!-- ══════════════════════════════════════════
-     PANTALLA 3: HUB — HERRAMIENTAS
+     PANTALLA 3: HUB — HERRAMIENTAS (pantalla default post-login)
      ══════════════════════════════════════════ -->
 <div id="screen-hub" class="screen">
   <div class="session-bar">
@@ -215,13 +228,13 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
   <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Logo%20ALV%20blanco.png"
        alt="Aliah Lomas Verdes" class="logo" onerror="this.style.display='none'">
 
-  <!-- Chip del prospecto activo -->
+  <!-- Chip del prospecto activo — solo visible si hay un lead/deal vinculado -->
   <div class="prospect-chip" id="prospect-chip">
     <div class="prospect-chip-info">
       <div class="prospect-chip-name" id="chip-name">—</div>
       <div class="prospect-chip-meta" id="chip-meta">—</div>
     </div>
-    <button class="btn-change" id="btn-change-prospect">Cambiar</button>
+    <button class="btn-change" id="btn-change-prospect">Quitar</button>
   </div>
 
   <div class="hub-header">
@@ -229,18 +242,31 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
   </div>
 
   <div class="grid">
-    <a href="/ialiah/" class="card card-main" id="link-ialiah">
+    <!-- iALIAH: anclaje obligatorio. Si ya hay un lead/deal en sesión, entra directo.
+         Si no, abre el Gate en modo obligatorio y al seleccionar navega directo a /ialiah/ -->
+    <a href="/ialiah/" class="card card-main" id="link-ialiah" onclick="event.preventDefault(); abrirGateIaliah();">
       <h2>iALIAH</h2>
       <p>Perfilador inteligente — Encuentra el departamento ideal en 2 minutos</p>
       <div class="badge">Herramienta principal de showroom</div>
     </a>
+
+    <!-- Simulador, Decide e Hipoteca: uso libre. Vincular a un lead/deal es opcional. -->
     <a href="/simulador/" class="card card-sim">
       <h2>Simulador de Inversi&oacute;n</h2>
       <p>Modelo financiero completo, TIR, ROE y proyecci&oacute;n a 10 a&ntilde;os</p>
+      <button class="card-link-vincular" onclick="event.preventDefault(); event.stopPropagation(); abrirGateOpcional('/simulador/');">Vincular a un lead/deal</button>
     </a>
+
     <a href="/decide/" class="card card-decide">
       <h2>Decide con Todo</h2>
       <p>28 proyectos ante tus ojos — Los datos que importan</p>
+      <button class="card-link-vincular" onclick="event.preventDefault(); event.stopPropagation(); abrirGateOpcional('/decide/');">Vincular a un lead/deal</button>
+    </a>
+
+    <a href="/hipoteca/" class="card card-hipo">
+      <h2>Calculadora de Hipoteca</h2>
+      <p>Enganche, mensualidad y comparativo de esquemas de crédito</p>
+      <button class="card-link-vincular" onclick="event.preventDefault(); event.stopPropagation(); abrirGateOpcional('/hipoteca/');">Vincular a un lead/deal</button>
     </a>
   </div>
   <p class="footer">Fuentes: Monopolio/hDD360 mzo 2026 &middot; 4S mzo 2025 &middot; Banxico may 2026<br>Aliah Developments &copy; 2026</p>
@@ -302,7 +328,9 @@ btnLogin.addEventListener('click', async () => {
   sessionStorage.setItem('asesor_email', data.user.email);
 
   document.getElementById('session-name').textContent = nombreAsesor;
-  showScreen('screen-gate');
+
+  // FASE 1: el Hub es la pantalla default post-login, ya no el Gate
+  showScreen('screen-hub');
 });
 
 // Enter en login
@@ -312,13 +340,65 @@ btnLogin.addEventListener('click', async () => {
 
 // ══════════════════════════════════════════════════════════
 // PANTALLA 2: GATE ZOHO
+//
+// gateMode: 'mandatorio' (desde iALIAH, no se puede usar la
+//           herramienta sin seleccionar/crear un lead/deal) o
+//           'opcional' (desde Simulador/Decide/Hipoteca, el
+//           asesor puede cancelar y volver al Hub sin vincular)
+// gateTarget: URL a la que se navega después de seleccionar
+//             un prospecto (o de crear uno nuevo)
 // ══════════════════════════════════════════════════════════
 const btnSearch       = document.getElementById('btn-search');
 const inpSearch       = document.getElementById('inp-search');
 const searchStatus    = document.getElementById('search-status');
 const resultsContainer = document.getElementById('results-container');
+const gateBackLink    = document.getElementById('gate-back-link');
+const gateTitleText   = document.getElementById('gate-title-text');
+const gateSubText     = document.getElementById('gate-sub-text');
 
-let altaMode = null; // 'showroom' | 'remoto'
+let altaMode   = null; // 'showroom' | 'remoto'
+let gateMode   = null; // 'mandatorio' | 'opcional'
+let gateTarget = null; // URL destino tras seleccionar
+
+function limpiarGateUI() {
+  resultsContainer.innerHTML = '';
+  searchStatus.textContent   = '';
+  inpSearch.value            = '';
+}
+
+// Entrada obligatoria: solo iALIAH la usa
+function abrirGateIaliah() {
+  if (sessionStorage.getItem('zoho_id')) {
+    // Ya hay un prospecto anclado en esta sesión — entra directo
+    window.location.href = '/ialiah/';
+    return;
+  }
+  gateMode   = 'mandatorio';
+  gateTarget = '/ialiah/';
+  gateBackLink.style.display = 'inline-block';
+  gateTitleText.textContent = '¿Con quién vas a trabajar?';
+  gateSubText.textContent   = 'iALIAH necesita un lead o visita seleccionado antes de continuar';
+  limpiarGateUI();
+  showScreen('screen-gate');
+}
+
+// Entrada opcional: Simulador, Decide, Calculadora Hipotecaria
+function abrirGateOpcional(targetUrl) {
+  gateMode   = 'opcional';
+  gateTarget = targetUrl;
+  gateBackLink.style.display = 'inline-block';
+  gateTitleText.textContent = 'Vincular a un lead/deal';
+  gateSubText.textContent   = 'Opcional — puedes volver al Hub sin seleccionar nada';
+  limpiarGateUI();
+  showScreen('screen-gate');
+}
+
+function cancelarGate() {
+  gateMode   = null;
+  gateTarget = null;
+  limpiarGateUI();
+  showScreen('screen-hub');
+}
 
 btnSearch.addEventListener('click', buscarProspecto);
 inpSearch.addEventListener('keydown', e => { if (e.key === 'Enter') buscarProspecto(); });
@@ -333,10 +413,16 @@ async function buscarProspecto() {
   resultsContainer.innerHTML = '<div class="spinner"></div>';
 
   try {
+    // NOTA: se manda asesor_email para que el backend pueda acotar la
+    // búsqueda a los propios Leads/Visitas del asesor (Fase 2 del plan).
+    // Mientras el backend no filtre por owner, la búsqueda sigue siendo global.
     const resp = await fetch(`${BACKEND_URL}/api/zoho/search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: q })
+      body: JSON.stringify({
+        query: q,
+        asesor_email: sessionStorage.getItem('asesor_email') || ''
+      })
     });
     const data = await resp.json();
     renderResultados(data.results || []);
@@ -389,7 +475,7 @@ function renderResultados(results) {
   // También ofrecer alta aunque haya resultados
   resultsContainer.innerHTML += `
     <p style="font-size:11px;color:#555;margin-top:10px;text-align:left">
-      ¿No es ninguno? 
+      ¿No es ninguno?
       <button onclick="mostrarFormAlta('showroom')" style="background:none;border:none;color:#A4AC8C;font-size:11px;cursor:pointer;text-decoration:underline">Alta nuevo prospecto</button>
     </p>`;
 }
@@ -514,8 +600,28 @@ async function confirmarAlta() {
 }
 
 // ══════════════════════════════════════════════════════════
-// SELECCIONAR PROSPECTO → ir al Hub
+// SELECCIONAR PROSPECTO
 // ══════════════════════════════════════════════════════════
+function actualizarChip() {
+  const chip     = document.getElementById('prospect-chip');
+  const zohoId   = sessionStorage.getItem('zoho_id');
+
+  if (!zohoId) {
+    chip.classList.remove('visible');
+    return;
+  }
+
+  const nombre   = sessionStorage.getItem('zoho_nombre') || '—';
+  const modulo   = sessionStorage.getItem('zoho_module') || '';
+  const telefono = sessionStorage.getItem('zoho_telefono') || '';
+  const owner    = sessionStorage.getItem('zoho_owner_nombre') || '';
+  const modLabel = modulo === 'Deals' ? 'Visita (showroom)' : 'Lead';
+
+  document.getElementById('chip-name').textContent = nombre;
+  document.getElementById('chip-meta').textContent = `${modLabel}${telefono ? ' · ' + telefono : ''}${owner ? ' · Asesor: ' + owner : ''}`;
+  chip.classList.add('visible');
+}
+
 function seleccionarProspecto(id, modulo, nombre, telefono, ownerNombre, ownerEmail) {
   // Guardar en sessionStorage para que todas las herramientas lo lean
   sessionStorage.setItem('zoho_id',           id);
@@ -528,28 +634,36 @@ function seleccionarProspecto(id, modulo, nombre, telefono, ownerNombre, ownerEm
   // Detectar conflicto de ownership y alertar (se registra via nota)
   const asesorEmail = sessionStorage.getItem('asesor_email') || '';
   if (ownerEmail && ownerEmail !== asesorEmail) {
-    // Registrar en consola — la alerta WhatsApp va en Fase 3
+    // Registrar en consola — la alerta/solicitud de revisión va en Fase 6
     console.warn(`[iALIAH] Cross-asesor: ${asesorEmail} trabajando prospecto de ${ownerEmail}`);
-    // TODO Fase 3: POST /api/zoho/alert con estos datos
+    // TODO Fase 6: botón "Solicitar revisión" + reporte de cruces
   }
 
-  // Actualizar chip en el Hub
-  const modLabel = modulo === 'Deals' ? 'Visita (showroom)' : 'Lead';
-  document.getElementById('chip-name').textContent = nombre || '—';
-  document.getElementById('chip-meta').textContent = `${modLabel}${telefono ? ' · ' + telefono : ''}${ownerNombre ? ' · Asesor: ' + ownerNombre : ''}`;
+  actualizarChip();
 
-  showScreen('screen-hub');
+  // FASE 1: si venimos de iALIAH (mandatorio) o de "Vincular" (opcional),
+  // navegamos directo al destino guardado en gateTarget. Si no hay gateTarget
+  // (caso raro / entrada directa), regresamos al Hub.
+  const destino = gateTarget;
+  gateMode   = null;
+  gateTarget = null;
+
+  if (destino) {
+    window.location.href = destino;
+  } else {
+    showScreen('screen-hub');
+  }
 }
 
-// Botón "Cambiar prospecto"
+// Botón "Quitar" en el chip del Hub — ya no navega al Gate, solo limpia
 document.getElementById('btn-change-prospect').addEventListener('click', () => {
   sessionStorage.removeItem('zoho_id');
   sessionStorage.removeItem('zoho_module');
   sessionStorage.removeItem('zoho_nombre');
-  resultsContainer.innerHTML = '';
-  searchStatus.textContent   = '';
-  inpSearch.value            = '';
-  showScreen('screen-gate');
+  sessionStorage.removeItem('zoho_telefono');
+  sessionStorage.removeItem('zoho_owner_nombre');
+  sessionStorage.removeItem('zoho_owner_email');
+  actualizarChip();
 });
 
 // ══════════════════════════════════════════════════════════
@@ -624,6 +738,8 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
 
 // ══════════════════════════════════════════════════════════
 // INIT: verificar sesión activa al cargar
+// FASE 1: siempre entra al Hub — el zoho_id (si existe) solo
+// controla si se ve el chip del prospecto, ya no decide la pantalla.
 // ══════════════════════════════════════════════════════════
 (async () => {
   // Si estamos en pantalla de reset, no hacer nada más
@@ -643,19 +759,8 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
   sessionStorage.setItem('asesor_email',  session.user.email);
   document.getElementById('session-name').textContent = nombreAsesor;
 
-  // Si ya hay un prospecto en sesión, ir directo al Hub
-  if (sessionStorage.getItem('zoho_id')) {
-    const nombre   = sessionStorage.getItem('zoho_nombre') || '—';
-    const modulo   = sessionStorage.getItem('zoho_module') || '—';
-    const telefono = sessionStorage.getItem('zoho_telefono') || '';
-    const owner    = sessionStorage.getItem('zoho_owner_nombre') || '';
-    const modLabel = modulo === 'Deals' ? 'Visita (showroom)' : 'Lead';
-    document.getElementById('chip-name').textContent = nombre;
-    document.getElementById('chip-meta').textContent = `${modLabel}${telefono ? ' · ' + telefono : ''}${owner ? ' · Asesor: ' + owner : ''}`;
-    showScreen('screen-hub');
-  } else {
-    showScreen('screen-gate');
-  }
+  actualizarChip();
+  showScreen('screen-hub');
 })();
 
 // ══════════════════════════════════════════════════════════
