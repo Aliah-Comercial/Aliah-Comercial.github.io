@@ -124,7 +124,7 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
 .card-hipo p{color:#999}
 
 /* Link "vincular a lead/deal" dentro de cada tarjeta libre */
-.card-link-vincular{display:inline-block;margin-top:10px;font-size:10px;background:none;border:none;color:inherit;opacity:.65;text-decoration:underline;cursor:pointer;padding:0;font-family:'Outfit',sans-serif}
+.card-link-vincular{display:inline-block;margin-top:10px;font-size:10px;background:none;border:none;color:#F8F8F8;opacity:.65;text-decoration:underline;cursor:pointer;padding:0;font-family:'Outfit',sans-serif}
 .card-link-vincular:hover{opacity:1}
 
 /* ── Footer / sesión ── */
@@ -247,26 +247,25 @@ body{font-family:'Outfit',sans-serif;background:#282823;color:#F8F8F8;min-height
     <a href="/ialiah/" class="card card-main" id="link-ialiah" onclick="event.preventDefault(); abrirGateIaliah();">
       <h2>iALIAH</h2>
       <p>Perfilador inteligente — Encuentra el departamento ideal en 2 minutos</p>
-      <div class="badge">Herramienta principal de showroom</div>
     </a>
 
     <!-- Simulador, Decide e Hipoteca: uso libre. Vincular a un lead/deal es opcional. -->
     <a href="/simulador/" class="card card-sim">
       <h2>Simulador de Inversi&oacute;n</h2>
       <p>Modelo financiero completo, TIR, ROE y proyecci&oacute;n a 10 a&ntilde;os</p>
-      <button class="card-link-vincular" onclick="event.preventDefault(); event.stopPropagation(); abrirGateOpcional('/simulador/');">Vincular a un lead/deal</button>
+      <button class="card-link-vincular" onclick="event.preventDefault(); event.stopPropagation(); abrirGateOpcional('/simulador/');">Vincular a un lead / Visita</button>
     </a>
 
     <a href="/decide/" class="card card-decide">
       <h2>Decide con Todo</h2>
       <p>28 proyectos ante tus ojos — Los datos que importan</p>
-      <button class="card-link-vincular" onclick="event.preventDefault(); event.stopPropagation(); abrirGateOpcional('/decide/');">Vincular a un lead/deal</button>
+      <button class="card-link-vincular" onclick="event.preventDefault(); event.stopPropagation(); abrirGateOpcional('/decide/');">Vincular a un lead / Visita</button>
     </a>
 
     <a href="/hipoteca/" class="card card-hipo">
       <h2>Calculadora de Hipoteca</h2>
       <p>Enganche, mensualidad y comparativo de esquemas de crédito</p>
-      <button class="card-link-vincular" onclick="event.preventDefault(); event.stopPropagation(); abrirGateOpcional('/hipoteca/');">Vincular a un lead/deal</button>
+      <button class="card-link-vincular" onclick="event.preventDefault(); event.stopPropagation(); abrirGateOpcional('/hipoteca/');">Vincular a un lead / Visita</button>
     </a>
   </div>
   <p class="footer">Fuentes: Monopolio/hDD360 mzo 2026 &middot; 4S mzo 2025 &middot; Banxico may 2026<br>Aliah Developments &copy; 2026</p>
@@ -387,7 +386,7 @@ function abrirGateOpcional(targetUrl) {
   gateMode   = 'opcional';
   gateTarget = targetUrl;
   gateBackLink.style.display = 'inline-block';
-  gateTitleText.textContent = 'Vincular a un lead/deal';
+  gateTitleText.textContent = 'Vincular a un lead / Visita';
   gateSubText.textContent   = 'Opcional — puedes volver al Hub sin seleccionar nada';
   limpiarGateUI();
   showScreen('screen-gate');
