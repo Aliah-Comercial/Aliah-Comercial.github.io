@@ -63,8 +63,15 @@ textarea, input[type=text]{
 .card .precio{font-family:'Outfit',sans-serif; font-size:22px; font-weight:600; color:var(--olive-dark); margin-bottom:10px;}
 .card .justif{font-size:14px; line-height:1.55; color:var(--near-black);}
 .positioning{background:rgba(72,77,49,.06); border-radius:12px; padding:16px 18px; font-size:14px; line-height:1.5; margin:20px 0;}
-.advisor-note{border-left:3px solid var(--olive-mid); padding:12px 16px; font-size:13px; color:#5b5b56; margin-top:20px; background:#fbfaf7; border-radius:0 12px 12px 0;}
-.advisor-note b{color:var(--near-black);}
+/* Punto discreto para que el asesor abra su nota interna sin que el
+   cliente lo note ni entienda qué es — ver renderResults()/attachHandlers() */
+.asesor-dot{position:fixed; bottom:14px; right:14px; width:28px; height:28px; border-radius:50%;
+  border:none; background:rgba(0,0,0,.06); color:#8a8a84; font-size:16px; line-height:28px;
+  padding:0; cursor:pointer; z-index:50;}
+.asesor-dot:active{background:rgba(0,0,0,.12);}
+.asesor-panel{position:fixed; bottom:50px; right:14px; max-width:280px; z-index:50;
+  border-left:3px solid var(--olive-mid); padding:12px 16px; font-size:13px; color:#5b5b56;
+  background:#fbfaf7; border-radius:0 12px 12px 0; box-shadow:0 4px 20px rgba(0,0,0,.12);}
 .honest-msg{background:#fbfaf7; border:1px solid var(--sage); border-radius:12px; padding:18px; font-size:15px; line-height:1.55; margin-bottom:20px;}
 .bifurcacion{display:flex; gap:12px; margin-top:24px;}
 .bifurcacion a{flex:1; text-align:center; text-decoration:none; padding:15px; border-radius:12px; font-weight:500; font-size:15px;}
@@ -264,7 +271,13 @@ function filterAndCapInventory(inventory, presupuesto){
   const withPrice = inventory.filter(u=>u.precio);
   const dentro = withPrice.filter(u=>u.precio <= presupuesto*1.15);
   const pool = dentro.length >= 10 ? dentro : withPrice.sort((a,b)=>a.precio-b.precio);
-  return pool.sort((a,b)=>Math.abs(a.precio-presupuesto)-Math.abs(b.precio-presupuesto)).slice(0,60);
+  // FIX 03SEP2026: se baja el tope de 60 a 25 unidades — el modelo solo
+  // recomienda máximo 3, y mandarle 60 unidades completas (nombre, m2,
+  // recámaras, baños, precio, torre, delivery) infla el prompt y es una
+  // de las causas de la lentitud reportada. Ya vienen pre-ordenadas por
+  // cercanía al presupuesto, así que las 25 más relevantes son más que
+  // suficientes para que la IA elija bien.
+  return pool.sort((a,b)=>Math.abs(a.precio-presupuesto)-Math.abs(b.precio-presupuesto)).slice(0,25);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -476,8 +489,23 @@ function renderResults(){
       <a class="${esInversion?'bif-invest':'bif-live'}" href="https://aliah-comercial.github.io/simulador/" target="_blank">Ver simulador de inversión</a>
       <a class="${!esInversion?'bif-invest':'bif-live'}" href="#" target="_blank">Ver precios y planes</a>
     </div>`;
+  // FIX 03SEP2026 (v1): la "Nota para el asesor" se pintaba abierta en
+  // esta misma pantalla, que el cliente tiene enfrente en la tablet del
+  // showroom — cualquier prospecto podía leerla (incluía cosas como "no
+  // prometas timing que no se puede cumplir" o "evita mencionar Torre D").
+  //
+  // FIX 03SEP2026 (v2, corrige el v1): mandarla solo a Zoho no sirve —
+  // el asesor la necesita EN EL MOMENTO, con el prospecto todavía enfrente,
+  // no hasta que revise el CRM después. La solución es un botón discreto:
+  // un punto pequeño y sin etiqueta, difícil de notar o de interpretar
+  // para alguien que no sabe qué es, que el asesor toca para abrir la
+  // nota en un panel, y vuelve a tocar (o toca fuera) para cerrarla.
+  // Sigue mandándose también a Zoho como Nota interna en la Fase 7, pero
+  // ya no es la única forma de verla.
   if(rec.advisor_insight){
-    html += `<div class="advisor-note"><b>Nota para el asesor:</b> ${rec.advisor_insight}</div>`;
+    html += `
+      <button id="asesorToggle" class="asesor-dot" aria-label="detalle" type="button">⋯</button>
+      <div id="asesorPanel" class="asesor-panel" hidden>${rec.advisor_insight}</div>`;
   }
   return html;
 }
@@ -495,6 +523,17 @@ function attachHandlers(screen){
   if(ftBtn) ftBtn.onclick=()=>{ answers.freeText = document.getElementById('freeTextInput').value; goNext(); };
   const gftBtn = document.getElementById('genericFreeTextNext');
   if(gftBtn) gftBtn.onclick=()=>{ answers[gftBtn.dataset.field] = document.getElementById('genericFreeTextInput').value; goNext(); };
+  // FIX 03SEP2026: toggle del punto discreto que abre/cierra la nota
+  // interna del asesor (ver comentario en renderResults). Toca de nuevo
+  // el mismo punto, o toca fuera del panel, para cerrarlo.
+  const asesorToggle = document.getElementById('asesorToggle');
+  const asesorPanel = document.getElementById('asesorPanel');
+  if(asesorToggle && asesorPanel){
+    asesorToggle.onclick = (e) => { e.stopPropagation(); asesorPanel.hidden = !asesorPanel.hidden; };
+    document.addEventListener('click', (e) => {
+      if(!asesorPanel.hidden && e.target !== asesorToggle) asesorPanel.hidden = true;
+    });
+  }
 }
 
 async function runRecommendation(){
