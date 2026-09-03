@@ -267,16 +267,46 @@ function computeBudgetCeiling(enganche, mensualidad){
   return Math.round(enganche + maxFinanciado);
 }
 
-function filterAndCapInventory(inventory, presupuesto){
-  const withPrice = inventory.filter(u=>u.precio);
+// FIX 03SEP2026: extrae el mínimo de recámaras que el cliente pidió, SOLO
+// cuando eligió "Recámaras" como su prioridad #1 (es la única pregunta del
+// cuestionario que capta un número de recámaras explícito). Convierte
+// "2 recámaras"/"3 recámaras"/"4 o más" -> 2/3/4.
+function parseRecamarasMin(profile){
+  if(!profile || profile.prioridad !== 'recamaras' || !profile.prioridad_detalle) return null;
+  const m = String(profile.prioridad_detalle).match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+function filterAndCapInventory(inventory, presupuesto, profile){
+  // FIX 03SEP2026: excluir unidades sin tipología completa (m²/recámaras/
+  // baños) ANTES de mandarlas a la IA. Estas son casi siempre "ROOF" —
+  // roof tops que Mappen registra como unidad propia pero que en realidad
+  // se venden como complemento de un departamento, no como vivienda
+  // independiente. Sin este filtro, la IA los recomendaba como si fueran
+  // un depto normal (pantalla mostraba "Roof-2, ? m² · ? rec · ? baños") —
+  // confuso para el cliente y una mala recomendación de fondo, no solo un
+  // dato faltante. El Excel de prototipos (03sep2026, 93 tipos) confirma
+  // que estos ROOF nunca tuvieron m²/rec/baños propios en ningún archivo
+  // fuente — no es un dato que falte cargar, es que no aplica.
+  const conTipologia = inventory.filter(u => u.m2_int != null && u.rec != null);
+  const withPrice = conTipologia.filter(u=>u.precio);
   const dentro = withPrice.filter(u=>u.precio <= presupuesto*1.15);
-  const pool = dentro.length >= 10 ? dentro : withPrice.sort((a,b)=>a.precio-b.precio);
-  // FIX 03SEP2026: se baja el tope de 60 a 25 unidades — el modelo solo
-  // recomienda máximo 3, y mandarle 60 unidades completas (nombre, m2,
-  // recámaras, baños, precio, torre, delivery) infla el prompt y es una
-  // de las causas de la lentitud reportada. Ya vienen pre-ordenadas por
-  // cercanía al presupuesto, así que las 25 más relevantes son más que
-  // suficientes para que la IA elija bien.
+  let pool = dentro.length >= 10 ? dentro : withPrice.sort((a,b)=>a.precio-b.precio);
+
+  // FIX 03SEP2026: si el cliente ya dijo cuántas recámaras mínimo necesita
+  // (prioridad = "Recámaras"), se descarta de una vez lo que no cumple esa
+  // condición — menos candidatos ambiguos para la IA, respuesta más rápida
+  // y más alineada a lo que el cliente pidió explícitamente.
+  const recamarasMin = parseRecamarasMin(profile);
+  if(recamarasMin){
+    const conRecSuficientes = pool.filter(u => parseFloat(u.rec) >= recamarasMin);
+    if(conRecSuficientes.length >= 5) pool = conRecSuficientes;
+  }
+
+  // Tope de 25 unidades: el modelo solo recomienda máximo 3, y mandarle
+  // más de las necesarias infla el prompt sin aportar — una de las causas
+  // de la lentitud reportada. Ya vienen pre-ordenadas por cercanía al
+  // presupuesto (y ahora también por recámaras cuando aplica).
   return pool.sort((a,b)=>Math.abs(a.precio-presupuesto)-Math.abs(b.precio-presupuesto)).slice(0,25);
 }
 
@@ -561,7 +591,7 @@ async function runRecommendation(){
 
   try{
     const inventoryFull = await buildInventory();
-    const inventory = filterAndCapInventory(inventoryFull, presupuesto);
+    const inventory = filterAndCapInventory(inventoryFull, presupuesto, profile);
     const rec = await callRecommend(profile, inventory);
     lastRecommendation = rec;
     await logSession(profile, rec);
