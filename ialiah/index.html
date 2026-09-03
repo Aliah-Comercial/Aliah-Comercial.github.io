@@ -125,8 +125,8 @@ const NICHOS = [
   {id:'otra', label:'Otra razón', freeText:true}
 ];
 
-const TIMING_OPTS = ['Lo antes posible','En los próximos meses','Sin prisa, voy viendo opciones'];
-const ESPACIO_OPTS = ['Terraza','Roof garden','Jardín','No es indispensable para mí'];
+const TIMING_OPTS = ['Lo antes posible','En los próximos meses','Sin prisa, voy viendo opciones','Otra (especifica)'];
+const ESPACIO_OPTS = ['Terraza','Roof garden','Jardín','No es indispensable para mí','Otra (especifica)'];
 
 const ENGANCHE_OPTS = [
   {label:'Menos de $700,000', val:500000},
@@ -145,7 +145,10 @@ const PRIORIDADES = [
   {id:'vista', label:'Vista', sub:{q:'¿Qué tipo de vista prefieres?', opts:['Ciudad','Amenidades y áreas verdes','Atardecer']}},
   {id:'amenidades', label:'Amenidades', sub:{q:'¿Cuál usarías más seguido?', opts:['Alberca','Gym','Roof garden','Coworking']}},
   {id:'rendimiento', label:'Rendimiento', sub:{q:'¿En cuánto tiempo esperas el resultado?', opts:['1-2 años','3-5 años','Sin prisa']}},
-  {id:'tamano', label:'Tamaño', sub:{q:'¿Priorizas más recámaras, o más metros?', opts:['Más recámaras','Más metros']}}
+  {id:'tamano', label:'Tamaño', sub:{q:'¿Priorizas más recámaras, o más metros?', opts:['Más recámaras','Más metros']}},
+  {id:'recamaras', label:'Recámaras', sub:{q:'¿Cuántas recámaras necesitas como mínimo?', opts:['2 recámaras','3 recámaras','4 o más']}},
+  {id:'estacionamiento', label:'Estacionamiento', sub:{q:'¿Cuántos cajones necesitas?', opts:['1 cajón','2 cajones','3 o más']}},
+  {id:'otra', label:'Otra', freeText:true}
 ];
 
 // ═══════════════════════════════════════════════════════════
@@ -155,15 +158,22 @@ let answers = {};
 let screenIndex = 0;
 let screens = ['nicho'];
 
+function esInversionNicho(){ return ['b','d'].includes(answers.nicho); }
+
 function rebuildScreens(){
   screens = ['nicho'];
   const nicho = NICHOS.find(n=>n.id===answers.nicho);
   if (nicho && nicho.sub) screens.push('nicho_sub');
   if (nicho && nicho.freeText) screens.push('nicho_freetext');
-  screens.push('timing','espacio','enganche','mensualidad');
+  screens.push('timing');
+  if (answers.timing === 'Otra (especifica)') screens.push('timing_freetext');
+  screens.push('espacio');
+  if (answers.espacio === 'Otra (especifica)') screens.push('espacio_freetext');
+  screens.push('enganche','mensualidad');
   screens.push('prioridad');
   const pr = PRIORIDADES.find(p=>p.id===answers.prioridad);
   if (pr && pr.sub) screens.push('prioridad_sub');
+  if (pr && pr.freeText) screens.push('prioridad_freetext');
   screens.push('loading','results');
 }
 rebuildScreens();
@@ -322,12 +332,20 @@ function render(){
   if(screen==='nicho') wrap.innerHTML += renderNicho();
   else if(screen==='nicho_sub') wrap.innerHTML += renderNichoSub();
   else if(screen==='nicho_freetext') wrap.innerHTML += renderNichoFreeText();
-  else if(screen==='timing') wrap.innerHTML += renderChoiceScreen('¿Para cuándo te gustaría mudarte?','', TIMING_OPTS, 'timing');
+  else if(screen==='timing'){
+    const tituloTiming = esInversionNicho()
+      ? '¿Para cuándo te gustaría tener esto funcionando como inversión?'
+      : '¿Para cuándo te gustaría mudarte?';
+    wrap.innerHTML += renderChoiceScreen(tituloTiming,'', TIMING_OPTS, 'timing');
+  }
+  else if(screen==='timing_freetext') wrap.innerHTML += renderGenericFreeText('timing','Cuéntanos más sobre tus tiempos');
   else if(screen==='espacio') wrap.innerHTML += renderChoiceScreen('¿Qué tan importante es tener un espacio exterior?','Balcón, terraza, roof garden o jardín', ESPACIO_OPTS, 'espacio');
+  else if(screen==='espacio_freetext') wrap.innerHTML += renderGenericFreeText('espacio','Cuéntanos qué tipo de espacio exterior buscas');
   else if(screen==='enganche') wrap.innerHTML += renderChoiceScreen('¿Cuánto tienes disponible para el enganche hoy?','', ENGANCHE_OPTS.map(o=>o.label), 'enganche_label');
   else if(screen==='mensualidad') wrap.innerHTML += renderMensualidad();
   else if(screen==='prioridad') wrap.innerHTML += renderPrioridad();
   else if(screen==='prioridad_sub') wrap.innerHTML += renderPrioridadSub();
+  else if(screen==='prioridad_freetext') wrap.innerHTML += renderGenericFreeText('prioridad_detalle','Cuéntanos qué es lo más importante para ti');
   else if(screen==='loading'){ wrap.innerHTML += renderLoading(); app.appendChild(wrap); runRecommendation(); return; }
   else if(screen==='results') wrap.innerHTML += renderResults();
 
@@ -363,6 +381,19 @@ function renderNichoFreeText(){
     <div class="nav">
       <button class="btn-text" onclick="goBack()">Atrás</button>
       <button class="btn btn-primary" id="freeTextNext">Continuar</button>
+    </div>`;
+}
+
+// Texto libre genérico — usado por "Otra (especifica)" en timing/espacio
+// y por "Otra" en la pregunta de prioridad. Guarda directo en answers[field].
+function renderGenericFreeText(field, question){
+  return `
+    <h1>${question}</h1>
+    <div class="sub">Cuéntanos con tus palabras.</div>
+    <textarea id="genericFreeTextInput" placeholder="Escribe aquí..."></textarea>
+    <div class="nav">
+      <button class="btn-text" onclick="goBack()">Atrás</button>
+      <button class="btn btn-primary" id="genericFreeTextNext" data-field="${field}">Continuar</button>
     </div>`;
 }
 
@@ -457,6 +488,8 @@ function attachHandlers(screen){
   app.querySelectorAll('[data-subpr]').forEach(b=>b.onclick=()=>{ answers.prioridad_detalle=b.dataset.subpr; goNext(); });
   const ftBtn = document.getElementById('freeTextNext');
   if(ftBtn) ftBtn.onclick=()=>{ answers.freeText = document.getElementById('freeTextInput').value; goNext(); };
+  const gftBtn = document.getElementById('genericFreeTextNext');
+  if(gftBtn) gftBtn.onclick=()=>{ answers[gftBtn.dataset.field] = document.getElementById('genericFreeTextInput').value; goNext(); };
 }
 
 async function runRecommendation(){
