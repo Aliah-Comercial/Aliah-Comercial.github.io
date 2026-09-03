@@ -116,8 +116,8 @@ const NICHOS = [
     sub:{q:'¿Buscan algo compacto para empezar, o ya piensan en crecer la familia pronto?',
          opts:['Compacto para empezar','Con margen para crecer']}},
   {id:'d', label:'Busco un patrimonio seguro, que no pierda valor',
-    sub:{q:'¿Buscas que también te genere renta mensual, o solo que no pierda valor?',
-         opts:['Que me rente','Solo que no pierda valor']}},
+    sub:{q:'¿Cómo te imaginas usando esta propiedad?',
+         opts:['Que me rente desde el inicio','Solo que no pierda valor, sin rentarla','Vivir yo primero y rentarla o venderla después','Aún no lo tengo definido']}},
   {id:'e', label:'Donde vivo ya me queda grande — mis hijos ya hicieron su vida'},
   {id:'f', label:'Estoy comenzando una nueva etapa por mi cuenta'},
   {id:'g', label:'Necesito estar más cerca de mi trabajo o mi negocio'},
@@ -164,6 +164,7 @@ function rebuildScreens(){
   screens = ['nicho'];
   const nicho = NICHOS.find(n=>n.id===answers.nicho);
   if (nicho && nicho.sub) screens.push('nicho_sub');
+  if (answers.nicho_detalle === 'Otra (especifica)') screens.push('nicho_sub_freetext');
   if (nicho && nicho.freeText) screens.push('nicho_freetext');
   screens.push('timing');
   if (answers.timing === 'Otra (especifica)') screens.push('timing_freetext');
@@ -331,6 +332,7 @@ function render(){
 
   if(screen==='nicho') wrap.innerHTML += renderNicho();
   else if(screen==='nicho_sub') wrap.innerHTML += renderNichoSub();
+  else if(screen==='nicho_sub_freetext') wrap.innerHTML += renderGenericFreeText('nicho_detalle','Cuéntanos con tus palabras');
   else if(screen==='nicho_freetext') wrap.innerHTML += renderNichoFreeText();
   else if(screen==='timing'){
     const tituloTiming = esInversionNicho()
@@ -365,11 +367,14 @@ function renderNicho(){
 
 function renderNichoSub(){
   const nicho = NICHOS.find(n=>n.id===answers.nicho);
+  // Siempre se deja una salida de respuesta abierta, aquí y en toda
+  // pregunta de opciones cerradas.
+  const opts = [...nicho.sub.opts, 'Otra (especifica)'];
   return `
     <h1>${nicho.sub.q}</h1>
     <div class="sub"></div>
     <div class="options">
-      ${nicho.sub.opts.map(o=>`<button class="opt" data-sub="${o}">${o}</button>`).join('')}
+      ${opts.map(o=>`<button class="opt" data-sub="${o}">${o}</button>`).join('')}
     </div>`;
 }
 
