@@ -1,1 +1,668 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1">
+<meta name="theme-color" content="#1a1f0f">
+<title>Aliah Lomas Verdes — Simulateur d'investissement (CHF)</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:#0d110a;color:#f0ebe0;-webkit-font-smoothing:antialiased;line-height:1.6}
+:root{--bg:#0d110a;--s1:#141a0e;--s2:#1c2314;--s3:#242d1b;--gold:#c4a96a;--gold2:#a08345;--gl:#dbc88e;--grn:#7a8c5a;--grn2:#a4ac8c;--gd:#484d31;--txt:#f0ebe0;--t2:#bfb9a8;--t3:#7d7868;--neg:#c45a5a}
+a{color:var(--gold);text-decoration:none}
+.num{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
 
+/* HERO */
+.hero{min-height:92vh;position:relative;display:flex;align-items:flex-end;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 30%}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,var(--bg) 0%,rgba(13,17,10,.55) 50%,rgba(13,17,10,.3) 100%)}
+.hero-inner{position:relative;z-index:2;width:100%;max-width:860px;margin:0 auto;padding:0 24px 48px}
+.hero-kicker{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.hero-h{font-size:clamp(32px,5.5vw,54px);font-weight:200;line-height:1.1;margin-bottom:12px}
+.hero-h b{font-weight:700;color:var(--gold)}
+.hero-p{font-size:15px;color:var(--t2);max-width:520px;line-height:1.7}
+.hero-stats{display:flex;gap:24px;margin-top:28px;flex-wrap:wrap}
+.hero-stat{text-align:left}
+.hero-stat-v{font-size:28px;font-weight:700;color:var(--gold)}
+.hero-stat-l{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+
+/* SECTIONS */
+.sec{max-width:860px;margin:0 auto;padding:72px 24px}
+.sep{width:32px;height:2px;background:var(--gold);opacity:.35;margin-bottom:32px}
+.kicker{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.sec-h{font-size:clamp(24px,4vw,36px);font-weight:200;line-height:1.15;margin-bottom:14px;text-wrap:balance}
+.sec-h b{font-weight:700;color:var(--gold)}
+.sec-p{font-size:14px;color:var(--t2);max-width:560px;line-height:1.7}
+
+/* IMG STRIP */
+.img-strip{display:flex;gap:4px;overflow-x:auto;padding:32px 0;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory}
+.img-strip::-webkit-scrollbar{display:none}
+.img-strip img{height:200px;border-radius:8px;object-fit:cover;scroll-snap-align:start;flex-shrink:0}
+
+/* METRICS */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:24px 0}
+.mcard{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:14px}
+.mcard-v{font-size:24px;font-weight:700;color:var(--gold)}
+.mcard-l{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.mcard-s{font-size:11px;color:var(--t2);margin-top:3px}
+
+/* FULL WIDTH PHOTO */
+.fw-photo{width:100%;aspect-ratio:21/9;object-fit:cover;max-height:50vh}
+.fw-photo-wrap{margin:0;overflow:hidden}
+
+/* BARS */
+.bar-r{display:flex;align-items:center;gap:10px;margin:6px 0}
+.bar-l{width:190px;font-size:11px;color:var(--t2);text-align:right;flex-shrink:0}
+.bar-t{flex:1;height:28px;background:rgba(255,255,255,.03);border-radius:5px;overflow:hidden}
+.bar-f{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:600;color:#fff;min-width:40px;transition:width .3s}
+.bar-hl .bar-l{color:var(--gold);font-weight:600}
+
+/* PROMO */
+.promo{background:rgba(196,169,106,.06);border:1px solid rgba(196,169,106,.12);border-radius:10px;padding:16px;margin:16px 0;font-size:13px;color:var(--t2)}
+.promo b{color:var(--gold)}
+
+/* RISKS */
+.risk-grid{display:grid;gap:12px;margin:20px 0}
+.risk{display:grid;grid-template-columns:1fr 1fr;gap:12px;background:var(--s2);border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,.04)}
+.risk-label{font-size:11px;font-weight:600;color:var(--neg);margin-bottom:2px}
+.risk-mit{font-size:11px;font-weight:600;color:var(--grn2);margin-bottom:2px}
+.risk p{font-size:12px;color:var(--t2);line-height:1.5}
+@media(max-width:600px){.risk{grid-template-columns:1fr}}
+
+/* CTA */
+.cta{background:linear-gradient(135deg,var(--gold2),var(--gold));border-radius:14px;padding:32px;text-align:center;margin:32px 0}
+.cta *{color:var(--bg)!important}
+.cta-btn{display:inline-block;background:var(--bg);color:var(--gold)!important;padding:14px 32px;border-radius:28px;font-size:15px;font-weight:600;margin-top:14px;text-decoration:none;transition:transform .15s}
+.cta-btn:hover{transform:scale(1.02)}
+.disc{font-size:9px;color:var(--t3);line-height:1.6;padding:16px 0;border-top:1px solid rgba(255,255,255,.04);margin-top:32px}
+
+/* EQUITY / ESCOMPTE BLOCK (adapted from mortgage narrative to cash-discount narrative) */
+.rbox{background:var(--s2);border:1px solid rgba(196,169,106,.12);border-radius:14px;padding:28px}
+.rbox-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:20px;text-align:center}
+.rbox-l{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1px}
+.rbox-v{font-size:34px;font-weight:700;color:var(--gold);margin:6px 0}
+.rbox-s{font-size:12px;color:var(--t2)}
+.rbox input{background:transparent;border:none;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:34px;font-weight:700;width:100%;text-align:center;padding:0}
+.rbox input:focus{outline:none;color:var(--gl)}
+.rbox-unit{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* SIMULATOR SECTION (params + table) */
+#simulador{max-width:1100px;margin:0 auto;padding:72px 24px}
+.params-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;margin:20px 0}
+.param{background:var(--s1);padding:14px 16px}
+.param label{display:flex;align-items:center;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.param .row{display:flex;align-items:baseline;gap:4px}
+.param input{width:100%;border:none;background:transparent;font-family:'IBM Plex Mono',monospace;font-size:1.05rem;font-weight:600;color:var(--gl);padding:0}
+.param input:focus{outline:none;color:var(--gold)}
+.param .unit{font-size:.72rem;color:var(--t3)}
+.param.derived{background:var(--s2)}
+.param.derived .row strong{font-family:'IBM Plex Mono',monospace;font-size:1.05rem;color:var(--grn2)}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.fbtn{padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--t2);font-family:inherit;font-size:12px;cursor:pointer;transition:all .2s}
+.fbtn:hover,.fbtn.active{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.searchbox{padding:6px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:var(--s2);color:var(--txt);font-family:inherit;font-size:12px;width:200px}
+.searchbox:focus{outline:none;border-color:var(--gold)}
+
+.inv-wrap{overflow-x:auto;margin:20px 0;border-radius:12px;border:1px solid rgba(255,255,255,.06);max-height:70vh;overflow-y:auto}
+.inv{width:100%;border-collapse:collapse;font-size:12px;min-width:1080px}
+.inv th{background:var(--gd);color:var(--gl);padding:10px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;position:sticky;top:0;z-index:5;cursor:pointer;white-space:nowrap}
+.inv th:hover{color:var(--gold)}
+.inv th.num-col,.inv td.num-col{text-align:right}
+.inv td{padding:8px;border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap}
+.inv tr:hover td{background:rgba(196,169,106,.04)}
+.inv tr.selected td{background:rgba(196,169,106,.1)}
+.inv .tir-cell{font-weight:700;color:var(--grn2)}
+.chip{font-size:9px;color:var(--t2);background:var(--s2);border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:1px 6px;margin-left:4px}
+.badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:2px 6px;border-radius:5px;color:#100D02}
+.badge.original{background:var(--gold)}
+.badge.jugar{background:var(--grn2)}
+.plan-link{font-size:11px;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:2px 9px;text-decoration:none;white-space:nowrap}
+.plan-link:hover{background:rgba(196,169,106,.12)}
+.plan-none{font-size:11px;color:var(--t3)}
+input[type="checkbox"].chk-sel{width:15px;height:15px;accent-color:var(--gold);cursor:pointer}
+
+/* SUMMARY / FOOTBAR */
+.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:24px 0}
+@media(max-width:900px){.summary-grid{grid-template-columns:repeat(2,1fr)}}
+.scard{background:var(--s1);border:1px solid rgba(255,255,255,.06);border-top:3px solid var(--gold);border-radius:12px;padding:16px 18px}
+.scard .tag{font-size:9px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--gold)}
+.scard .figures{margin-top:8px;font-size:1.35rem;font-weight:700;color:var(--gl)}
+.scard .sub{margin-top:4px;font-size:.72rem;color:var(--t2)}
+
+.footbar{position:sticky;bottom:0;margin-top:0;background:rgba(8,9,5,.96);backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,.08);color:var(--txt);padding:14px 24px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;z-index:60}
+.footbar .fig{display:flex;gap:22px;flex-wrap:wrap}
+.footbar .fig div span{display:block;font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)}
+.footbar .fig div strong{font-family:'IBM Plex Mono',monospace;font-size:1rem;color:var(--gl)}
+.footbar .actions{display:flex;gap:8px}
+.btn{border:1px solid var(--gold);background:transparent;color:var(--gold);font-size:.8rem;font-weight:600;padding:8px 15px;border-radius:999px;cursor:pointer;font-family:inherit}
+.btn:hover{background:rgba(196,169,106,.12)}
+.btn.primary{background:var(--gold);color:var(--bg)}
+.btn.primary:hover{filter:brightness(1.08)}
+
+/* TOOLTIP */
+.tip-wrap{position:relative;display:inline-block}
+.tip-btn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:transparent;color:var(--t3);font-size:9px;cursor:pointer;margin-left:6px;font-family:inherit;vertical-align:middle;line-height:1;transition:all .15s}
+.tip-btn:hover{border-color:var(--gold);color:var(--gold)}
+.tip-box{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:280px;padding:12px;background:var(--s1);border:1px solid rgba(196,169,106,.2);border-radius:10px;font-size:12px;color:var(--t2);line-height:1.5;z-index:20;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.tip-box.show{display:block}
+
+@media(max-width:768px){ .bar-l{width:120px;font-size:10px} .rbox-grid{grid-template-columns:1fr 1fr} }
+@media(max-width:600px){ .sec{padding:48px 16px} .hero-stats{gap:16px} .img-strip img{height:160px} }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg" style="background-image:url('https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/RENDER%20ZOOM%20FINAL%20COPIA.jpg')"></div>
+  <div class="hero-inner">
+    <div class="hero-kicker">Aliah Developments</div>
+    <h1 class="hero-h">Un patrimoine à Mexico,<br><b>pensé pour votre franc suisse</b></h1>
+    <p class="hero-p">87 appartements sélectionnés entre 8,0 et 9,5 M MXN — Tours D &amp; E, livraison 2028-2029. Un modèle de rendement locatif calculé en direct, en francs suisses, pour l'investisseur international.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-v">87</div><div class="hero-stat-l">Unités éligibles</div></div>
+      <div class="hero-stat"><div class="hero-stat-v">2</div><div class="hero-stat-l">Tours (D &amp; E)</div></div>
+      <div class="hero-stat"><div class="hero-stat-v">7 %</div><div class="hero-stat-l">Cap rate locatif visé</div></div>
+      <div class="hero-stat"><div class="hero-stat-v">+5,3 %</div><div class="hero-stat-l">Plus-value visée / an</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CREDENCIALES -->
+<div class="sec">
+  <div class="sep"></div>
+  <div class="kicker">Références</div>
+  <h2 class="sec-h">Adossé à des <b>résultats concrets</b></h2>
+  <div class="mgrid">
+    <div class="mcard"><div class="mcard-v">LADI</div><div class="mcard-l">1ʳᵉ place LATAM</div><div class="mcard-s">Latin American Design &amp; Innovation Award</div></div>
+    <div class="mcard"><div class="mcard-v">Luxury</div><div class="mcard-l">Lifestyle Awards</div><div class="mcard-s">Best Luxury Apartment Living in Mexico, 2025</div></div>
+    <div class="mcard"><div class="mcard-v">Best Place</div><div class="mcard-l">To Live</div><div class="mcard-s">Certification qualité de vie</div></div>
+    <div class="mcard"><div class="mcard-v" style="font-size:18px">ESQR Gold</div><div class="mcard-l">Prix qualité 2026</div><div class="mcard-s">Quality Achievements Award, Bruxelles, 31 mai 2026</div></div>
+    <div class="mcard"><div class="mcard-v">#1</div><div class="mcard-l">Vitesse de vente</div><div class="mcard-s">7,5 unités/mois vs 1,6 en moyenne zone (×4,7)</div></div>
+    <div class="mcard"><div class="mcard-v">Top 20</div><div class="mcard-l">Ventes ZMVM</div><div class="mcard-s">N°19 sur 566 projets de la zone métropolitaine</div></div>
+  </div>
+</div>
+
+<div class="fw-photo-wrap"><img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_lobby_01.jpg" alt="Lobby" class="fw-photo" style="object-position:center 60%" loading="lazy" onerror="this.style.display='none'"></div>
+
+<div style="padding:0 0 0 24px">
+  <div class="img-strip">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/Alberca.jpeg" alt="Piscine" loading="lazy" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/render%203%20spa%20editado%20copia.jpg" alt="Spa" loading="lazy" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/GYM%20FINAL%20EDITADO%20copia.jpg" alt="Salle de sport" loading="lazy" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_edificio_01.jpg" alt="Bâtiment" loading="lazy" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/LUDOTECA%20RENDER%202.1%20copia.jpg" alt="Espace enfants" loading="lazy" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/CAFETER%C3%8DA.jpeg" alt="Café" loading="lazy" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/DJI_20250731111243_0128_D.jpg" alt="Vue aérienne" loading="lazy" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_edificio_03.jpg" alt="Bâtiment" loading="lazy" onerror="this.style.display='none'">
+  </div>
+</div>
+
+<!-- UBICACION -->
+<div class="sec">
+  <div class="sep"></div>
+  <div class="kicker">Emplacement &amp; marché</div>
+  <h2 class="sec-h">La zone parle <b>d'elle-même</b></h2>
+  <div class="mgrid">
+    <div class="mcard"><div class="mcard-v">6,3 %</div><div class="mcard-l">Cap rate Aliah</div><div class="mcard-s">Loyer réel mesuré. Moyenne zone : 5,7 % (Monopolio 2026)</div></div>
+    <div class="mcard"><div class="mcard-v">+7 %</div><div class="mcard-l">Plus-value dernière année</div><div class="mcard-s">Mars 2025 – mars 2026 (EDM Monopolio). Cumul +35 % depuis 2022</div></div>
+    <div class="mcard"><div class="mcard-v">30+</div><div class="mcard-l">Prestations</div><div class="mcard-s">Piscine, gym, spa, espace enfants, roof garden…</div></div>
+    <div class="mcard"><div class="mcard-v">10 min</div><div class="mcard-l">De Polanco</div><div class="mcard-s">Connexion directe par le Periférico</div></div>
+  </div>
+</div>
+
+<div class="fw-photo-wrap"><img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/Fotos/torres-edificio.jpg" alt="Roof garden" class="fw-photo" style="object-position:center 60%" loading="lazy" onerror="this.style.display='none'"></div>
+
+<!-- BENCHMARK -->
+<div class="sec">
+  <div class="sep"></div>
+  <div class="kicker">Comparatif</div>
+  <h2 class="sec-h">Comment se positionne <b>votre capital</b></h2>
+  <p class="sec-p">Comparaison au comptant, sans effet de levier bancaire — cohérente avec l'achat 100 % cash typique de l'investisseur international.</p>
+  <div id="benchBars" style="margin-top:20px">
+    <div class="bar-r bar-hl"><div class="bar-l">TIR portefeuille (votre sélection) <span class="tip-wrap"><button class="tip-btn" onclick="toggleTip(this)">?</button><div class="tip-box">Rendement annualisé de votre sélection actuelle : loyers nets sur l'horizon + produit de cession, rapportés au prix net payé aujourd'hui.</div></span></div><div class="bar-t"><div class="bar-f" id="barPortfolio" style="width:60%;background:linear-gradient(90deg,var(--gold),var(--gl))"><span id="bPortfolio">—</span></div></div></div>
+    <div class="bar-r"><div class="bar-l">Cap rate zone <span class="tip-wrap"><button class="tip-btn" onclick="toggleTip(this)">?</button><div class="tip-box">Un appartement moyen de la zone, loué, rapporte environ 5,7 % par an — uniquement le loyer, sans plus-value.</div></span></div><div class="bar-t"><div class="bar-f" style="width:30%;background:var(--grn2)"><span>5,7 %</span></div></div></div>
+    <div class="bar-r"><div class="bar-l">Obligations M 10 ans (MXN) <span class="tip-wrap"><button class="tip-btn" onclick="toggleTip(this)">?</button><div class="tip-box">Prêter au gouvernement mexicain pendant 10 ans rapporte environ 8,9 % par an. Sûr, mais le capital ne croît pas.</div></span></div><div class="bar-t"><div class="bar-f" style="width:47%;background:var(--grn)"><span>8,9 %</span></div></div></div>
+    <div class="bar-r"><div class="bar-l">CETES net ISR <span class="tip-wrap"><button class="tip-btn" onclick="toggleTip(this)">?</button><div class="tip-box">Le placement le plus sûr du marché mexicain, net d'impôt : environ 5,6 % par an.</div></span></div><div class="bar-t"><div class="bar-f" style="width:29%;background:var(--t3)"><span>5,6 %</span></div></div></div>
+    <div class="bar-r"><div class="bar-l">Inflation Mexique (INPC) <span class="tip-wrap"><button class="tip-btn" onclick="toggleTip(this)">?</button><div class="tip-box">1ʳᵉ quinzaine d'août 2026 (Banxico/INEGI). Toute stratégie doit dépasser ce seuil pour créer de la valeur réelle.</div></span></div><div class="bar-t"><div class="bar-f" style="width:22%;background:#666"><span>3,26 %</span></div></div></div>
+  </div>
+  <p style="font-size:11px;color:var(--t3);margin-top:12px;text-align:center">TIR portefeuille recalculée en direct selon votre sélection et vos hypothèses. Cap rate zone : ZI 15 min, Monopolio 2026. CETES net après ISR. Obligations M taux brut à échéance (Banxico juin 2026).</p>
+</div>
+
+<!-- RIESGOS -->
+<div class="sec">
+  <div class="sep"></div>
+  <div class="kicker">Diligence raisonnable</div>
+  <h2 class="sec-h">Risques et <b>mesures d'atténuation</b></h2>
+  <div class="risk-grid">
+    <div class="risk"><div><div class="risk-label">Risque de change</div><p>Le peso mexicain fluctue face au franc suisse sur l'horizon d'investissement.</p></div><div><div class="risk-mit">Mitigant</div><p>Le modèle suppose un taux constant par défaut, ajustable à tout moment selon votre propre couverture de change.</p></div></div>
+    <div class="risk"><div><div class="risk-label">Vacance locative</div><p>Risque d'unités sans locataire sur une période donnée.</p></div><div><div class="risk-mit">Mitigant</div><p>Zone consolidée à forte demande. Le facteur de loyer net (85 %) intègre déjà une marge de vacance.</p></div></div>
+    <div class="risk"><div><div class="risk-label">Délai de livraison</div><p>Tours D/E : capital engagé avant le début des loyers (2028-2029).</p></div><div><div class="risk-mit">Mitigant</div><p>Plus-value capturée dès la préventa. Prix d'entrée inférieur à la valeur estimée à la livraison.</p></div></div>
+    <div class="risk"><div><div class="risk-label">Estimation locative</div><p>Le loyer projeté est une hypothèse de marché, pas un bail signé.</p></div><div><div class="risk-mit">Mitigant</div><p>Cap rate basé sur un loyer réel mesuré par Aliah (6,3 %), avec cap rate cible plus prudent à 7 % dans ce modèle.</p></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sep"></div>
+  <div class="kicker">Avancement réel des travaux</div>
+  <h2 class="sec-h">Tours A et B livrées, <b>Tour C en finition</b></h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:20px">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_01.jpg?v=2" alt="Avancement" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_02.jpg?v=2" alt="Avancement" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy">
+    <img src="https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/renders/foto_obra_05.jpg?v=2" alt="Avancement" style="width:100%;border-radius:12px;object-fit:cover;height:220px" loading="lazy">
+  </div>
+</div>
+
+<!-- ESCOMPTE FINANCIER -->
+<div class="sec">
+  <div class="sep"></div>
+  <div class="kicker">Votre engagement financier</div>
+  <h2 class="sec-h">Plus vous payez comptant, <b>plus l'escompte est important</b></h2>
+  <p class="sec-p">Aucun crédit relais, aucun paiement différé : vous ajustez uniquement la part payée à la signature. L'escompte financier de base (7 % par an) s'applique intégralement à 100 % comptant, et se réduit à proportion en dessous.</p>
+  <div class="rbox" style="margin-top:20px">
+    <div class="rbox-grid">
+      <div>
+        <div class="rbox-l">Paiement à la signature</div>
+        <input type="number" id="engancheHero" value="100" step="5" min="0" max="100">
+        <div class="rbox-unit">% du prix</div>
+      </div>
+      <div>
+        <div class="rbox-l">Escompte financier effectif</div>
+        <div class="rbox-v" id="effDiscHero">7,0 %</div>
+        <div class="rbox-s">sur le prix Mappen</div>
+      </div>
+      <div>
+        <div class="rbox-l">Remise de volume</div>
+        <div class="rbox-v" style="font-size:34px">10 %</div>
+        <div class="rbox-s">fixe, indépendante du comptant</div>
+      </div>
+    </div>
+  </div>
+  <div class="promo">La gestion locative Aliah équivaut à <b>1 mois de loyer par an et par lot</b> — déjà intégrée dans le facteur de loyer net (85 % du brut). À la revente, une commission de <b>3 % avant impôts</b> est prélevée sur la valeur de sortie. Taux de change supposé constant sur tout l'horizon.</div>
+</div>
+
+<div class="sec">
+  <div class="sep"></div>
+  <div class="kicker">Personnalisez votre scénario</div>
+  <h2 class="sec-h">Ceci est le scénario de base. <b>Ajustez-le à votre mesure.</b></h2>
+  <p class="sec-p">Les sections précédentes utilisent les hypothèses standards. Explorez chaque unité, modifiez les paramètres ci-dessous et découvrez votre scénario optimal.</p>
+</div>
+
+<!-- SIMULADOR -->
+<div id="simulador">
+  <div class="sep"></div>
+  <div class="kicker">Simulateur d'investissement</div>
+  <h2 class="sec-h">Explorez l'<b>inventaire complet</b></h2>
+  <p class="sec-p">87 appartements entre 8,0 et 9,5 M MXN, Tours D &amp; E. La sélection initiale (47 unités) reprend l'univers déjà validé ; les 40 restantes sont ouvertes à l'exploration.</p>
+
+  <div class="params-grid">
+    <div class="param"><label for="fx">Taux de change</label><div class="row"><input type="number" id="fx" value="20.95" step="0.01"><span class="unit">MXN/CHF</span></div></div>
+    <div class="param"><label for="volDisc">Remise de volume</label><div class="row"><input type="number" id="volDisc" value="10" step="0.5"><span class="unit">% (fixe)</span></div></div>
+    <div class="param"><label for="finDisc">Escompte — 100 % comptant</label><div class="row"><input type="number" id="finDisc" value="7" step="0.5"><span class="unit">%/an</span></div></div>
+    <div class="param"><label for="enganche">Paiement à la signature</label><div class="row"><input type="number" id="enganche" value="100" step="5" min="0" max="100"><span class="unit">% du prix</span></div></div>
+    <div class="param derived"><label>Escompte effectif</label><div class="row"><strong id="effDiscDisplay" class="num">7,0 %</strong></div></div>
+    <div class="param"><label for="capRate">Cap rate locatif</label><div class="row"><input type="number" id="capRate" value="7" step="0.25"><span class="unit">%/an</span></div></div>
+    <div class="param"><label for="netFactor">Loyer net</label><div class="row"><input type="number" id="netFactor" value="85" step="1"><span class="unit">% du brut</span></div></div>
+    <div class="param"><label for="inflacion">Inflation Mexique</label><div class="row"><input type="number" id="inflacion" value="3.26" step="0.01"><span class="unit">%/an</span></div></div>
+    <div class="param"><label for="plusExtra">Plus-value réelle add.</label><div class="row"><input type="number" id="plusExtra" value="2" step="0.25"><span class="unit">points</span></div></div>
+    <div class="param"><label for="horizonte">Horizon locatif</label><div class="row"><input type="number" id="horizonte" value="7" step="1"><span class="unit">ans</span></div></div>
+    <div class="param"><label for="resaleFee">Commission revente</label><div class="row"><input type="number" id="resaleFee" value="3" step="0.5"><span class="unit">% (avant impôts)</span></div></div>
+  </div>
+
+  <div class="summary-grid" id="summaryCards"></div>
+
+  <div class="filters" id="tabs">
+    <button class="fbtn active" data-filter="all">Toutes (87)</button>
+    <button class="fbtn" data-filter="original">Sélection initiale (47)</button>
+    <button class="fbtn" data-filter="jugar">À explorer (40)</button>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;margin:8px 0 4px">
+    <input type="text" id="search" class="searchbox" placeholder="Chercher un lot, ex. E-1206…">
+  </div>
+
+  <div class="inv-wrap">
+    <table class="inv">
+      <thead>
+        <tr>
+          <th style="width:30px"></th>
+          <th data-sort="nombre">Lot</th>
+          <th data-sort="torre">Tour</th>
+          <th data-sort="m2" class="num-col">m²</th>
+          <th data-sort="precio" class="num-col">Prix Mappen MXN</th>
+          <th data-sort="net" class="num-col">Prix net payé CHF</th>
+          <th data-sort="delivery">Livraison</th>
+          <th data-sort="loyer1" class="num-col">Loyer net an 1</th>
+          <th data-sort="payback" class="num-col">Payback</th>
+          <th data-sort="coc" class="num-col">Cash-on-cash</th>
+          <th data-sort="tir" class="num-col">TIR</th>
+          <th data-sort="multiple" class="num-col">Multiple</th>
+          <th>Plan</th>
+          <th data-sort="grupo">Origine</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <p style="font-size:11px;color:var(--t3);max-width:96ch;margin-top:16px;line-height:1.6">
+    <b style="color:var(--t2)">Méthode de calcul, par lot :</b> Prix net payé = prix Mappen × (1 − remise de volume) × (1 − escompte financier effectif). Valeur à la livraison = prix Mappen plein × (1 + inflation + plus-value réelle) sur les mois restants, indépendante de l'escompte obtenu. Loyer brut année k = valeur au début de l'année k × cap rate ; loyer net = loyer brut × facteur net. Valeur de sortie en année H = valeur à la livraison capitalisée sur H ans ; produit net de cession = valeur de sortie × (1 − commission de revente). TIR et payback utilisent les dates réelles. Cash-on-cash = loyer net 1ʳᵉ année / prix net payé. Multiple = (loyers nets cumulés + produit net de cession) / prix net payé. Plans issus du catalogue de prototypes Aliah ; 2 lots (terrasses P2/Q2) n'ont pas encore de plan numérisé.
+  </p>
+</div>
+
+<div class="footbar" id="footbar">
+  <div class="fig">
+    <div><span>Lots sélectionnés</span><strong id="footCount">0</strong></div>
+    <div><span>Investissement net</span><strong id="footTotal">CHF 0</strong></div>
+    <div><span>TIR portefeuille</span><strong id="footTir">—</strong></div>
+    <div><span>Payback</span><strong id="footPayback">—</strong></div>
+    <div><span>Multiple</span><strong id="footMultiple">—</strong></div>
+  </div>
+  <div class="actions">
+    <button class="btn" id="btnReset">Tout décocher</button>
+    <button class="btn primary" id="btnOriginal">Sélection initiale</button>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="sec">
+  <div class="cta">
+    <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;opacity:.7">Aliah Lomas Verdes</div>
+    <div style="font-size:clamp(22px,4vw,30px);font-weight:700">Planifiez votre présentation personnalisée</div>
+    <div style="font-size:14px;margin-top:8px;opacity:.8">87 appartements disponibles. Modélisateur financier en direct, en francs suisses.</div>
+    <a href="https://wa.me/5215570055934?text=Bonjour%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20le%20portefeuille%20Aliah%20Lomas%20Verdes." class="cta-btn" target="_blank" rel="noopener">Contacter par WhatsApp</a>
+    <div style="font-size:12px;margin-top:12px;opacity:.6">ventas@aliah.mx &middot; +52 55 7005 5934 &middot; aliah.mx</div>
+    <div style="font-size:11px;margin-top:4px;opacity:.5">Av. Lomas Verdes #77, Santa Cruz Acatlán, Naucalpan, État de Mexico</div>
+  </div>
+  <div class="disc"><b>Avertissement :</b> Projection illustrative, non contractuelle. Les performances passées ne garantissent pas les résultats futurs. Source des données de marché : <a href="https://aliah-comercial.github.io/studios/EDM%20_ALIAH_LOMAS%20_VERDES_by_MONOPOLIO_MZO2026.pdf" target="_blank" rel="noopener">Étude de marché Aliah Lomas Verdes, Monopolio.com.mx, mars 2026</a>. Inflation de référence : 3,26 % annuel, INPC, 1ʳᵉ quinzaine d'août 2026 (Banxico/INEGI). Plus-value réelle additionnelle : +2 points par défaut, au-delà de l'inflation. Cap rate Aliah mesuré : 6,3 % réel (appartement C2 loué 23 000 MXN/mois sur 4,4 M MXN) ; cap rate cible retenu dans ce modèle : 7 %. Cap rate zone : 5,7 % logement neuf ZI 15 min (Monopolio). CETES 28j : 6,54 % brut, ≈5,64 % net ISR (Banxico 14 mai 2026). Obligations M 10 ans : ≈8,9 % (Banxico juin 2026). La gestion locative Aliah (1 mois de loyer/an/lot) et la commission de revente (3 % avant impôts) sont déjà intégrées au modèle. Le taux de change MXN/CHF est supposé constant sur tout l'horizon — aucune couverture de change n'est modélisée. La valeur future d'une unité est toujours calculée sur son prix Mappen plein, jamais sur le prix net payé. ESQR Quality Achievements Award 2026 Gold Category, Bruxelles. Luxury Lifestyle Awards : Best Luxury Apartment Living in Mexico, 2025.</div>
+</div>
+
+<div style="height:20px"></div>
+
+<script>
+function toggleTip(btn){
+  const box = btn.nextElementSibling;
+  document.querySelectorAll('.tip-box.show').forEach(b=>{ if(b!==box) b.classList.remove('show'); });
+  box.classList.toggle('show');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.tip-wrap')) document.querySelectorAll('.tip-box.show').forEach(b=>b.classList.remove('show'));
+});
+
+const DATA = {"units": [["E-303", "E", 97.8, "2", "NA", 8000007, "Feb 2029", "E_H2"], ["E-403", "E", 97.8, "2", "NA", 8000007, "Feb 2029", "E_H2"], ["E-503", "E", 97.8, "2", "NA", 8000007, "Feb 2029", "E_H2"], ["E-603", "E", 97.8, "2", "NA", 8000007, "Feb 2029", "E_H2"], ["E-703", "E", 97.8, "2", "NA", 8000007, "Feb 2029", "E_H2"], ["E-803", "E", 97.8, "2", "NA", 8000007, "Feb 2029", "E_H2"], ["E-T106", "E", 90.1, "2", "Terraza", 8100007, "Feb 2029", "E_L2"], ["E-PH06", "E", 82.5, "2", "NA", 8200000, "Feb 2029", "E_L"], ["E-1006", "E", 82.5, "2", "NA", 8200007, "Feb 2029", "E_L"], ["E-1106", "E", 82.5, "2", "NA", 8200007, "Feb 2029", "E_L"], ["E-1206", "E", 82.5, "2", "NA", 8200007, "Feb 2029", "E_L"], ["E-1306", "E", 82.5, "2", "NA", 8200007, "Feb 2029", "E_L"], ["E-1406", "E", 82.5, "2", "NA", 8200007, "Feb 2029", "E_L"], ["E-1001", "E", 90.1, "3", "NA", 8300005, "Feb 2029", "E_K"], ["E-1101", "E", 90.1, "3", "NA", 8300005, "Feb 2029", "E_K"], ["E-1201", "E", 90.1, "3", "NA", 8300005, "Feb 2029", "E_K"], ["E-1301", "E", 90.1, "3", "NA", 8300005, "Feb 2029", "E_K"], ["E-1401", "E", 90.1, "3", "NA", 8300007, "Feb 2029", "E_K"], ["E-PH01", "E", 90.1, "3", "NA", 8300007, "Feb 2029", "E_K"], ["E-1003", "E", 97.8, "2", "NA", 8350005, "Feb 2029", "E_H2"], ["E-903", "E", 97.8, "2", "NA", 8350005, "Feb 2029", "E_H2"], ["E-T101", "E", 93.3, "3", "Terraza", 8375007, "Feb 2029", "E_K2"], ["E-1005", "E", 85.4, "2", "NA", 8400006, "Feb 2029", "E_A4"], ["E-1105", "E", 85.4, "2", "NA", 8400006, "Feb 2029", "E_A4"], ["E-1205", "E", 85.4, "2", "NA", 8400006, "Feb 2029", "E_A4"], ["E-1305", "E", 85.4, "2", "NA", 8400006, "Feb 2029", "E_A4"], ["E-1102", "E", 83.5, "2", "NA", 8400007, "Feb 2029", "E_A3"], ["E-1104", "E", 92.2, "2", "NA", 8400007, "Feb 2029", "E_J2"], ["E-1202", "E", 83.5, "2", "NA", 8400007, "Feb 2029", "E_A3"], ["E-1204", "E", 92.2, "2", "NA", 8400007, "Feb 2029", "E_J2"], ["E-1302", "E", 83.5, "2", "NA", 8400007, "Feb 2029", "E_A3"], ["E-1402", "E", 83.5, "2", "NA", 8400007, "Feb 2029", "E_A3"], ["E-1405", "E", 85.4, "2", "NA", 8400007, "Feb 2029", "E_A4"], ["E-904", "E", 92.2, "2", "NA", 8400007, "Feb 2029", "E_J2"], ["E-804", "E", 92.2, "2", "NA", 8400008, "Feb 2029", "E_J2"], ["E-T104", "E", 92.6, "2", "Terraza", 8450007, "Feb 2029", "E_J4"], ["D-204", "D", 102.5, "2 - 3", "NA", 8500008, "Ago 2028", "D_O2"], ["D-205", "D", 105.4, "2 - 3", "NA", 8500008, "Ago 2028", "D_Q"], ["E-1404", "E", 92.2, "2", "NA", 8600007, "Feb 2029", "E_J2"], ["E-PH02", "E", 83.5, "2", "NA", 8600007, "Feb 2029", "E_A3"], ["E-PH04", "E", 92.2, "2", "NA", 8600007, "Feb 2029", "E_J2"], ["D-304", "D", 102.5, "2 - 3", "NA", 8600008, "Ago 2028", "D_O2"], ["D-305", "D", 105.4, "2 - 3", "NA", 8600008, "Ago 2028", "D_Q"], ["D-405", "D", 105.4, "2 - 3", "NA", 8600008, "Ago 2028", "D_Q"], ["D-504", "D", 102.5, "2 - 3", "NA", 8600008, "Ago 2028", "D_O2"], ["D-505", "D", 105.4, "2 - 3", "NA", 8600008, "Ago 2028", "D_Q"], ["D-404", "D", 102.5, "2 - 3", "NA", 8600008, "Ago 2028", "D_O2"], ["E-PH05", "E", 85.4, "2", "NA", 8700006, "Feb 2029", "E_A4"], ["D-201", "D", 105.3, "2 - 3", "NA", 8700007, "Ago 2028", "D_O"], ["D-301", "D", 105.3, "2 - 3", "NA", 8700007, "Ago 2028", "D_O"], ["D-401", "D", 105.3, "2 - 3", "NA", 8700007, "Ago 2028", "D_O"], ["D-501", "D", 105.3, "2 - 3", "NA", 8700007, "Ago 2028", "D_O"], ["D-601", "D", 105.3, "2 - 3", "NA", 8700007, "Ago 2028", "D_O"], ["D-701", "D", 105.3, "2 - 3", "NA", 8700007, "Ago 2028", "D_O"], ["D-801", "D", 105.3, "2 - 3", "NA", 8800005, "Ago 2028", "D_O"], ["D-T109", "D", 87.0, "2", "Terraza", 8825007, "Ago 2028", null], ["D-1101", "D", 105.3, "2 - 3", "NA", 8900007, "Ago 2028", "D_O"], ["D-1201", "D", 105.3, "2 - 3", "NA", 8900007, "Ago 2028", "D_O"], ["D-1301", "D", 105.3, "2 - 3", "NA", 8900007, "Ago 2028", "D_O"], ["D-1401", "D", 105.3, "2 - 3", "NA", 8900007, "Ago 2028", "D_O"], ["D-604", "D", 102.5, "2 - 3", "NA", 8900007, "Ago 2028", "D_O2"], ["D-704", "D", 102.5, "2 - 3", "NA", 8900007, "Ago 2028", "D_O2"], ["D-804", "D", 102.5, "2 - 3", "NA", 8900007, "Ago 2028", "D_O2"], ["D-805", "D", 105.4, "2 - 3", "NA", 8900007, "Ago 2028", "D_Q"], ["D-904", "D", 102.5, "2 - 3", "NA", 8900007, "Ago 2028", "D_O2"], ["D-905", "D", 105.4, "2 - 3", "NA", 8900007, "Ago 2028", "D_Q"], ["D-T105", "D", 105.4, "2 - 3", "Terraza", 8900007, "Ago 2028", null], ["E-1103", "E", 97.8, "2", "NA", 8900007, "Feb 2029", "E_H2"], ["E-1203", "E", 97.8, "2", "NA", 8900007, "Feb 2029", "E_H2"], ["E-1303", "E", 97.8, "2", "NA", 8900007, "Feb 2029", "E_H2"], ["E-1403", "E", 97.8, "2", "NA", 8900007, "Feb 2029", "E_H2"], ["E-PH03", "E", 97.8, "2", "NA", 8900007, "Feb 2029", "E_H2"], ["D-1004", "D", 102.5, "2 - 3", "NA", 8900008, "Ago 2028", "D_O2"], ["D-GPH08", "D", 77.0, "2", "Roof Garden", 9000007, "Ago 2028", "D_A12"], ["D-GPH03", "D", 82.3, "2", "Roof Garden", 9050007, "Ago 2028", "D_L4"], ["D-GPH09", "D", 86.5, "2", "Roof Garden", 9050007, "Ago 2028", "D_P"], ["D-GPH06", "D", 76.1, "2", "Roof Garden", 9100007, "Ago 2028", "D_A12b"], ["D-GPH07", "D", 77.0, "2", "Roof Garden", 9100007, "Ago 2028", "D_A12"], ["D-GPH02", "D", 82.6, "2", "Roof Garden", 9150007, "Ago 2028", "D_L3"], ["D-1104", "D", 102.5, "2 - 3", "NA", 9350007, "Ago 2028", "D_O2"], ["D-1105", "D", 105.4, "2 - 3", "NA", 9350007, "Ago 2028", "D_Q"], ["D-1204", "D", 102.5, "2 - 3", "NA", 9350007, "Ago 2028", "D_O2"], ["D-1205", "D", 105.4, "2 - 3", "NA", 9350007, "Ago 2028", "D_Q"], ["D-1304", "D", 102.5, "2 - 3", "NA", 9350007, "Ago 2028", "D_O2"], ["D-1305", "D", 105.4, "2 - 3", "NA", 9350007, "Ago 2028", "D_Q"], ["D-1405", "D", 105.4, "2 - 3", "NA", 9350007, "Ago 2028", "D_Q"], ["D-PH05", "D", 105.4, "2 - 3", "NA", 9350007, "Ago 2028", "D_Q"]], "planUrls": {"D_O": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-d/DEPTO%20TIPO%20O.jpg", "D_P": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-d/DEPTO%20TIPO%20P.jpg", "D_A12": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-d/DEPTO%20TIPO%20A12.jpg", "D_A13": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-d/DEPTO%20TIPO%20A13.jpg", "D_L3": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-d/DEPTO%20TIPO%20L3.jpg", "D_L4": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-d/DEPTO%20TIPO%20L4.jpg", "D_O2": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-d/DEPTO%20TIPO%20O2.jpg", "D_Q": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-d/DEPTO%20TIPO%20Q-N2%20N6%20TORRE%20D.jpg", "D_A12b": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-d/DEPTO%20TIPO%20A12%27.jpg", "E_A3": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20A3.jpg", "E_A4": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20A4.jpg", "E_A7": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20A7.jpg", "E_A8": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20A8.jpg", "E_H2": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20H2.jpg", "E_H4": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20H4.jpg", "E_J2": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20J2.jpg", "E_J4": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20J4.jpg", "E_K": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20K2.jpg", "E_K2": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20K%C2%B4.jpg", "E_L": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20L.jpg", "E_L2": "https://raw.githubusercontent.com/fcorojas-aliah/aliah-assets/main/plantas/torre-e/DEPTO%20TIPO%20L2.jpg"}};
+const PLAN_URLS = DATA.planUrls;
+const UNITS = DATA.units.map(r => ({
+  nombre:r[0], torre:r[1], m2:r[2], rec:r[3], extra:r[4], precio:r[5], deliveryRaw:r[6], planKey:r[7],
+  grupo: null, selected: false
+}));
+const ORIGINAL_SET = new Set(["D-205","D-1101","D-1201","D-1301","D-1401","D-304","D-305","D-404","D-504","D-505","D-501","D-601","D-801","D-805","D-905","D-1105","D-1205","D-1305","D-1405","D-PH05","E-303","E-T106","E-PH06","E-1106","E-1206","E-1306","E-1406","E-1101","E-1201","E-1301","E-1401","E-PH01","E-1003","E-903","E-1005","E-1105","E-1205","E-1305","E-1102","E-1104","E-1204","E-1302","E-1405","E-1403","E-PH03","E-PH04"]);
+UNITS.forEach(u=>{ u.grupo = ORIGINAL_SET.has(u.nombre) ? 'original' : 'jugar'; u.selected = u.grupo==='original'; });
+
+const MESES = {Ene:0,Feb:1,Mar:2,Abr:3,May:4,Jun:5,Jul:6,Ago:7,Sep:8,Oct:9,Nov:10,Dic:11};
+function parseDelivery(str){
+  const [mes, anio] = str.split(' ');
+  return new Date(parseInt(anio), MESES[mes], 1);
+}
+const TODAY = new Date();
+const MS_YEAR = 365.25*24*3600*1000;
+function yearsBetween(a,b){ return (b-a)/MS_YEAR; }
+function addYears(d,y){ return new Date(d.getTime() + y*MS_YEAR); }
+
+const fxEl=document.getElementById('fx'), capRateEl=document.getElementById('capRate'),
+      netFactorEl=document.getElementById('netFactor'), inflacionEl=document.getElementById('inflacion'),
+      plusExtraEl=document.getElementById('plusExtra'), horizonteEl=document.getElementById('horizonte'),
+      resaleFeeEl=document.getElementById('resaleFee'), volDiscEl=document.getElementById('volDisc'),
+      finDiscEl=document.getElementById('finDisc'), engancheEl=document.getElementById('enganche'),
+      engancheHeroEl=document.getElementById('engancheHero');
+
+function params(){
+  const finBase = (parseFloat(finDiscEl.value)||0)/100;
+  const enganche = Math.max(0, Math.min(100, parseFloat(engancheEl.value)||0))/100;
+  const finEff = finBase * enganche;
+  return {
+    fx: parseFloat(fxEl.value)||1,
+    vol: (parseFloat(volDiscEl.value)||0)/100,
+    finEff,
+    capRate: (parseFloat(capRateEl.value)||0)/100,
+    netFactor: (parseFloat(netFactorEl.value)||0)/100,
+    g: ((parseFloat(inflacionEl.value)||0) + (parseFloat(plusExtraEl.value)||0))/100,
+    H: Math.max(1, Math.round(parseFloat(horizonteEl.value)||7)),
+    resaleFee: (parseFloat(resaleFeeEl.value)||0)/100,
+  };
+}
+
+function xirr(flows){
+  const t0 = flows[0].date;
+  const yrs = flows.map(f => yearsBetween(t0, f.date));
+  function npv(r){ return flows.reduce((s,f,i)=> s + f.amount/Math.pow(1+r, yrs[i]), 0); }
+  function dnpv(r){ return flows.reduce((s,f,i)=> s - yrs[i]*f.amount/Math.pow(1+r, yrs[i]+1), 0); }
+  let r = 0.12;
+  for(let i=0;i<60;i++){
+    const f = npv(r), d = dnpv(r);
+    if(Math.abs(d) < 1e-9) break;
+    const rNext = r - f/d;
+    if(!isFinite(rNext)) break;
+    r = Math.max(-0.9, Math.min(5, rNext));
+    if(Math.abs(f) < 1e-2) return r;
+  }
+  let lo=-0.9, hi=3, flo=npv(lo), fhi=npv(hi);
+  if(flo*fhi>0) return r;
+  for(let i=0;i<100;i++){
+    const mid=(lo+hi)/2, fmid=npv(mid);
+    if(Math.abs(fmid)<1e-2) return mid;
+    if(flo*fmid<0){ hi=mid; fhi=fmid; } else { lo=mid; flo=fmid; }
+  }
+  return (lo+hi)/2;
+}
+
+function computeUnit(u, p){
+  const delivery = parseDelivery(u.deliveryRaw);
+  const yrsToDelivery = Math.max(0, yearsBetween(TODAY, delivery));
+  const valueAtDelivery = u.precio * Math.pow(1+p.g, yrsToDelivery);
+  const netPrice = u.precio * (1-p.vol) * (1-p.finEff);
+
+  const rentYears = [];
+  let cumNetRent = 0;
+  for(let k=1; k<=p.H; k++){
+    const valueStartK = valueAtDelivery * Math.pow(1+p.g, k-1);
+    const gross = valueStartK * p.capRate;
+    const net = gross * p.netFactor;
+    const date = addYears(delivery, k);
+    rentYears.push({k, date, gross, net});
+    cumNetRent += net;
+  }
+  const saleValue = valueAtDelivery * Math.pow(1+p.g, p.H);
+  const netSale = saleValue * (1-p.resaleFee);
+
+  const flows = [{date: TODAY, amount: -netPrice}];
+  rentYears.forEach((ry,i)=>{
+    const amt = ry.net + (i===rentYears.length-1 ? netSale : 0);
+    flows.push({date: ry.date, amount: amt});
+  });
+  const tir = xirr(flows);
+
+  let cum = 0, payback = null, prevDate = TODAY;
+  for(const ry of rentYears){
+    const newCum = cum + ry.net;
+    if(payback===null && newCum >= netPrice){
+      const frac = (netPrice - cum) / ry.net;
+      payback = yearsBetween(TODAY, prevDate) + frac*yearsBetween(prevDate, ry.date);
+    }
+    cum = newCum; prevDate = ry.date;
+  }
+
+  const rent1 = rentYears[0] ? rentYears[0].net : 0;
+  const cashOnCash = rent1 / netPrice;
+  const multiple = (cumNetRent + netSale) / netPrice;
+
+  return {netPrice, delivery, valueAtDelivery, rentYears, netSale, tir, payback, cashOnCash, multiple, flows, rent1};
+}
+
+const fmtCHF = n => 'CHF ' + Math.round(n).toLocaleString('fr-CH');
+const fmtMXN = n => '$' + Math.round(n).toLocaleString('fr-CH');
+const fmtPct = n => (n*100).toFixed(1).replace('.',',') + ' %';
+const fmtYrs = n => n==null ? '—' : n.toFixed(1).replace('.',',') + ' ans';
+const fmtX = n => n.toFixed(2).replace('.',',') + '×';
+
+let sortKey=null, sortDir=1, filter='all', searchTerm='';
+let syncing=false;
+
+function syncEnganche(source){
+  if(syncing) return;
+  syncing = true;
+  if(source==='hero'){ engancheEl.value = engancheHeroEl.value; }
+  else { engancheHeroEl.value = engancheEl.value; }
+  syncing = false;
+}
+
+function updateDerived(){
+  const p = params();
+  document.getElementById('effDiscDisplay').textContent = fmtPct(p.finEff);
+  document.getElementById('effDiscHero').textContent = fmtPct(p.finEff);
+}
+
+function renderSummary(){
+  const p = params();
+  updateDerived();
+  const sel = UNITS.filter(u=>u.selected);
+  const withCalc = sel.map(u=>({u, c:computeUnit(u,p)}));
+  const totalInvMxn = withCalc.reduce((s,{c})=>s+c.netPrice,0);
+  const flowsAll = [];
+  withCalc.forEach(({c})=> c.flows.forEach(f=>flowsAll.push(f)));
+  flowsAll.sort((a,b)=>a.date-b.date);
+  const portfolioTir = flowsAll.length>1 ? xirr(flowsAll) : 0;
+  const totalRent1 = withCalc.reduce((s,{c})=>s+c.rent1,0);
+  const cocPortfolio = totalInvMxn>0 ? totalRent1/totalInvMxn : 0;
+  const totalMultipleNum = withCalc.reduce((s,{c})=> s + c.rentYears.reduce((x,r)=>x+r.net,0) + c.netSale, 0);
+  const multiplePortfolio = totalInvMxn>0 ? totalMultipleNum/totalInvMxn : 0;
+
+  const cards = [
+    ['Lots sélectionnés', sel.length + ' / 87', ''],
+    ['Investissement net', fmtCHF(totalInvMxn/p.fx), fmtMXN(totalInvMxn) + ' payés'],
+    ['TIR portefeuille', fmtPct(portfolioTir), `sur ${p.H} ans de loyer + cession`],
+    ['Cash-on-cash (an 1)', fmtPct(cocPortfolio), 'loyer net 1ʳᵉ année / net payé'],
+    ['Multiple', fmtX(multiplePortfolio), 'loyers nets + cession / net payé'],
+  ];
+  document.getElementById('summaryCards').innerHTML = cards.map(([tag,val,sub])=>`
+    <div class="scard"><div class="tag">${tag}</div><div class="figures num">${val}</div><div class="sub">${sub}</div></div>`).join('');
+
+  document.getElementById('footCount').textContent = sel.length + ' / 87';
+  document.getElementById('footTotal').textContent = fmtCHF(totalInvMxn/p.fx);
+  document.getElementById('footTir').textContent = sel.length ? fmtPct(portfolioTir) : '—';
+  document.getElementById('footMultiple').textContent = sel.length ? fmtX(multiplePortfolio) : '—';
+
+  const barEl = document.getElementById('barPortfolio');
+  const bTxt = document.getElementById('bPortfolio');
+  if(sel.length){
+    bTxt.textContent = fmtPct(portfolioTir);
+    barEl.style.width = Math.max(6, Math.min(100, portfolioTir*100*6)) + '%';
+  } else {
+    bTxt.textContent = '—'; barEl.style.width = '6%';
+  }
+
+  let payback = '—';
+  if(sel.length){
+    const rentFlows = [];
+    withCalc.forEach(({c})=> c.rentYears.forEach(ry=> rentFlows.push({date:ry.date, amount:ry.net})));
+    rentFlows.sort((a,b)=>a.date-b.date);
+    let cum=0, prevDate=TODAY, found=null;
+    for(const rf of rentFlows){
+      const newCum = cum + rf.amount;
+      if(found===null && newCum >= totalInvMxn){
+        const frac = (totalInvMxn-cum)/rf.amount;
+        found = yearsBetween(TODAY, prevDate) + frac*yearsBetween(prevDate, rf.date);
+      }
+      cum = newCum; prevDate = rf.date;
+    }
+    payback = fmtYrs(found);
+  }
+  document.getElementById('footPayback').textContent = payback;
+}
+
+function visibleUnits(){
+  let list = UNITS;
+  if(filter!=='all') list = list.filter(u=>u.grupo===filter);
+  if(searchTerm) list = list.filter(u=> u.nombre.toLowerCase().includes(searchTerm));
+  const p = params();
+  const withCalc = list.map(u=>({u, c:computeUnit(u,p)}));
+  if(sortKey){
+    withCalc.sort((a,b)=>{
+      const map = {net:x=>x.c.netPrice/p.fx, loyer1:x=>x.c.rent1, payback:x=>x.c.payback??1e9, coc:x=>x.c.cashOnCash, tir:x=>x.c.tir, multiple:x=>x.c.multiple};
+      let va = map[sortKey] ? map[sortKey](a) : a.u[sortKey];
+      let vb = map[sortKey] ? map[sortKey](b) : b.u[sortKey];
+      if(typeof va==='string') return va.localeCompare(vb)*sortDir;
+      return (va-vb)*sortDir;
+    });
+  }
+  return withCalc;
+}
+
+const GROUP_LABEL = {original:'Sélection initiale', jugar:'À explorer'};
+
+function renderTable(){
+  const p = params();
+  const list = visibleUnits();
+  document.getElementById('tbody').innerHTML = list.map(({u,c})=>`
+    <tr data-name="${u.nombre}" class="${u.selected?'selected':''}">
+      <td><input type="checkbox" class="chk-sel" data-check="${u.nombre}" ${u.selected?'checked':''}></td>
+      <td>${u.nombre}${u.extra!=='NA'?` <span class="chip">${u.extra}</span>`:''}</td>
+      <td>${u.torre}</td>
+      <td class="num-col num">${u.m2.toFixed(1)}</td>
+      <td class="num-col num">${fmtMXN(u.precio)}</td>
+      <td class="num-col num">${fmtCHF(c.netPrice/p.fx)}</td>
+      <td>${u.deliveryRaw}</td>
+      <td class="num-col num">${fmtMXN(c.rent1)}</td>
+      <td class="num-col num">${fmtYrs(c.payback)}</td>
+      <td class="num-col num">${fmtPct(c.cashOnCash)}</td>
+      <td class="num-col num tir-cell">${fmtPct(c.tir)}</td>
+      <td class="num-col num">${fmtX(c.multiple)}</td>
+      <td>${u.planKey && PLAN_URLS[u.planKey] ? `<a class="plan-link" href="${PLAN_URLS[u.planKey]}" target="_blank" rel="noopener">Voir ↗</a>` : '<span class="plan-none">—</span>'}</td>
+      <td><span class="badge ${u.grupo}">${GROUP_LABEL[u.grupo]}</span></td>
+    </tr>`).join('');
+
+  document.querySelectorAll('[data-check]').forEach(cb=>{
+    cb.addEventListener('change', e=>{
+      const u = UNITS.find(x=>x.nombre===e.target.dataset.check);
+      u.selected = e.target.checked;
+      e.target.closest('tr').classList.toggle('selected', u.selected);
+      renderSummary();
+    });
+  });
+}
+
+function renderAll(){ renderSummary(); renderTable(); }
+
+document.querySelectorAll('.fbtn').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    filter = t.dataset.filter;
+    renderTable();
+  });
+});
+document.getElementById('search').addEventListener('input', e=>{ searchTerm=e.target.value.trim().toLowerCase(); renderTable(); });
+document.querySelectorAll('.inv th[data-sort]').forEach(th=>{
+  th.addEventListener('click', ()=>{
+    const key = th.dataset.sort;
+    sortDir = (sortKey===key) ? -sortDir : 1;
+    sortKey = key;
+    renderTable();
+  });
+});
+[fxEl,capRateEl,netFactorEl,inflacionEl,plusExtraEl,horizonteEl,resaleFeeEl,volDiscEl,finDiscEl].forEach(el=> el.addEventListener('input', renderAll));
+engancheEl.addEventListener('input', ()=>{ syncEnganche('main'); renderAll(); });
+engancheHeroEl.addEventListener('input', ()=>{ syncEnganche('hero'); renderAll(); });
+document.getElementById('btnReset').addEventListener('click', ()=>{ UNITS.forEach(u=>u.selected=false); renderTable(); renderSummary(); });
+document.getElementById('btnOriginal').addEventListener('click', ()=>{
+  UNITS.forEach(u=>u.selected = u.grupo==='original');
+  filter='original';
+  document.querySelectorAll('.fbtn').forEach(x=>x.classList.toggle('active', x.dataset.filter==='original'));
+  renderTable(); renderSummary();
+});
+
+renderAll();
+</script>
+</body>
+</html>
