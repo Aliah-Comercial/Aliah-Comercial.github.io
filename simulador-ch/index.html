@@ -165,7 +165,7 @@ input[type="checkbox"].chk-sel{width:15px;height:15px;accent-color:var(--gold);c
     <div class="hero-stats">
       <div class="hero-stat"><div class="hero-stat-v">87</div><div class="hero-stat-l">Unités éligibles</div></div>
       <div class="hero-stat"><div class="hero-stat-v">2</div><div class="hero-stat-l">Tours (D &amp; E)</div></div>
-      <div class="hero-stat"><div class="hero-stat-v">7 %</div><div class="hero-stat-l">Cap rate locatif visé</div></div>
+      <div class="hero-stat"><div class="hero-stat-v">6,3 %</div><div class="hero-stat-l">Cap rate locatif (réel Aliah)</div></div>
       <div class="hero-stat"><div class="hero-stat-v">+5,3 %</div><div class="hero-stat-l">Plus-value visée / an</div></div>
     </div>
   </div>
@@ -207,8 +207,10 @@ input[type="checkbox"].chk-sel{width:15px;height:15px;accent-color:var(--gold);c
   <div class="kicker">Emplacement &amp; marché</div>
   <h2 class="sec-h">La zone parle <b>d'elle-même</b></h2>
   <div class="mgrid">
-    <div class="mcard"><div class="mcard-v">6,3 %</div><div class="mcard-l">Cap rate Aliah</div><div class="mcard-s">Loyer réel mesuré. Moyenne zone : 5,7 % (Monopolio 2026)</div></div>
+    <div class="mcard"><div class="mcard-v">6,3 %</div><div class="mcard-l">Cap rate Aliah (réel, brut)</div><div class="mcard-s">Appt. C2 loué 23 000 MXN/mois sur 4,4 M MXN. <a href="https://aliah-comercial.github.io/studios/EDM%20_ALIAH_LOMAS%20_VERDES_by_MONOPOLIO_MZO2026.pdf" target="_blank" rel="noopener">Monopolio, avr. 2026 ↗</a></div></div>
     <div class="mcard"><div class="mcard-v">+7 %</div><div class="mcard-l">Plus-value dernière année</div><div class="mcard-s">Mars 2025 – mars 2026 (EDM Monopolio). Cumul +35 % depuis 2022</div></div>
+    <div class="mcard"><div class="mcard-v">5,7 – 5,8 %</div><div class="mcard-l">Cap rate moyen de la zone</div><div class="mcard-s">Vivienda nueva / revente, isochrone 15 min. <a href="https://aliah-comercial.github.io/studios/EDM%20_ALIAH_LOMAS%20_VERDES_by_MONOPOLIO_MZO2026.pdf" target="_blank" rel="noopener">Monopolio, avr. 2026 ↗</a></div></div>
+    <div class="mcard"><div class="mcard-v">5,0 – 6,5 %</div><div class="mcard-l">Repère indépendant CDMX/Edomex</div><div class="mcard-s">Zones intermédiaires ; moyenne nationale 5,5 %. <a href="https://tandacasa.com/blog/cap-rate-inmobiliario-mexico-2026" target="_blank" rel="noopener">AMPI/CNBV via Tanda Casa ↗</a></div></div>
     <div class="mcard"><div class="mcard-v">30+</div><div class="mcard-l">Prestations</div><div class="mcard-s">Piscine, gym, spa, espace enfants, roof garden…</div></div>
     <div class="mcard"><div class="mcard-v">10 min</div><div class="mcard-l">De Polanco</div><div class="mcard-s">Connexion directe par le Periférico</div></div>
   </div>
@@ -241,7 +243,7 @@ input[type="checkbox"].chk-sel{width:15px;height:15px;accent-color:var(--gold);c
     <div class="risk"><div><div class="risk-label">Risque de change</div><p>Le peso mexicain fluctue face au franc suisse sur l'horizon d'investissement.</p></div><div><div class="risk-mit">Mitigant</div><p>Le modèle suppose un taux constant par défaut, ajustable à tout moment selon votre propre couverture de change.</p></div></div>
     <div class="risk"><div><div class="risk-label">Vacance locative</div><p>Risque d'unités sans locataire sur une période donnée.</p></div><div><div class="risk-mit">Mitigant</div><p>Zone consolidée à forte demande. Le facteur de loyer net (85 %) intègre déjà une marge de vacance.</p></div></div>
     <div class="risk"><div><div class="risk-label">Délai de livraison</div><p>Tours D/E : capital engagé avant le début des loyers (2028-2029).</p></div><div><div class="risk-mit">Mitigant</div><p>Plus-value capturée dès la préventa. Prix d'entrée inférieur à la valeur estimée à la livraison.</p></div></div>
-    <div class="risk"><div><div class="risk-label">Estimation locative</div><p>Le loyer projeté est une hypothèse de marché, pas un bail signé.</p></div><div><div class="risk-mit">Mitigant</div><p>Cap rate basé sur un loyer réel mesuré par Aliah (6,3 %), avec cap rate cible plus prudent à 7 % dans ce modèle.</p></div></div>
+    <div class="risk"><div><div class="risk-label">Estimation locative</div><p>Le loyer projeté est une hypothèse de marché, pas un bail signé.</p></div><div><div class="risk-mit">Mitigant</div><p>Cap rate par défaut aligné sur le loyer réel mesuré par Aliah (6,3 % brut), au lieu du 7 % précédemment retenu — supérieur à la fois à ce chiffre réel et à la moyenne de zone (5,7-5,8 %, Monopolio).</p></div></div>
   </div>
 </div>
 
@@ -304,7 +306,7 @@ input[type="checkbox"].chk-sel{width:15px;height:15px;accent-color:var(--gold);c
     <div class="param"><label for="finDisc">Escompte — 100 % comptant</label><div class="row"><input type="number" id="finDisc" value="7" step="0.5"><span class="unit">%/an</span></div></div>
     <div class="param"><label for="enganche">Paiement à la signature</label><div class="row"><input type="number" id="enganche" value="100" step="5" min="0" max="100"><span class="unit">% du prix</span></div></div>
     <div class="param derived"><label>Escompte effectif</label><div class="row"><strong id="effDiscDisplay" class="num">7,0 %</strong></div></div>
-    <div class="param"><label for="capRate">Cap rate locatif</label><div class="row"><input type="number" id="capRate" value="7" step="0.25"><span class="unit">%/an</span></div></div>
+    <div class="param"><label for="capRate">Cap rate locatif (brut)</label><div class="row"><input type="number" id="capRate" value="6.3" step="0.05"><span class="unit">%/an</span></div></div>
     <div class="param"><label for="netFactor">Loyer net</label><div class="row"><input type="number" id="netFactor" value="85" step="1"><span class="unit">% du brut</span></div></div>
     <div class="param"><label for="inflacion">Inflation Mexique</label><div class="row"><input type="number" id="inflacion" value="3.26" step="0.01"><span class="unit">%/an</span></div></div>
     <div class="param"><label for="plusExtra">Plus-value réelle add.</label><div class="row"><input type="number" id="plusExtra" value="2" step="0.25"><span class="unit">points</span></div></div>
@@ -335,6 +337,7 @@ input[type="checkbox"].chk-sel{width:15px;height:15px;accent-color:var(--gold);c
           <th data-sort="net" class="num-col">Prix net payé CHF</th>
           <th data-sort="delivery">Livraison</th>
           <th data-sort="loyer1" class="num-col">Loyer net an 1</th>
+          <th data-sort="caprate" class="num-col">Cap rate</th>
           <th data-sort="payback" class="num-col">Payback</th>
           <th data-sort="coc" class="num-col">Cash-on-cash</th>
           <th data-sort="tir" class="num-col">TIR</th>
@@ -348,7 +351,7 @@ input[type="checkbox"].chk-sel{width:15px;height:15px;accent-color:var(--gold);c
   </div>
 
   <p style="font-size:11px;color:var(--t3);max-width:96ch;margin-top:16px;line-height:1.6">
-    <b style="color:var(--t2)">Méthode de calcul, par lot :</b> Prix net payé = prix Mappen × (1 − remise de volume) × (1 − escompte financier effectif). Valeur à la livraison = prix Mappen plein × (1 + inflation + plus-value réelle) sur les mois restants, indépendante de l'escompte obtenu. Loyer brut année k = valeur au début de l'année k × cap rate ; loyer net = loyer brut × facteur net. Valeur de sortie en année H = valeur à la livraison capitalisée sur H ans ; produit net de cession = valeur de sortie × (1 − commission de revente). TIR et payback utilisent les dates réelles. Cash-on-cash = loyer net 1ʳᵉ année / prix net payé. Multiple = (loyers nets cumulés + produit net de cession) / prix net payé. Plans issus du catalogue de prototypes Aliah ; 2 lots (terrasses P2/Q2) n'ont pas encore de plan numérisé.
+    <b style="color:var(--t2)">Méthode de calcul, par lot :</b> Prix net payé = prix Mappen × (1 − remise de volume) × (1 − escompte financier effectif). Valeur à la livraison = prix Mappen plein × (1 + inflation + plus-value réelle) sur les mois restants, indépendante de l'escompte obtenu. Loyer brut année k = valeur au début de l'année k × cap rate (hypothèse brute, avant vacance et gestion) ; loyer net = loyer brut × facteur net (85 %, qui absorbe la vacance et la gestion Aliah). Valeur de sortie en année H = valeur à la livraison capitalisée sur H ans ; produit net de cession = valeur de sortie × (1 − commission de revente). TIR et payback utilisent les dates réelles. Cap rate (colonne du tableau) = loyer brut 1ʳᵉ année / prix net payé — rendement brut sur le prix réellement payé, avant l'abattement vacance + gestion (85 %) déjà appliqué au loyer net. Cash-on-cash = loyer net 1ʳᵉ année / prix net payé. Multiple = (loyers nets cumulés + produit net de cession) / prix net payé. Plans issus du catalogue de prototypes Aliah ; 2 lots (terrasses P2/Q2) n'ont pas encore de plan numérisé.
   </p>
 </div>
 
@@ -376,7 +379,7 @@ input[type="checkbox"].chk-sel{width:15px;height:15px;accent-color:var(--gold);c
     <div style="font-size:12px;margin-top:12px;opacity:.6">ventas@aliah.mx &middot; +52 55 7005 5934 &middot; aliah.mx</div>
     <div style="font-size:11px;margin-top:4px;opacity:.5">Av. Lomas Verdes #77, Santa Cruz Acatlán, Naucalpan, État de Mexico</div>
   </div>
-  <div class="disc"><b>Avertissement :</b> Projection illustrative, non contractuelle. Les performances passées ne garantissent pas les résultats futurs. Source des données de marché : <a href="https://aliah-comercial.github.io/studios/EDM%20_ALIAH_LOMAS%20_VERDES_by_MONOPOLIO_MZO2026.pdf" target="_blank" rel="noopener">Étude de marché Aliah Lomas Verdes, Monopolio.com.mx, mars 2026</a>. Inflation de référence : 3,26 % annuel, INPC, 1ʳᵉ quinzaine d'août 2026 (Banxico/INEGI). Plus-value réelle additionnelle : +2 points par défaut, au-delà de l'inflation. Cap rate Aliah mesuré : 6,3 % réel (appartement C2 loué 23 000 MXN/mois sur 4,4 M MXN) ; cap rate cible retenu dans ce modèle : 7 %. Cap rate zone : 5,7 % logement neuf ZI 15 min (Monopolio). CETES 28j : 6,54 % brut, ≈5,64 % net ISR (Banxico 14 mai 2026). Obligations M 10 ans : ≈8,9 % (Banxico juin 2026). La gestion locative Aliah (1 mois de loyer/an/lot) et la commission de revente (3 % avant impôts) sont déjà intégrées au modèle. Le taux de change MXN/CHF est supposé constant sur tout l'horizon — aucune couverture de change n'est modélisée. La valeur future d'une unité est toujours calculée sur son prix Mappen plein, jamais sur le prix net payé. ESQR Quality Achievements Award 2026 Gold Category, Bruxelles. Luxury Lifestyle Awards : Best Luxury Apartment Living in Mexico, 2025.</div>
+  <div class="disc"><b>Avertissement :</b> Projection illustrative, non contractuelle. Les performances passées ne garantissent pas les résultats futurs. Source des données de marché : <a href="https://aliah-comercial.github.io/studios/EDM%20_ALIAH_LOMAS%20_VERDES_by_MONOPOLIO_MZO2026.pdf" target="_blank" rel="noopener">Étude de marché Aliah Lomas Verdes, Monopolio.com.mx, mars 2026</a>. Inflation de référence : 3,26 % annuel, INPC, 1ʳᵉ quinzaine d'août 2026 (Banxico/INEGI). Plus-value réelle additionnelle : +2 points par défaut, au-delà de l'inflation. Cap rate Aliah mesuré : 6,3 % réel, brut (appartement C2 loué 23 000 MXN/mois sur 4,4 M MXN) — retenu comme hypothèse par défaut de ce modèle, avant l'abattement de 85 % (vacance + gestion). Cap rate zone : 5,7 % logement neuf / 5,8 % revente, isochrone 15 min (<a href="https://aliah-comercial.github.io/studios/EDM%20_ALIAH_LOMAS%20_VERDES_by_MONOPOLIO_MZO2026.pdf" target="_blank" rel="noopener">Monopolio, avr. 2026</a>). Repère indépendant hors Aliah : zones intermédiaires CDMX/Edomex 5,0-6,5 %, moyenne nationale 5,5 % (<a href="https://tandacasa.com/blog/cap-rate-inmobiliario-mexico-2026" target="_blank" rel="noopener">AMPI/CNBV via Tanda Casa, 2026</a>). CETES 28j : 6,54 % brut, ≈5,64 % net ISR (Banxico 14 mai 2026). Obligations M 10 ans : ≈8,9 % (Banxico juin 2026). La gestion locative Aliah (1 mois de loyer/an/lot) et la commission de revente (3 % avant impôts) sont déjà intégrées au modèle. Le taux de change MXN/CHF est supposé constant sur tout l'horizon — aucune couverture de change n'est modélisée. La valeur future d'une unité est toujours calculée sur son prix Mappen plein, jamais sur le prix net payé. ESQR Quality Achievements Award 2026 Gold Category, Bruxelles. Luxury Lifestyle Awards : Best Luxury Apartment Living in Mexico, 2025.</div>
 </div>
 
 <div style="height:20px"></div>
@@ -589,7 +592,7 @@ function visibleUnits(){
   const withCalc = list.map(u=>({u, c:computeUnit(u,p)}));
   if(sortKey){
     withCalc.sort((a,b)=>{
-      const map = {net:x=>x.c.netPrice/p.fx, loyer1:x=>x.c.rent1, payback:x=>x.c.payback??1e9, coc:x=>x.c.cashOnCash, tir:x=>x.c.tir, multiple:x=>x.c.multiple};
+      const map = {net:x=>x.c.netPrice/p.fx, loyer1:x=>x.c.rent1, caprate:x=>x.c.rentYears[0].gross/x.c.netPrice, payback:x=>x.c.payback??1e9, coc:x=>x.c.cashOnCash, tir:x=>x.c.tir, multiple:x=>x.c.multiple};
       let va = map[sortKey] ? map[sortKey](a) : a.u[sortKey];
       let vb = map[sortKey] ? map[sortKey](b) : b.u[sortKey];
       if(typeof va==='string') return va.localeCompare(vb)*sortDir;
@@ -614,6 +617,7 @@ function renderTable(){
       <td class="num-col num">${fmtCHF(c.netPrice/p.fx)}</td>
       <td>${u.deliveryRaw}</td>
       <td class="num-col num">${fmtMXN(c.rent1)}</td>
+      <td class="num-col num">${fmtPct(c.rentYears[0].gross/c.netPrice)}</td>
       <td class="num-col num">${fmtYrs(c.payback)}</td>
       <td class="num-col num">${fmtPct(c.cashOnCash)}</td>
       <td class="num-col num tir-cell">${fmtPct(c.tir)}</td>
