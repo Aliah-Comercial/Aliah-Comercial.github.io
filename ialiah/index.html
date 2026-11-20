@@ -84,7 +84,7 @@ textarea, input[type=text]{
 
 <script>
 // ═══════════════════════════════════════════════════════════
-// iALIAH Frontend v1.0 — Aliah Lomas Verdes
+// iALIAH Frontend v3.1.7 — Aliah Lomas Verdes (20 nov 2026: nota a Zoho corregida, más rápido)
 // Julio 2026 — perfilador de 5 pantallas + motor de recomendación
 // ═══════════════════════════════════════════════════════════
 
@@ -154,7 +154,6 @@ const PRIORIDADES = [
   {id:'rendimiento', label:'Rendimiento', sub:{q:'¿En cuánto tiempo esperas el resultado?', opts:['1-2 años','3-5 años','Sin prisa']}},
   {id:'tamano', label:'Tamaño', sub:{q:'¿Priorizas más recámaras, o más metros?', opts:['Más recámaras','Más metros']}},
   {id:'recamaras', label:'Recámaras', sub:{q:'¿Cuántas recámaras necesitas como mínimo?', opts:['2 recámaras','3 recámaras','4 o más']}},
-  {id:'estacionamiento', label:'Estacionamiento', sub:{q:'¿Cuántos cajones necesitas?', opts:['1 cajón','2 cajones','3 o más']}},
   {id:'otra', label:'Otra', freeText:true}
 ];
 
@@ -225,11 +224,11 @@ async function fetchMappenTorre(torre){
 }
 
 async function buildInventory(){
-  const all = [];
-  for(const t of TORRES){
-    try{ const units = await fetchMappenTorre(t); all.push(...units); }
-    catch(e){ console.error('Mappen fetch falló para torre', t, e); }
-  }
+  // v3.1.7: las 5 torres se piden en paralelo (antes una tras otra) — menos espera.
+  const porTorre = await Promise.all(TORRES.map(t =>
+    fetchMappenTorre(t).catch(e => { console.error('Mappen fetch falló para torre', t, e); return []; })
+  ));
+  const all = [].concat(...porTorre);
   const built = [];
   for(const u of all){
     const key = normName(u.nombre);
@@ -334,21 +333,66 @@ async function logSession(profile, recommendation){
   }catch(e){ console.warn('No se pudo guardar la sesión (¿existe la tabla ialiah_sesiones?)', e); }
 }
 
+// v3.1.7 (20NOV2026): la nota de la sesión NUNCA llegaba a Zoho. El backend
+// espera el campo "record_id" y este front mandaba "recordId"; el backend
+// respondía error 400 y aquí no se revisaba la respuesta. Ahora se mandan
+// los dos nombres, se revisa la respuesta y el resultado se le muestra al
+// asesor dentro de su panel discreto (el punto "⋯"), nunca al cliente.
+let zohoNoteStatus = '';
+function setZohoNoteStatus(txt){
+  zohoNoteStatus = txt;
+  const el = document.getElementById('asesorZohoStatus');
+  if(el) el.textContent = txt;
+}
+
+function buildNotaZoho(profile, recommendation){
+  const recs = (recommendation.recommendations||[]);
+  const lineas = [
+    'SESIÓN iALIAH',
+    'Asesor: ' + (sessionStorage.getItem('asesor_nombre') || 'no identificado'),
+    'Motivo: ' + (profile.nicho_label||'') + (profile.nicho_detalle ? ' (' + profile.nicho_detalle + ')' : ''),
+    profile.freeText ? 'Comentario del cliente: ' + profile.freeText : null,
+    'Timing: ' + (profile.timing||''),
+    'Espacio exterior: ' + (profile.espacio||''),
+    'Prioridad: ' + (profile.prioridad||'') + (profile.prioridad_detalle ? ' (' + profile.prioridad_detalle + ')' : ''),
+    'Presupuesto estimado: $' + Number(profile.presupuesto_estimado||0).toLocaleString('es-MX') + (profile.presupuesto_no_seguro ? ' (el cliente no estaba seguro)' : ''),
+    '',
+    'UNIDADES RECOMENDADAS:',
+    recs.length ? null : 'Ninguna',
+  ];
+  recs.forEach(r => {
+    lineas.push('- ' + r.unit_name + ' (Torre ' + (r.torre||'?') + '), $' + Number(r.list_price||0).toLocaleString('es-MX') + (r.justification ? ': ' + r.justification : ''));
+  });
+  if(recommendation.advisor_insight){ lineas.push(''); lineas.push('NOTA PARA EL ASESOR:'); lineas.push(recommendation.advisor_insight); }
+  return lineas.filter(l => l !== null).join('\n');
+}
+
 async function saveToZohoIfPresent(profile, recommendation){
   const zohoId = sessionStorage.getItem('zoho_id');
-  const zohoModule = sessionStorage.getItem('zoho_module');
-  if(!zohoId) return;
-  const notaTexto = `Sesión iALIAH — Nicho: ${profile.nicho_label}${profile.nicho_detalle ? ' ('+profile.nicho_detalle+')' : ''}. `+
-    `Timing: ${profile.timing}. Espacio: ${profile.espacio}. Prioridad: ${profile.prioridad}${profile.prioridad_detalle ? ' ('+profile.prioridad_detalle+')' : ''}. `+
-    `Presupuesto estimado: $${profile.presupuesto_estimado.toLocaleString('es-MX')}. `+
-    `Recomendado: ${(recommendation.recommendations||[]).map(r=>r.unit_name).join(', ')}. `+
-    `Nota IA: ${recommendation.advisor_insight || ''}`;
+  let zohoModule = sessionStorage.getItem('zoho_module') || '';
+  if(!zohoId){ setZohoNoteStatus('Zoho: sin prospecto vinculado, no se guardó la sesión.'); return false; }
+  zohoModule = /^deal/i.test(zohoModule) ? 'Deals' : 'Leads';
+  const hoy = new Date().toLocaleDateString('es-MX', {day:'2-digit', month:'2-digit', year:'numeric'});
+  setZohoNoteStatus('Zoho: guardando la sesión...');
   try{
-    await fetch(`${BACKEND_URL}/api/zoho/note`, {
+    const res = await fetch(`${BACKEND_URL}/api/zoho/note`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({recordId:zohoId, module:zohoModule, content:notaTexto})
+      body: JSON.stringify({
+        record_id: zohoId, recordId: zohoId, module: zohoModule,
+        title: 'Sesión iALIAH — ' + hoy,
+        content: buildNotaZoho(profile, recommendation)
+      })
     });
-  }catch(e){ console.warn('No se pudo guardar nota en Zoho', e); }
+    const out = await res.json().catch(() => ({}));
+    if(res.ok && out.success){ setZohoNoteStatus('Zoho: sesión guardada en el registro del prospecto.'); return true; }
+    console.warn('Zoho rechazó la nota', res.status, out);
+    setZohoNoteStatus('Zoho: NO se pudo guardar la sesión. Anótala a mano en el CRM.');
+    return false;
+  }catch(e){
+    console.warn('No se pudo guardar nota en Zoho', e);
+    setZohoNoteStatus('Zoho: NO se pudo guardar la sesión. Anótala a mano en el CRM.');
+    return false;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -535,7 +579,7 @@ function renderResults(){
   if(rec.advisor_insight){
     html += `
       <button id="asesorToggle" class="asesor-dot" aria-label="detalle" type="button">⋯</button>
-      <div id="asesorPanel" class="asesor-panel" hidden>${rec.advisor_insight}</div>`;
+      <div id="asesorPanel" class="asesor-panel" hidden>${rec.advisor_insight}<div id="asesorZohoStatus" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(128,128,128,.35);font-size:11px;opacity:.8">${zohoNoteStatus}</div></div>`;
   }
   return html;
 }
@@ -567,6 +611,8 @@ function attachHandlers(screen){
 }
 
 async function runRecommendation(){
+  // v3.1.7: el inventario se empieza a pedir desde ya, en paralelo con la tasa.
+  const inventoryPromise = buildInventory();
   await fetchBankRate();
   const enganche = ENGANCHE_OPTS.find(o=>o.label===answers.enganche_label)?.val || 1100000;
   let mensualidad;
@@ -590,12 +636,16 @@ async function runRecommendation(){
   };
 
   try{
-    const inventoryFull = await buildInventory();
+    const inventoryFull = await inventoryPromise;
     const inventory = filterAndCapInventory(inventoryFull, presupuesto, profile);
     const rec = await callRecommend(profile, inventory);
     lastRecommendation = rec;
-    await logSession(profile, rec);
-    await saveToZohoIfPresent(profile, rec);
+    // v3.1.7: antes la pantalla esperaba a que terminaran el registro en
+    // Supabase y la nota en Zoho. Ahora el resultado se muestra de inmediato
+    // y los dos registros corren en segundo plano.
+    zohoNoteStatus = '';
+    logSession(profile, rec);
+    saveToZohoIfPresent(profile, rec);
   }catch(e){
     console.error('Error generando recomendación', e);
     lastRecommendation = {honest_fit:false, fit_message:'Hubo un problema técnico. Tu asesor puede ayudarte directamente.', recommendations:[]};
